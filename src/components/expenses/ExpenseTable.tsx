@@ -97,7 +97,7 @@ export function ExpenseTable({
               <div className="flex items-center gap-2">
                 {expense.description}
                 {expense.isRecurring && (
-                  <RefreshCw className="w-3 h-3 text-blue-400" title="Récurrent" />
+                  <span title="Récurrent"><RefreshCw className="w-3 h-3 text-blue-400" /></span>
                 )}
               </div>
             </TableCell>

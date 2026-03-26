@@ -43,9 +43,12 @@ const categoryLabels: Record<string, string> = {
 
 export default function ReportsPage() {
   const [year, setYear] = useState(String(currentYear));
-  const [resultatData, setResultatData] = useState<Record<string, unknown> | null>(null);
-  const [bilanData, setBilanData] = useState<Record<string, unknown> | null>(null);
-  const [fiscaliteData, setFiscaliteData] = useState<Record<string, unknown> | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [resultatData, setResultatData] = useState<Record<string, any> | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [bilanData, setBilanData] = useState<Record<string, any> | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [fiscaliteData, setFiscaliteData] = useState<Record<string, any> | null>(null);
   const [loading, setLoading] = useState(false);
 
   const fetchReports = useCallback(async () => {

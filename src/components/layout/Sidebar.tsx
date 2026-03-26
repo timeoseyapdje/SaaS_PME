@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   FileText,
@@ -11,10 +12,10 @@ import {
   Landmark,
   BarChart3,
   Users,
-  Truck,
   Settings,
   ChevronDown,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -79,20 +80,20 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex flex-col w-64 bg-gray-900 text-white h-screen fixed left-0 top-0 z-30">
+    <div className="flex flex-col w-64 bg-zinc-950 border-r border-zinc-800 text-zinc-300 h-screen fixed left-0 top-0 z-30 transition-all">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-700">
-        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-          <TrendingUp className="w-5 h-5 text-white" />
+      <div className="flex items-center gap-3 px-6 py-6">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/20">
+          <Sparkles className="w-4 h-4 text-white" />
         </div>
         <div>
-          <p className="font-bold text-white text-lg leading-none">FinancePME</p>
-          <p className="text-gray-400 text-xs mt-0.5">Gestion financière</p>
+          <p className="font-bold text-white text-lg tracking-tight leading-none">Nkap Control</p>
+          <p className="text-zinc-500 text-[11px] mt-1 font-medium tracking-wide">GESTION FINANCIERE</p>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-1">
+      <nav className="flex-1 px-4 py-4 overflow-y-auto space-y-1.5 scrollbar-none">
         {navigation.map((item) => {
           if (item.children) {
             const isOpen = openGroups.includes(item.name);
@@ -102,72 +103,107 @@ export function Sidebar() {
                 pathname.startsWith(child.href + "/")
             );
             return (
-              <div key={item.name}>
+              <div key={item.name} className="mb-1">
                 <button
                   onClick={() => toggleGroup(item.name)}
                   className={cn(
-                    "flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    "flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
                     isActive
-                      ? "bg-blue-600/20 text-blue-300"
-                      : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                      ? "text-white"
+                      : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
                   )}
                 >
                   <div className="flex items-center gap-3">
-                    <item.icon className="w-5 h-5" />
+                    <item.icon className={cn("w-5 h-5 transition-colors", isActive ? "text-indigo-400" : "text-zinc-500 group-hover:text-zinc-400")} />
                     {item.name}
                   </div>
                   {isOpen ? (
-                    <ChevronDown className="w-4 h-4" />
+                    <ChevronDown className="w-4 h-4 text-zinc-600 transition-transform" />
                   ) : (
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4 text-zinc-600 transition-transform" />
                   )}
                 </button>
                 {isOpen && (
-                  <div className="ml-4 mt-1 space-y-1 border-l border-gray-700 pl-3">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.href}
-                        href={child.href}
-                        className={cn(
-                          "block px-3 py-2 rounded-lg text-sm transition-colors",
-                          pathname === child.href ||
-                            pathname.startsWith(child.href + "/")
-                            ? "bg-blue-600 text-white font-medium"
-                            : "text-gray-400 hover:bg-gray-800 hover:text-white"
-                        )}
-                      >
-                        {child.name}
-                      </Link>
-                    ))}
-                  </div>
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="ml-[22px] mt-1 space-y-1 border-l border-zinc-800/80 pl-4 py-1"
+                  >
+                    {item.children.map((child) => {
+                      const isChildActive = pathname === child.href || pathname.startsWith(child.href + "/");
+                      return (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className="block relative"
+                        >
+                          {isChildActive && (
+                            <motion.div
+                              layoutId="active-nav-indicator"
+                              className="absolute -left-[17px] top-1/2 -translate-y-1/2 w-0.5 h-4 bg-indigo-500 rounded-r-full"
+                            />
+                          )}
+                          <span
+                            className={cn(
+                              "block px-3 py-2 rounded-lg text-sm transition-all duration-200",
+                              isChildActive
+                                ? "bg-indigo-500/10 text-indigo-400 font-medium"
+                                : "text-zinc-400 hover:bg-zinc-900/50 hover:text-zinc-200"
+                            )}
+                          >
+                            {child.name}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </motion.div>
                 )}
               </div>
             );
           }
 
+          const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={item.href!}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                pathname === item.href
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-300 hover:bg-gray-800 hover:text-white"
-              )}
+              className="block relative"
             >
-              <item.icon className="w-5 h-5" />
-              {item.name}
+              {isActive && (
+                <motion.div
+                  layoutId="active-nav-bg"
+                  className="absolute inset-0 bg-indigo-500/10 rounded-xl"
+                  initial={false}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                />
+              )}
+              <div
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all relative z-10",
+                  isActive
+                    ? "text-indigo-400"
+                    : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
+                )}
+              >
+                <item.icon className={cn("w-5 h-5", isActive ? "text-indigo-400" : "text-zinc-500")} />
+                {item.name}
+              </div>
             </Link>
           );
         })}
       </nav>
 
       {/* Footer */}
-      <div className="px-3 py-4 border-t border-gray-700">
-        <div className="flex items-center gap-2 px-3 py-2">
-          <Landmark className="w-4 h-4 text-gray-500" />
-          <p className="text-xs text-gray-500">Cameroun - OHADA</p>
+      <div className="px-6 py-6 mt-auto">
+        <div className="flex items-center gap-3 bg-zinc-900/50 p-3 rounded-xl border border-zinc-800/50">
+          <div className="bg-zinc-800 p-2 rounded-lg">
+            <Landmark className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-zinc-300">Cameroun</p>
+            <p className="text-[10px] text-zinc-500">Norme OHADA</p>
+          </div>
         </div>
       </div>
     </div>
