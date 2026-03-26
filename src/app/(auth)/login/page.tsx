@@ -48,33 +48,39 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4 shadow-lg">
-            <TrendingUp className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100 via-background to-background dark:from-indigo-950/20 dark:via-zinc-950 dark:to-zinc-950 flex flex-col items-center justify-center p-4">
+      {/* Background decorations */}
+      <div className="absolute top-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-indigo-500/10 blur-[120px]" />
+        <div className="absolute top-[20%] -right-[10%] w-[40%] h-[40%] rounded-full bg-violet-500/10 blur-[100px]" />
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
+        <div className="text-center mb-10 flex flex-col items-center">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl mb-5 shadow-xl shadow-indigo-500/20 border border-white/10">
+            <TrendingUp className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">FinancePME</h1>
-          <p className="text-gray-500 mt-1">Gestion financière pour PME camerounaises</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Nkap Control</h1>
+          <p className="text-muted-foreground mt-2 text-[15px]">Gestion financière pour PME camerounaises</p>
         </div>
 
-        <Card className="shadow-xl border-0">
-          <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-2xl font-bold">Connexion</CardTitle>
-            <CardDescription>
+        <Card className="shadow-2xl shadow-indigo-500/5 border-border/50 bg-background/60 backdrop-blur-xl">
+          <CardHeader className="space-y-1.5 pb-6">
+            <CardTitle className="text-2xl font-bold tracking-tight">Connexion</CardTitle>
+            <CardDescription className="text-[15px]">
               Entrez vos identifiants pour accéder à votre espace
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 text-red-700 text-sm">
+                <div className="flex items-center gap-2 p-3.5 rounded-xl bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
                   {error}
                 </div>
               )}
-              <div className="space-y-2">
-                <Label htmlFor="email">Adresse email</Label>
+              <div className="space-y-2.5">
+                <Label htmlFor="email" className="font-semibold text-foreground/80">Adresse email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -82,11 +88,16 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-11"
+                  className="h-12 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Mot de passe</Label>
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="font-semibold text-foreground/80">Mot de passe</Label>
+                  <Link href="#" className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+                    Mot de passe oublié ?
+                  </Link>
+                </div>
                 <Input
                   id="password"
                   type="password"
@@ -94,18 +105,18 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-11"
+                  className="h-12 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full h-11 text-base"
+                className="w-full h-12 text-[15px] font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20"
                 disabled={loading}
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Connexion...
+                    Connexion en cours...
                   </>
                 ) : (
                   "Se connecter"
@@ -113,19 +124,21 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col gap-2 pt-0">
-            <p className="text-sm text-gray-500 text-center">
+          <CardFooter className="flex flex-col gap-4 pt-2 pb-8">
+            <p className="text-[15px] text-muted-foreground text-center">
               Pas encore de compte ?{" "}
               <Link
                 href="/register"
-                className="text-blue-600 hover:underline font-medium"
+                className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
               >
-                Créer un compte entreprise
+                Créer un compte
               </Link>
             </p>
-            <p className="text-xs text-gray-400 text-center">
-              Démo: demo@financepme.cm / demo123456
-            </p>
+            <div className="px-4 py-3 rounded-xl bg-muted/50 border border-border/50 text-center mx-auto mt-2">
+              <p className="text-xs text-muted-foreground font-medium">
+                Demo: <span className="text-foreground">demo@nkapcontrol.cm</span> / <span className="text-foreground">demo123456</span>
+              </p>
+            </div>
           </CardFooter>
         </Card>
       </div>

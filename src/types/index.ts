@@ -1,5 +1,5 @@
 /**
- * TypeScript types for PME Finance SaaS
+ * TypeScript types for Nkap Control SaaS
  */
 
 // ============================================================

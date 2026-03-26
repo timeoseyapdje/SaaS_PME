@@ -99,165 +99,174 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-md text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500 rounded-full mb-4">
-            <CheckCircle2 className="w-8 h-8 text-white" />
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100 via-background to-background dark:from-indigo-950/20 dark:via-zinc-950 dark:to-zinc-950 flex flex-col items-center justify-center p-4">
+        <div className="absolute top-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full bg-emerald-500/10 blur-[120px]" />
+        </div>
+        <div className="w-full max-w-md text-center relative z-10 animate-in zoom-in duration-500">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-emerald-500 rounded-full mb-6 shadow-xl shadow-emerald-500/30">
+            <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Compte créé avec succès!</h2>
-          <p className="text-gray-600">Redirection vers la page de connexion...</p>
+          <h2 className="text-3xl font-bold text-foreground mb-3 tracking-tight">Compte créé !</h2>
+          <p className="text-muted-foreground text-lg">Redirection vers la page de connexion...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4 shadow-lg">
-            <TrendingUp className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100 via-background to-background dark:from-indigo-950/20 dark:via-zinc-950 dark:to-zinc-950 flex flex-col items-center justify-center p-4">
+      {/* Background decorations */}
+      <div className="absolute top-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-indigo-500/10 blur-[120px]" />
+        <div className="absolute top-[30%] -left-[10%] w-[40%] h-[40%] rounded-full bg-violet-500/10 blur-[100px]" />
+      </div>
+
+      <div className="w-full max-w-md relative z-10 py-8">
+        <div className="text-center mb-8 flex flex-col items-center">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl mb-5 shadow-xl shadow-indigo-500/20 border border-white/10">
+            <TrendingUp className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">FinancePME</h1>
-          <p className="text-gray-500 mt-1">Créer votre compte entreprise</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Nkap Control</h1>
+          <p className="text-muted-foreground mt-2 text-[15px]">Créer votre compte entreprise</p>
         </div>
 
         {/* Step indicator */}
-        <div className="flex items-center justify-center mb-6 gap-2">
-          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${step >= 1 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500"}`}>
+        <div className="flex items-center justify-center mb-8 gap-3">
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold shadow-sm transition-all duration-300 ${step >= 1 ? "bg-indigo-600 text-white" : "bg-muted text-muted-foreground border border-border"}`}>
             1
           </div>
-          <div className={`h-1 w-12 rounded ${step >= 2 ? "bg-blue-600" : "bg-gray-200"}`} />
-          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${step >= 2 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500"}`}>
+          <div className={`h-1 w-12 rounded-full transition-all duration-500 ${step >= 2 ? "bg-indigo-600" : "bg-muted"}`} />
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold shadow-sm transition-all duration-300 ${step >= 2 ? "bg-indigo-600 text-white" : "bg-muted text-muted-foreground border border-border"}`}>
             2
           </div>
         </div>
 
-        <Card className="shadow-xl border-0">
+        <Card className="shadow-2xl shadow-indigo-500/5 border-border/50 bg-background/60 backdrop-blur-xl">
           {step === 1 ? (
-            <>
-              <CardHeader className="space-y-1 pb-4">
-                <CardTitle className="text-xl font-bold">Informations de l&apos;entreprise</CardTitle>
-                <CardDescription>Étape 1 sur 2</CardDescription>
+            <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+              <CardHeader className="space-y-1.5 pb-6">
+                <CardTitle className="text-xl font-bold tracking-tight">Informations de l&apos;entreprise</CardTitle>
+                <CardDescription className="text-sm">Étape 1 sur 2</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleNextStep} className="space-y-4">
                   {error && (
-                    <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 text-red-700 text-sm">
+                    <div className="flex items-center gap-2 p-3.5 rounded-xl bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20">
                       <AlertCircle className="w-4 h-4 flex-shrink-0" />
                       {error}
                     </div>
                   )}
                   <div className="space-y-2">
-                    <Label htmlFor="companyName">Nom commercial *</Label>
+                    <Label htmlFor="companyName" className="font-semibold text-foreground/80">Nom commercial *</Label>
                     <Input
                       id="companyName"
                       placeholder="Ex: TechSarl Cameroun"
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       required
-                      className="h-11"
+                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="legalName">Raison sociale</Label>
+                    <Label htmlFor="legalName" className="font-semibold text-foreground/80">Raison sociale</Label>
                     <Input
                       id="legalName"
                       placeholder="Ex: TechSarl SARL au capital de..."
                       value={legalName}
                       onChange={(e) => setLegalName(e.target.value)}
-                      className="h-11"
+                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="registrationNo">N° RCCM</Label>
+                      <Label htmlFor="registrationNo" className="font-semibold text-foreground/80">N° RCCM</Label>
                       <Input
                         id="registrationNo"
                         placeholder="RC/YAO/..."
                         value={registrationNo}
                         onChange={(e) => setRegistrationNo(e.target.value)}
-                        className="h-11"
+                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="taxId">NIU</Label>
+                      <Label htmlFor="taxId" className="font-semibold text-foreground/80">NIU</Label>
                       <Input
                         id="taxId"
                         placeholder="M0123..."
                         value={taxId}
                         onChange={(e) => setTaxId(e.target.value)}
-                        className="h-11"
+                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="city">Ville</Label>
+                      <Label htmlFor="city" className="font-semibold text-foreground/80">Ville</Label>
                       <Input
                         id="city"
                         placeholder="Yaoundé"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
-                        className="h-11"
+                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Téléphone</Label>
+                      <Label htmlFor="phone" className="font-semibold text-foreground/80">Téléphone</Label>
                       <Input
                         id="phone"
                         placeholder="+237 6xx xxx xxx"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="h-11"
+                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
                       />
                     </div>
                   </div>
-                  <Button type="submit" className="w-full h-11">
+                  <Button type="submit" className="w-full h-12 mt-2 text-[15px] font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20">
                     Continuer
                   </Button>
                 </form>
               </CardContent>
-            </>
+            </div>
           ) : (
-            <>
-              <CardHeader className="space-y-1 pb-4">
-                <div className="flex items-center gap-2">
+            <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+              <CardHeader className="space-y-1.5 pb-6">
+                <div className="flex items-center gap-3">
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setStep(1)}
-                    className="h-8 w-8"
+                    className="h-8 w-8 rounded-full hover:bg-muted/80 shrink-0"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-5 h-5" />
                   </Button>
                   <div>
-                    <CardTitle className="text-xl font-bold">Compte administrateur</CardTitle>
-                    <CardDescription>Étape 2 sur 2</CardDescription>
+                    <CardTitle className="text-xl font-bold tracking-tight">Compte administrateur</CardTitle>
+                    <CardDescription className="text-sm">Étape 2 sur 2</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {error && (
-                    <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 text-red-700 text-sm">
+                    <div className="flex items-center gap-2 p-3.5 rounded-xl bg-destructive/10 text-destructive text-sm font-medium border border-destructive/20">
                       <AlertCircle className="w-4 h-4 flex-shrink-0" />
                       {error}
                     </div>
                   )}
                   <div className="space-y-2">
-                    <Label htmlFor="userName">Votre nom complet *</Label>
+                    <Label htmlFor="userName" className="font-semibold text-foreground/80">Votre nom complet *</Label>
                     <Input
                       id="userName"
                       placeholder="Jean Dupont"
                       value={userName}
                       onChange={(e) => setUserName(e.target.value)}
                       required
-                      className="h-11"
+                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Adresse email *</Label>
+                    <Label htmlFor="email" className="font-semibold text-foreground/80">Adresse email *</Label>
                     <Input
                       id="email"
                       type="email"
@@ -265,11 +274,11 @@ export default function RegisterPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="h-11"
+                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">Mot de passe *</Label>
+                    <Label htmlFor="password" className="font-semibold text-foreground/80">Mot de passe *</Label>
                     <Input
                       id="password"
                       type="password"
@@ -277,11 +286,11 @@ export default function RegisterPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="h-11"
+                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirmer le mot de passe *</Label>
+                    <Label htmlFor="confirmPassword" className="font-semibold text-foreground/80">Confirmer le mot de passe *</Label>
                     <Input
                       id="confirmPassword"
                       type="password"
@@ -289,12 +298,12 @@ export default function RegisterPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
-                      className="h-11"
+                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
                     />
                   </div>
                   <Button
                     type="submit"
-                    className="w-full h-11 text-base"
+                    className="w-full h-12 mt-2 text-[15px] font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20"
                     disabled={loading}
                   >
                     {loading ? (
@@ -308,12 +317,12 @@ export default function RegisterPage() {
                   </Button>
                 </form>
               </CardContent>
-            </>
+            </div>
           )}
-          <CardFooter className="pt-0">
-            <p className="text-sm text-gray-500 text-center w-full">
+          <CardFooter className="pt-2 pb-8">
+            <p className="text-[15px] text-muted-foreground text-center w-full">
               Déjà un compte ?{" "}
-              <Link href="/login" className="text-blue-600 hover:underline font-medium">
+              <Link href="/login" className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">
                 Se connecter
               </Link>
             </p>

@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "FinancePME - Gestion Financière pour PME Camerounaises",
-  description: "Solution complète de gestion financière adaptée au contexte camerounais",
+  title: "Nkap Control - Gestion Financiere pour PME Camerounaises",
+  description: "Solution complete de gestion financiere adaptee au contexte camerounais",
 };
 
 export default function RootLayout({

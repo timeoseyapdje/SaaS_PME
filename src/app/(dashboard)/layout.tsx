@@ -15,9 +15,9 @@ export default async function DashboardLayout({
 
   return (
     <SessionProvider session={session}>
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen bg-zinc-50/50 dark:bg-zinc-950">
         <Sidebar />
-        <div className="flex-1 ml-64 overflow-auto">{children}</div>
+        <div className="flex-1 ml-64 overflow-auto flex flex-col">{children}</div>
       </div>
     </SessionProvider>
   );

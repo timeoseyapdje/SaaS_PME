@@ -18,16 +18,23 @@ export async function GET() {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
     const [
       invoiceRevenue,
       revenues,
       expenses,
       lastMonthInvoices,
+      lastMonthRevenues,
       lastMonthExpenses,
       bankAccounts,
       pendingAmount,
       invoiceCounts,
+      recentInvoices,
+      pendingInvoices,
+      allPaidInvoices,
+      allRevenues,
+      allExpenses,
     ] = await Promise.all([
       prisma.invoice.aggregate({
         where: { companyId, status: "PAID", paidAt: { gte: startOfMonth } },
@@ -42,12 +49,12 @@ export async function GET() {
         _sum: { amount: true },
       }),
       prisma.invoice.aggregate({
-        where: {
-          companyId,
-          status: "PAID",
-          paidAt: { gte: lastMonthStart, lte: lastMonthEnd },
-        },
+        where: { companyId, status: "PAID", paidAt: { gte: lastMonthStart, lte: lastMonthEnd } },
         _sum: { total: true },
+      }),
+      prisma.revenue.aggregate({
+        where: { companyId, date: { gte: lastMonthStart, lte: lastMonthEnd } },
+        _sum: { amount: true },
       }),
       prisma.expense.aggregate({
         where: { companyId, date: { gte: lastMonthStart, lte: lastMonthEnd } },
@@ -63,63 +70,66 @@ export async function GET() {
         where: { companyId },
         _count: { status: true },
       }),
+      prisma.invoice.findMany({
+        where: { companyId },
+        include: { client: { select: { name: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      }),
+      prisma.invoice.findMany({
+        where: { companyId, status: { in: ["SENT", "OVERDUE"] } },
+        include: { client: { select: { name: true } } },
+        orderBy: { dueDate: "asc" },
+        take: 5,
+      }),
+      // Fetch all paid invoices in the 6-month range in one query
+      prisma.invoice.findMany({
+        where: { companyId, status: "PAID", paidAt: { gte: sixMonthsAgo } },
+        select: { paidAt: true, total: true },
+      }),
+      // Fetch all revenues in the 6-month range in one query
+      prisma.revenue.findMany({
+        where: { companyId, date: { gte: sixMonthsAgo } },
+        select: { date: true, amount: true },
+      }),
+      // Fetch all expenses in the 6-month range in one query
+      prisma.expense.findMany({
+        where: { companyId, date: { gte: sixMonthsAgo } },
+        select: { date: true, amount: true },
+      }),
     ]);
 
-    const currentRevenue =
-      (invoiceRevenue._sum.total || 0) + (revenues._sum.amount || 0);
+    const currentRevenue = (invoiceRevenue._sum.total || 0) + (revenues._sum.amount || 0);
     const currentExpenses = expenses._sum.amount || 0;
-    const lastRevenue = lastMonthInvoices._sum.total || 0;
+    const lastRevenue = (lastMonthInvoices._sum.total || 0) + (lastMonthRevenues._sum.amount || 0);
     const lastExpenses = lastMonthExpenses._sum.amount || 0;
     const totalTreasury = bankAccounts.reduce((sum, acc) => sum + acc.balance, 0);
 
-    // Monthly chart data (last 6 months)
+    // Build chart data by grouping in memory instead of 18 sequential queries
     const chartData = [];
     for (let i = 5; i >= 0; i--) {
       const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
       const monthName = monthStart.toLocaleDateString("fr-FR", { month: "short" });
 
-      const [mInvoices, mRevenues, mExpenses] = await Promise.all([
-        prisma.invoice.aggregate({
-          where: {
-            companyId,
-            status: "PAID",
-            paidAt: { gte: monthStart, lte: monthEnd },
-          },
-          _sum: { total: true },
-        }),
-        prisma.revenue.aggregate({
-          where: { companyId, date: { gte: monthStart, lte: monthEnd } },
-          _sum: { amount: true },
-        }),
-        prisma.expense.aggregate({
-          where: { companyId, date: { gte: monthStart, lte: monthEnd } },
-          _sum: { amount: true },
-        }),
-      ]);
+      const monthInvoiceRevenue = allPaidInvoices
+        .filter((inv) => inv.paidAt && inv.paidAt >= monthStart && inv.paidAt <= monthEnd)
+        .reduce((sum, inv) => sum + inv.total, 0);
+
+      const monthRevenue = allRevenues
+        .filter((rev) => new Date(rev.date) >= monthStart && new Date(rev.date) <= monthEnd)
+        .reduce((sum, rev) => sum + rev.amount, 0);
+
+      const monthExpense = allExpenses
+        .filter((exp) => new Date(exp.date) >= monthStart && new Date(exp.date) <= monthEnd)
+        .reduce((sum, exp) => sum + exp.amount, 0);
 
       chartData.push({
         month: monthName,
-        revenus: (mInvoices._sum.total || 0) + (mRevenues._sum.amount || 0),
-        depenses: mExpenses._sum.amount || 0,
+        revenus: monthInvoiceRevenue + monthRevenue,
+        depenses: monthExpense,
       });
     }
-
-    // Recent invoices
-    const recentInvoices = await prisma.invoice.findMany({
-      where: { companyId },
-      include: { client: { select: { name: true } } },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    });
-
-    // Pending invoices (upcoming due dates)
-    const pendingInvoices = await prisma.invoice.findMany({
-      where: { companyId, status: { in: ["SENT", "OVERDUE"] } },
-      include: { client: { select: { name: true } } },
-      orderBy: { dueDate: "asc" },
-      take: 5,
-    });
 
     return NextResponse.json({
       kpis: {
@@ -131,8 +141,7 @@ export async function GET() {
         },
         treasury: totalTreasury,
         pendingInvoices: pendingAmount._sum.total || 0,
-        pendingCount:
-          invoiceCounts.find((c) => c.status === "SENT")?._count.status || 0,
+        pendingCount: invoiceCounts.find((c) => c.status === "SENT")?._count.status || 0,
       },
       chartData,
       recentInvoices,
