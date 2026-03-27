@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,7 +46,6 @@ const PAYMENT_METHODS = [
 ];
 
 export function ExpenseForm({ onSuccess, onCancel }: ExpenseFormProps) {
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
@@ -91,14 +89,13 @@ export function ExpenseForm({ onSuccess, onCancel }: ExpenseFormProps) {
       });
 
       if (response.ok) {
-        toast({ title: "Succès", description: "Dépense créée avec succès", variant: "success" as never });
         onSuccess();
       } else {
         const err = await response.json();
-        toast({ title: "Erreur", description: err.error || "Erreur lors de la création", variant: "destructive" });
+        alert(err.error || "Erreur lors de la création");
       }
     } catch {
-      toast({ title: "Erreur", description: "Une erreur est survenue", variant: "destructive" });
+      alert("Une erreur est survenue");
     } finally {
       setLoading(false);
     }
