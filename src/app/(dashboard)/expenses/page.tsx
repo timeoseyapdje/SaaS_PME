@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/layout/Header";
 import { ExpenseTable } from "@/components/expenses/ExpenseTable";
 import { ExpenseForm } from "@/components/expenses/ExpenseForm";
@@ -166,7 +165,6 @@ function RevenueForm({
 }
 
 export default function ExpensesPage() {
-  const { toast } = useToast();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [revenues, setRevenues] = useState<Revenue[]>([]);
   const [loadingExpenses, setLoadingExpenses] = useState(true);
@@ -205,14 +203,12 @@ export default function ExpensesPage() {
     if (!confirm("Supprimer cette dépense ?")) return;
     await fetch(`/api/expenses?id=${id}`, { method: "DELETE" });
     fetchExpenses();
-    toast({ title: "Supprimé", description: "Dépense supprimée", variant: "success" as never });
   }
 
   async function handleDeleteRevenue(id: string) {
     if (!confirm("Supprimer cette recette ?")) return;
     await fetch(`/api/revenues?id=${id}`, { method: "DELETE" });
     fetchRevenues();
-    toast({ title: "Supprimé", description: "Recette supprimée", variant: "success" as never });
   }
 
   const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);

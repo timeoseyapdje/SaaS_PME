@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +28,6 @@ interface LineItem {
 }
 
 export function InvoiceForm() {
-  const { toast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
@@ -87,11 +85,11 @@ export function InvoiceForm() {
 
   async function handleSubmit(status: "DRAFT" | "SENT") {
     if (!clientId) {
-      toast({ title: "Attention", description: "Veuillez sélectionner un client", variant: "destructive" });
+      alert("Veuillez sélectionner un client");
       return;
     }
     if (items.some((item) => !item.description)) {
-      toast({ title: "Attention", description: "Veuillez remplir la description de chaque ligne", variant: "destructive" });
+      alert("Veuillez remplir la description de chaque ligne");
       return;
     }
 
@@ -114,14 +112,13 @@ export function InvoiceForm() {
 
       if (response.ok) {
         const invoice = await response.json();
-        toast({ title: "Succès", description: "Facture créée avec succès", variant: "success" as never });
         router.push(`/invoices/${invoice.id}`);
       } else {
         const err = await response.json();
-        toast({ title: "Erreur", description: err.error || "Erreur lors de la création", variant: "destructive" });
+        alert(err.error || "Erreur lors de la création");
       }
     } catch {
-      toast({ title: "Erreur", description: "Une erreur est survenue", variant: "destructive" });
+      alert("Une erreur est survenue");
     } finally {
       setLoading(false);
     }
