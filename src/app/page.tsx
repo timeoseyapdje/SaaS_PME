@@ -227,41 +227,49 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="mt-20 relative mx-auto max-w-5xl rounded-2xl border border-border/50 bg-card/40 backdrop-blur-md shadow-2xl p-2 sm:p-4 overflow-hidden"
+            className="mt-20 relative mx-auto max-w-5xl rounded-2xl border border-zinc-700/50 bg-zinc-900/80 backdrop-blur-md shadow-2xl shadow-black/40 p-2 sm:p-3 overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10" />
-            <div className="rounded-xl overflow-hidden border border-border/50 bg-background shadow-inner relative aspect-[16/9] md:aspect-[21/9] flex flex-col">
-              <div className="h-12 border-b border-border/50 flex items-center px-4 gap-4 bg-muted/30">
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent z-10 pointer-events-none" />
+            <div className="rounded-xl overflow-hidden border border-zinc-800/60 bg-zinc-950 shadow-inner relative aspect-[16/9] md:aspect-[21/9] flex flex-col">
+              {/* Browser bar */}
+              <div className="h-10 border-b border-zinc-800/60 flex items-center px-4 gap-4 bg-zinc-900/60">
                 <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-amber-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                  <div className="w-3 h-3 rounded-full bg-red-500" />
+                  <div className="w-3 h-3 rounded-full bg-amber-500" />
+                  <div className="w-3 h-3 rounded-full bg-green-500" />
                 </div>
-                <div className="h-6 w-64 bg-background border border-border/50 rounded-md mx-auto" />
+                <div className="h-6 w-64 bg-zinc-800 border border-zinc-700/50 rounded-md mx-auto" />
               </div>
-              <div className="flex-1 flex p-4 gap-4 bg-background">
-                <div className="w-48 hidden md:flex flex-col gap-2">
-                  <div className="h-8 bg-emerald-500/10 rounded-md w-full" />
-                  <div className="h-8 bg-muted/30 rounded-md w-3/4" />
-                  <div className="h-8 bg-muted/30 rounded-md w-5/6" />
-                  <div className="h-8 bg-muted/30 rounded-md w-4/5" />
+              {/* Dashboard content */}
+              <div className="flex-1 flex p-4 gap-4">
+                {/* Sidebar */}
+                <div className="w-44 hidden md:flex flex-col gap-2.5">
+                  <div className="h-8 bg-emerald-500/20 border border-emerald-500/15 rounded-lg w-full" />
+                  <div className="h-8 bg-zinc-800/60 rounded-lg w-3/4" />
+                  <div className="h-8 bg-zinc-800/60 rounded-lg w-5/6" />
+                  <div className="h-8 bg-zinc-800/60 rounded-lg w-4/5" />
                 </div>
+                {/* Main */}
                 <div className="flex-1 flex flex-col gap-4">
-                  <div className="flex gap-4">
-                    <div className="h-24 flex-1 bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-3">
-                      <div className="h-3 w-16 bg-emerald-500/20 rounded mb-2" />
-                      <div className="h-5 w-24 bg-emerald-500/15 rounded" />
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="h-20 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
+                      <div className="h-2.5 w-14 bg-emerald-500/30 rounded mb-2" />
+                      <div className="h-4 w-20 bg-emerald-500/25 rounded" />
                     </div>
-                    <div className="h-24 flex-1 bg-rose-500/5 border border-rose-500/10 rounded-xl p-3">
-                      <div className="h-3 w-16 bg-rose-500/20 rounded mb-2" />
-                      <div className="h-5 w-24 bg-rose-500/15 rounded" />
+                    <div className="h-20 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
+                      <div className="h-2.5 w-14 bg-emerald-500/30 rounded mb-2" />
+                      <div className="h-4 w-20 bg-emerald-500/25 rounded" />
                     </div>
-                    <div className="h-24 flex-1 bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-3">
-                      <div className="h-3 w-16 bg-emerald-500/20 rounded mb-2" />
-                      <div className="h-5 w-24 bg-emerald-500/15 rounded" />
+                    <div className="h-20 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3">
+                      <div className="h-2.5 w-14 bg-rose-500/30 rounded mb-2" />
+                      <div className="h-4 w-20 bg-rose-500/25 rounded" />
+                    </div>
+                    <div className="h-20 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3">
+                      <div className="h-2.5 w-14 bg-emerald-500/30 rounded mb-2" />
+                      <div className="h-4 w-20 bg-emerald-500/25 rounded" />
                     </div>
                   </div>
-                  <div className="flex-1 bg-muted/20 border border-border/50 rounded-xl" />
+                  <div className="flex-1 bg-zinc-800/30 border border-zinc-800/50 rounded-xl" />
                 </div>
               </div>
             </div>
@@ -308,11 +316,10 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className={`relative rounded-2xl border p-8 flex flex-col ${
-                  plan.popular
+                className={`relative rounded-2xl border p-8 flex flex-col ${plan.popular
                     ? "border-emerald-500 bg-emerald-500/5 shadow-xl shadow-emerald-500/10"
                     : "border-border/50 bg-card/30"
-                }`}
+                  }`}
               >
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs font-bold px-4 py-1 rounded-full">
@@ -337,11 +344,10 @@ export default function LandingPage() {
                 </ul>
                 <Button
                   asChild
-                  className={`w-full h-12 rounded-xl font-semibold ${
-                    plan.popular
+                  className={`w-full h-12 rounded-xl font-semibold ${plan.popular
                       ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20"
                       : "bg-muted hover:bg-muted/80 text-foreground"
-                  }`}
+                    }`}
                 >
                   <Link href="/register">{plan.cta}</Link>
                 </Button>
@@ -445,9 +451,6 @@ export default function LandingPage() {
           <div className="border-t border-border/40 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
               &copy; {new Date().getFullYear()} Nkap Control. Tous droits reserves.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Fait avec passion a Yaounde, Cameroun
             </p>
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +52,7 @@ interface ClientWithCount extends Client {
 }
 
 export default function ClientsPage() {
+  const { toast } = useToast();
   const [clients, setClients] = useState<ClientWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -137,9 +139,10 @@ export default function ClientsPage() {
       if (response.ok) {
         setShowForm(false);
         fetchClients();
+        toast({ title: "Succès", description: "Client enregistré avec succès", variant: "success" as never });
       } else {
         const err = await response.json();
-        alert(err.error || "Erreur");
+        toast({ title: "Erreur", description: err.error || "Erreur", variant: "destructive" });
       }
     } finally {
       setSubmitting(false);
@@ -150,6 +153,7 @@ export default function ClientsPage() {
     if (!confirm("Supprimer ce client ?")) return;
     await fetch(`/api/clients?id=${id}`, { method: "DELETE" });
     fetchClients();
+    toast({ title: "Supprimé", description: "Client supprimé avec succès", variant: "success" as never });
   }
 
   return (

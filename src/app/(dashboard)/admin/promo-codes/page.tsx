@@ -18,6 +18,7 @@ import {
   Banknote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface PromoCode {
   id: string;
@@ -35,6 +36,7 @@ interface PromoCode {
 }
 
 export default function PromoCodesPage() {
+  const { toast } = useToast();
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -106,9 +108,10 @@ export default function PromoCodesPage() {
           isLifetime: true,
         });
         fetchPromoCodes();
+        toast({ title: "Succès", description: "Code promo créé avec succès", variant: "success" as never });
       } else {
         const data = await res.json();
-        alert(data.error || "Erreur lors de la création");
+        toast({ title: "Erreur", description: data.error || "Erreur lors de la création", variant: "destructive" });
       }
     } finally {
       setSubmitting(false);

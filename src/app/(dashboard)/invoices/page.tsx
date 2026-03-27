@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/layout/Header";
 import { InvoiceTable } from "@/components/invoices/InvoiceTable";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import { Invoice, InvoiceStatus } from "@/types";
 import { formatCurrency } from "@/lib/currency";
 
 export default function InvoicesPage() {
+  const { toast } = useToast();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -59,6 +61,7 @@ export default function InvoicesPage() {
     if (!confirm("Supprimer cette facture ?")) return;
     await fetch(`/api/invoices/${id}`, { method: "DELETE" });
     fetchInvoices();
+    toast({ title: "Supprimé", description: "Facture supprimée", variant: "success" as never });
   }
 
   // Stats
