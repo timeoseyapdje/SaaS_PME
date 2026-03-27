@@ -1,81 +1,91 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { 
-  ArrowUpRight, 
-  ArrowDownRight, 
-  DollarSign, 
-  Users, 
-  CreditCard, 
+import {
+  DollarSign,
+  Users,
+  CreditCard,
   Activity,
   Plus,
   Download,
   Filter
 } from "lucide-react";
-import KPICard from "@/components/dashboard/KPICard";
-import RecentInvoices from "@/components/dashboard/RecentInvoices";
+import { KPICard } from "@/components/dashboard/KPICard";
+import { RecentInvoices } from "@/components/dashboard/RecentInvoices";
 import { Button } from "@/components/ui/button";
 
 // Mock Data
 const kpiData = [
   {
     title: "Revenus Totaux",
-    value: "12 450 000 FCFA",
-    change: "+15.2%",
-    trend: "up" as const,
+    value: 12450000,
+    previousValue: 10808000,
     icon: DollarSign,
+    iconColor: "text-emerald-600",
+    iconBg: "bg-emerald-50",
   },
   {
     title: "Dépenses",
-    value: "4 230 000 FCFA",
-    change: "-2.4%",
-    trend: "down" as const,
+    value: 4230000,
+    previousValue: 4334000,
     icon: CreditCard,
+    iconColor: "text-red-600",
+    iconBg: "bg-red-50",
   },
   {
     title: "Nouveaux Clients",
-    value: "48",
-    change: "+12.5%",
-    trend: "up" as const,
+    value: 48,
+    previousValue: 42,
     icon: Users,
+    iconColor: "text-emerald-600",
+    iconBg: "bg-emerald-50",
   },
   {
     title: "Trésorerie Active",
-    value: "8 220 000 FCFA",
-    change: "+8.1%",
-    trend: "up" as const,
+    value: 8220000,
+    previousValue: 7604000,
     icon: Activity,
+    iconColor: "text-amber-600",
+    iconBg: "bg-amber-50",
   },
 ];
 
 const mockInvoices = [
   {
     id: "INV-2024-001",
-    clientName: "Tech Corp SARL",
-    amount: 1500000,
+    number: "FAC-2024-001",
+    client: { name: "Tech Corp SARL" },
+    total: 1500000,
+    currency: "XAF",
     status: "PAID" as const,
-    date: "2024-03-20",
+    dueDate: "2024-03-20",
   },
   {
     id: "INV-2024-002",
-    clientName: "Agence Digitale",
-    amount: 750000,
-    status: "PENDING" as const,
-    date: "2024-03-18",
+    number: "FAC-2024-002",
+    client: { name: "Agence Digitale" },
+    total: 750000,
+    currency: "XAF",
+    status: "SENT" as const,
+    dueDate: "2024-03-18",
   },
   {
     id: "INV-2024-003",
-    clientName: "Consulting Group",
-    amount: 2200000,
+    number: "FAC-2024-003",
+    client: { name: "Consulting Group" },
+    total: 2200000,
+    currency: "XAF",
     status: "OVERDUE" as const,
-    date: "2024-03-10",
+    dueDate: "2024-03-10",
   },
   {
     id: "INV-2024-004",
-    clientName: "Eco Services",
-    amount: 500000,
+    number: "FAC-2024-004",
+    client: { name: "Eco Services" },
+    total: 500000,
+    currency: "XAF",
     status: "PAID" as const,
-    date: "2024-03-05",
+    dueDate: "2024-03-05",
   },
 ];
 
@@ -113,7 +123,7 @@ export default function DashboardOverview() {
             <Download className="w-4 h-4 mr-2 text-muted-foreground" />
             Exporter
           </Button>
-          <Button className="h-10 px-4 text-[14px] font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/10 rounded-lg flex-1 sm:flex-none">
+          <Button className="h-10 px-4 text-[14px] font-medium bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/10 rounded-lg flex-1 sm:flex-none">
             <Plus className="w-4 h-4 mr-2" />
             Nouvelle entrée
           </Button>
@@ -153,14 +163,14 @@ export default function DashboardOverview() {
             </div>
             <div className="p-6 flex-1 min-h-[300px] flex items-end gap-2 relative group">
               {/* Very premium looking mock chart bars */}
-              <div className="absolute inset-0 bg-gradient-to-t from-indigo-500/5 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 to-transparent pointer-events-none" />
               {[40, 70, 45, 90, 65, 80, 55, 100, 75, 85, 60, 95].map((height, i) => (
                 <div key={i} className="flex-1 flex flex-col justify-end group/bar h-full">
                   <motion.div 
                     initial={{ height: 0 }}
                     animate={{ height: `${height}%` }}
                     transition={{ duration: 1, delay: i * 0.05, ease: "easeOut" }}
-                    className="w-full bg-indigo-100 dark:bg-indigo-900/40 rounded-t-sm group-hover/bar:bg-indigo-500 transition-colors relative"
+                    className="w-full bg-emerald-100 dark:bg-emerald-900/40 rounded-t-sm group-hover/bar:bg-emerald-500 transition-colors relative"
                   >
                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity bg-foreground text-background text-[10px] font-bold py-1 px-2 rounded pointer-events-none whitespace-nowrap z-10">
                        {height * 10}k

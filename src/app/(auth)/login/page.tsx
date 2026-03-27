@@ -48,23 +48,23 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100 via-background to-background dark:from-indigo-950/20 dark:via-zinc-950 dark:to-zinc-950 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-100 via-background to-background dark:from-emerald-950/20 dark:via-zinc-950 dark:to-zinc-950 flex flex-col items-center justify-center p-4">
       {/* Background decorations */}
       <div className="absolute top-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-indigo-500/10 blur-[120px]" />
-        <div className="absolute top-[20%] -right-[10%] w-[40%] h-[40%] rounded-full bg-violet-500/10 blur-[100px]" />
+        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-emerald-500/10 blur-[120px]" />
+        <div className="absolute top-[20%] -right-[10%] w-[40%] h-[40%] rounded-full bg-amber-500/10 blur-[100px]" />
       </div>
 
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-10 flex flex-col items-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl mb-5 shadow-xl shadow-indigo-500/20 border border-white/10">
-            <TrendingUp className="w-7 h-7 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-5 shadow-xl shadow-emerald-500/20 border border-border/50 overflow-hidden p-1.5">
+            <img src="/logo.png" alt="Nkap Control Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Nkap Control</h1>
           <p className="text-muted-foreground mt-2 text-[15px]">Gestion financière pour PME camerounaises</p>
         </div>
 
-        <Card className="shadow-2xl shadow-indigo-500/5 border-border/50 bg-background/60 backdrop-blur-xl">
+        <Card className="shadow-2xl shadow-emerald-500/5 border-border/50 bg-background/60 backdrop-blur-xl">
           <CardHeader className="space-y-1.5 pb-6">
             <CardTitle className="text-2xl font-bold tracking-tight">Connexion</CardTitle>
             <CardDescription className="text-[15px]">
@@ -88,13 +88,13 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-12 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
+                  className="h-12 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
                 />
               </div>
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password" className="font-semibold text-foreground/80">Mot de passe</Label>
-                  <Link href="#" className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+                  <Link href="#" className="text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:underline">
                     Mot de passe oublié ?
                   </Link>
                 </div>
@@ -105,12 +105,12 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-12 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
+                  className="h-12 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full h-12 text-[15px] font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20"
+                className="w-full h-12 text-[15px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20"
                 disabled={loading}
               >
                 {loading ? (
@@ -129,7 +129,7 @@ export default function LoginPage() {
               Pas encore de compte ?{" "}
               <Link
                 href="/register"
-                className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+                className="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold"
               >
                 Créer un compte
               </Link>
