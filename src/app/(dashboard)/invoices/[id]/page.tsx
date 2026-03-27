@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { useParams, useRouter } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import {
 import Link from "next/link";
 
 export default function InvoiceDetailPage() {
+  const { toast } = useToast();
   const params = useParams();
   const router = useRouter();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
@@ -59,6 +61,7 @@ export default function InvoiceDetailPage() {
   async function handleDelete() {
     if (!confirm("Voulez-vous vraiment supprimer cette facture ?")) return;
     await fetch(`/api/invoices/${params.id}`, { method: "DELETE" });
+    toast({ title: "Supprimé", description: "Facture supprimée avec succès", variant: "success" as never });
     router.push("/invoices");
   }
 

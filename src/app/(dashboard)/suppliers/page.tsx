@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +52,7 @@ interface SupplierWithCount extends Supplier {
 }
 
 export default function SuppliersPage() {
+  const { toast } = useToast();
   const [suppliers, setSuppliers] = useState<SupplierWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -139,9 +141,10 @@ export default function SuppliersPage() {
       if (response.ok) {
         setShowForm(false);
         fetchSuppliers();
+        toast({ title: "Succès", description: "Fournisseur enregistré avec succès", variant: "success" as never });
       } else {
         const err = await response.json();
-        alert(err.error || "Erreur");
+        toast({ title: "Erreur", description: err.error || "Erreur", variant: "destructive" });
       }
     } finally {
       setSubmitting(false);
@@ -152,6 +155,7 @@ export default function SuppliersPage() {
     if (!confirm("Supprimer ce fournisseur ?")) return;
     await fetch(`/api/suppliers?id=${id}`, { method: "DELETE" });
     fetchSuppliers();
+    toast({ title: "Supprimé", description: "Fournisseur supprimé avec succès", variant: "success" as never });
   }
 
   return (

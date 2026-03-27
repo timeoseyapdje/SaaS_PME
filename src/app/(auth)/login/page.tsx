@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { TrendingUp, Loader2, AlertCircle } from "lucide-react";
+import { TrendingUp, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -56,6 +56,15 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-md relative z-10">
+        {/* Bouton retour accueil */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-8 group"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          Retour à l&apos;accueil
+        </Link>
+
         <div className="text-center mb-10 flex flex-col items-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-5 shadow-xl shadow-emerald-500/20 border border-border/50 overflow-hidden p-1.5">
             <img src="/logo.png" alt="Nkap Control Logo" className="w-full h-full object-contain" />
