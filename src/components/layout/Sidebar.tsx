@@ -16,8 +16,11 @@ import {
   ChevronDown,
   ChevronRight,
   Sparkles,
+  Shield,
+  Ticket,
 } from "lucide-react";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 
 interface NavChild {
   name: string;
@@ -65,12 +68,26 @@ const navigation: NavItem[] = [
   { name: "Paramètres", href: "/settings", icon: Settings },
 ];
 
+const adminNavigation: NavItem[] = [
+  {
+    name: "Administration",
+    icon: Shield,
+    children: [
+      { name: "Codes Promo", href: "/admin/promo-codes" },
+    ],
+  },
+];
+
 export function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const userRole = (session?.user as { role?: string } | undefined)?.role;
+  const isAdmin = userRole === "ADMIN";
   const [openGroups, setOpenGroups] = useState<string[]>([
     "Facturation",
     "Finances",
     "Contacts",
+    "Administration",
   ]);
 
   const toggleGroup = (name: string) => {
@@ -83,8 +100,8 @@ export function Sidebar() {
     <div className="flex flex-col w-64 bg-zinc-950 border-r border-zinc-800 text-zinc-300 h-screen fixed left-0 top-0 z-30 transition-all">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-6">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/20">
-          <Sparkles className="w-4 h-4 text-white" />
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20 bg-white overflow-hidden p-0.5">
+          <img src="/logo.png" alt="Nkap Control Logo" className="w-full h-full object-contain" />
         </div>
         <div>
           <p className="font-bold text-white text-lg tracking-tight leading-none">Nkap Control</p>
@@ -94,7 +111,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-4 overflow-y-auto space-y-1.5 scrollbar-none">
-        {navigation.map((item) => {
+        {[...navigation, ...(isAdmin ? adminNavigation : [])].map((item) => {
           if (item.children) {
             const isOpen = openGroups.includes(item.name);
             const isActive = item.children.some(
@@ -114,7 +131,7 @@ export function Sidebar() {
                   )}
                 >
                   <div className="flex items-center gap-3">
-                    <item.icon className={cn("w-5 h-5 transition-colors", isActive ? "text-indigo-400" : "text-zinc-500 group-hover:text-zinc-400")} />
+                    <item.icon className={cn("w-5 h-5 transition-colors", isActive ? "text-emerald-400" : "text-zinc-500 group-hover:text-zinc-400")} />
                     {item.name}
                   </div>
                   {isOpen ? (
@@ -141,14 +158,14 @@ export function Sidebar() {
                           {isChildActive && (
                             <motion.div
                               layoutId="active-nav-indicator"
-                              className="absolute -left-[17px] top-1/2 -translate-y-1/2 w-0.5 h-4 bg-indigo-500 rounded-r-full"
+                              className="absolute -left-[17px] top-1/2 -translate-y-1/2 w-0.5 h-4 bg-emerald-500 rounded-r-full"
                             />
                           )}
                           <span
                             className={cn(
                               "block px-3 py-2 rounded-lg text-sm transition-all duration-200",
                               isChildActive
-                                ? "bg-indigo-500/10 text-indigo-400 font-medium"
+                                ? "bg-emerald-500/10 text-emerald-400 font-medium"
                                 : "text-zinc-400 hover:bg-zinc-900/50 hover:text-zinc-200"
                             )}
                           >
@@ -173,7 +190,7 @@ export function Sidebar() {
               {isActive && (
                 <motion.div
                   layoutId="active-nav-bg"
-                  className="absolute inset-0 bg-indigo-500/10 rounded-xl"
+                  className="absolute inset-0 bg-emerald-500/10 rounded-xl"
                   initial={false}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
@@ -182,11 +199,11 @@ export function Sidebar() {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all relative z-10",
                   isActive
-                    ? "text-indigo-400"
+                    ? "text-emerald-400"
                     : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
                 )}
               >
-                <item.icon className={cn("w-5 h-5", isActive ? "text-indigo-400" : "text-zinc-500")} />
+                <item.icon className={cn("w-5 h-5", isActive ? "text-emerald-400" : "text-zinc-500")} />
                 {item.name}
               </div>
             </Link>

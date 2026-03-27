@@ -99,7 +99,7 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100 via-background to-background dark:from-indigo-950/20 dark:via-zinc-950 dark:to-zinc-950 flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-100 via-background to-background dark:from-emerald-950/20 dark:via-zinc-950 dark:to-zinc-950 flex flex-col items-center justify-center p-4">
         <div className="absolute top-0 w-full h-full overflow-hidden z-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full bg-emerald-500/10 blur-[120px]" />
         </div>
@@ -115,17 +115,17 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100 via-background to-background dark:from-indigo-950/20 dark:via-zinc-950 dark:to-zinc-950 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-100 via-background to-background dark:from-emerald-950/20 dark:via-zinc-950 dark:to-zinc-950 flex flex-col items-center justify-center p-4">
       {/* Background decorations */}
       <div className="absolute top-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-indigo-500/10 blur-[120px]" />
-        <div className="absolute top-[30%] -left-[10%] w-[40%] h-[40%] rounded-full bg-violet-500/10 blur-[100px]" />
+        <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-emerald-500/10 blur-[120px]" />
+        <div className="absolute top-[30%] -left-[10%] w-[40%] h-[40%] rounded-full bg-amber-500/10 blur-[100px]" />
       </div>
 
       <div className="w-full max-w-md relative z-10 py-8">
         <div className="text-center mb-8 flex flex-col items-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl mb-5 shadow-xl shadow-indigo-500/20 border border-white/10">
-            <TrendingUp className="w-7 h-7 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-5 shadow-xl shadow-emerald-500/20 border border-border/50 overflow-hidden p-1.5">
+            <img src="/logo.png" alt="Nkap Control Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Nkap Control</h1>
           <p className="text-muted-foreground mt-2 text-[15px]">Créer votre compte entreprise</p>
@@ -133,16 +133,16 @@ export default function RegisterPage() {
 
         {/* Step indicator */}
         <div className="flex items-center justify-center mb-8 gap-3">
-          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold shadow-sm transition-all duration-300 ${step >= 1 ? "bg-indigo-600 text-white" : "bg-muted text-muted-foreground border border-border"}`}>
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold shadow-sm transition-all duration-300 ${step >= 1 ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground border border-border"}`}>
             1
           </div>
-          <div className={`h-1 w-12 rounded-full transition-all duration-500 ${step >= 2 ? "bg-indigo-600" : "bg-muted"}`} />
-          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold shadow-sm transition-all duration-300 ${step >= 2 ? "bg-indigo-600 text-white" : "bg-muted text-muted-foreground border border-border"}`}>
+          <div className={`h-1 w-12 rounded-full transition-all duration-500 ${step >= 2 ? "bg-emerald-600" : "bg-muted"}`} />
+          <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold shadow-sm transition-all duration-300 ${step >= 2 ? "bg-emerald-600 text-white" : "bg-muted text-muted-foreground border border-border"}`}>
             2
           </div>
         </div>
 
-        <Card className="shadow-2xl shadow-indigo-500/5 border-border/50 bg-background/60 backdrop-blur-xl">
+        <Card className="shadow-2xl shadow-emerald-500/5 border-border/50 bg-background/60 backdrop-blur-xl">
           {step === 1 ? (
             <div className="animate-in fade-in slide-in-from-right-4 duration-300">
               <CardHeader className="space-y-1.5 pb-6">
@@ -165,7 +165,7 @@ export default function RegisterPage() {
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       required
-                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
+                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
                     />
                   </div>
                   <div className="space-y-2">
@@ -175,7 +175,7 @@ export default function RegisterPage() {
                       placeholder="Ex: TechSarl SARL au capital de..."
                       value={legalName}
                       onChange={(e) => setLegalName(e.target.value)}
-                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
+                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -186,7 +186,7 @@ export default function RegisterPage() {
                         placeholder="RC/YAO/..."
                         value={registrationNo}
                         onChange={(e) => setRegistrationNo(e.target.value)}
-                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
+                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -196,7 +196,7 @@ export default function RegisterPage() {
                         placeholder="M0123..."
                         value={taxId}
                         onChange={(e) => setTaxId(e.target.value)}
-                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
+                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
                       />
                     </div>
                   </div>
@@ -208,7 +208,7 @@ export default function RegisterPage() {
                         placeholder="Yaoundé"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
-                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
+                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -218,11 +218,11 @@ export default function RegisterPage() {
                         placeholder="+237 6xx xxx xxx"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
+                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
                       />
                     </div>
                   </div>
-                  <Button type="submit" className="w-full h-12 mt-2 text-[15px] font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20">
+                  <Button type="submit" className="w-full h-12 mt-2 text-[15px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20">
                     Continuer
                   </Button>
                 </form>
@@ -262,7 +262,7 @@ export default function RegisterPage() {
                       value={userName}
                       onChange={(e) => setUserName(e.target.value)}
                       required
-                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
+                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
                     />
                   </div>
                   <div className="space-y-2">
@@ -274,7 +274,7 @@ export default function RegisterPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
+                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
                     />
                   </div>
                   <div className="space-y-2">
@@ -286,7 +286,7 @@ export default function RegisterPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
+                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
                     />
                   </div>
                   <div className="space-y-2">
@@ -298,12 +298,12 @@ export default function RegisterPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
-                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-indigo-500"
+                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
                     />
                   </div>
                   <Button
                     type="submit"
-                    className="w-full h-12 mt-2 text-[15px] font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20"
+                    className="w-full h-12 mt-2 text-[15px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20"
                     disabled={loading}
                   >
                     {loading ? (
@@ -322,7 +322,7 @@ export default function RegisterPage() {
           <CardFooter className="pt-2 pb-8">
             <p className="text-[15px] text-muted-foreground text-center w-full">
               Déjà un compte ?{" "}
-              <Link href="/login" className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">
+              <Link href="/login" className="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold">
                 Se connecter
               </Link>
             </p>

@@ -360,6 +360,45 @@ enum TaxStatus {
 }
 
 // ============================================================
+// PROMO CODES
+// ============================================================
+
+model PromoCode {
+  id              String          @id @default(cuid())
+  code            String          @unique
+  description     String?
+  discountType    DiscountType    @default(PERCENTAGE)
+  discountValue   Float           // Pourcentage ou montant fixe
+  maxUses         Int?            // null = illimité
+  currentUses     Int             @default(0)
+  startDate       DateTime        @default(now())
+  endDate         DateTime?       // null = à vie
+  isActive        Boolean         @default(true)
+  createdBy       String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  usages          PromoCodeUsage[]
+
+  @@map("promo_codes")
+}
+
+model PromoCodeUsage {
+  id          String    @id @default(cuid())
+  promoCodeId String
+  promoCode   PromoCode @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
+  userId      String
+  usedAt      DateTime  @default(now())
+
+  @@map("promo_code_usages")
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+// ============================================================
 // CURRENCY RATES
 // ============================================================
 

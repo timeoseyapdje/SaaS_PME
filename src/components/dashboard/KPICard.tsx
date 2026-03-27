@@ -21,8 +21,8 @@ export function KPICard({
   previousValue,
   currency = "XAF",
   icon: Icon,
-  iconColor = "text-indigo-600",
-  iconBg = "bg-indigo-50",
+  iconColor = "text-emerald-600",
+  iconBg = "bg-emerald-50",
   loading,
   description,
 }: KPICardProps) {
@@ -46,9 +46,9 @@ export function KPICard({
   }
 
   return (
-    <Card className="group relative overflow-hidden border-border/50 bg-background/60 backdrop-blur-sm shadow-sm hover:shadow-md hover:shadow-indigo-500/5 transition-all duration-300 hover:-translate-y-0.5">
+    <Card className="group relative overflow-hidden border-border/50 bg-background/60 backdrop-blur-sm shadow-sm hover:shadow-md hover:shadow-emerald-500/5 transition-all duration-300 hover:-translate-y-0.5">
       {/* Subtle top gradient line on hover */}
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-indigo-500/0 to-transparent group-hover:via-indigo-500/50 transition-colors duration-500" />
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-500/0 to-transparent group-hover:via-emerald-500/50 transition-colors duration-500" />
       
       <CardContent className="p-6">
         <div className="flex items-start justify-between">

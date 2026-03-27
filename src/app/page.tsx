@@ -35,8 +35,8 @@ const features = [
     title: "Tableau de bord intelligent",
     description: "Visualisez vos KPIs, revenus, depenses et tresorerie en temps reel avec des graphiques clairs.",
     icon: BarChart3,
-    color: "text-indigo-500",
-    bg: "bg-indigo-500/10",
+    color: "text-emerald-500",
+    bg: "bg-emerald-500/10",
   },
   {
     title: "Facturation conforme",
@@ -63,8 +63,8 @@ const features = [
     title: "Gestion clients et fournisseurs",
     description: "Centralisez tous vos contacts, suivez les factures par client et l'historique des transactions.",
     icon: Users,
-    color: "text-violet-500",
-    bg: "bg-violet-500/10",
+    color: "text-amber-500",
+    bg: "bg-amber-500/10",
   },
   {
     title: "Rapports fiscaux OHADA",
@@ -150,20 +150,20 @@ const testimonials = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background selection:bg-indigo-500/30 overflow-hidden">
+    <div className="min-h-screen bg-background selection:bg-emerald-500/30 overflow-hidden">
       {/* Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-500/20 via-background to-background dark:from-indigo-500/10 dark:via-zinc-950 dark:to-zinc-950 blur-3xl" />
-        <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-violet-500/10 blur-[120px]" />
-        <div className="absolute bottom-[10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/10 blur-[100px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/20 via-background to-background dark:from-emerald-500/10 dark:via-zinc-950 dark:to-zinc-950 blur-3xl" />
+        <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-amber-500/10 blur-[120px]" />
+        <div className="absolute bottom-[10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-500/10 blur-[100px]" />
       </div>
 
       {/* Navbar */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/60 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <BarChart3 className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20 bg-white overflow-hidden p-0.5">
+              <img src="/logo.png" alt="Nkap Control Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-xl font-bold tracking-tight text-foreground">Nkap Control</span>
           </div>
@@ -173,7 +173,7 @@ export default function LandingPage() {
             <Link href="#testimonials" className="hover:text-foreground transition-colors">Temoignages</Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-foreground hover:text-indigo-600 transition-colors hidden sm:block">
+            <Link href="/login" className="text-sm font-medium text-foreground hover:text-emerald-600 transition-colors hidden sm:block">
               Se connecter
             </Link>
             <Button asChild className="bg-foreground text-background hover:bg-foreground/90 rounded-full px-6 shadow-md">
@@ -187,14 +187,14 @@ export default function LandingPage() {
         {/* Hero */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-16 pb-24">
           <motion.div variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col items-center max-w-4xl mx-auto">
-            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-sm font-medium mb-8 border border-indigo-500/20">
-              <span className="flex h-2 w-2 rounded-full bg-indigo-600 animate-pulse" />
+            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-sm font-medium mb-8 border border-emerald-500/20">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-600 animate-pulse" />
               Concu pour les PME camerounaises
             </motion.div>
 
             <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-extrabold tracking-tight text-foreground mb-6 leading-tight">
               La gestion financiere{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-500">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-amber-500 to-emerald-500">
                 reinventee pour les PME.
               </span>
             </motion.h1>
@@ -204,7 +204,7 @@ export default function LandingPage() {
             </motion.p>
 
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-              <Button asChild size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-xl shadow-indigo-500/20 group">
+              <Button asChild size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-xl shadow-emerald-500/20 group">
                 <Link href="/register">
                   Demarrer gratuitement
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -216,9 +216,9 @@ export default function LandingPage() {
             </motion.div>
 
             <motion.div variants={itemVariants} className="mt-10 flex items-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-indigo-500" /> Plan gratuit disponible</div>
-              <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-indigo-500" /> Paiement Mobile Money</div>
-              <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-indigo-500" /> Conforme OHADA</div>
+              <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Plan gratuit disponible</div>
+              <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Paiement Mobile Money</div>
+              <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Conforme OHADA</div>
             </motion.div>
           </motion.div>
 
@@ -241,7 +241,7 @@ export default function LandingPage() {
               </div>
               <div className="flex-1 flex p-4 gap-4 bg-background">
                 <div className="w-48 hidden md:flex flex-col gap-2">
-                  <div className="h-8 bg-indigo-500/10 rounded-md w-full" />
+                  <div className="h-8 bg-emerald-500/10 rounded-md w-full" />
                   <div className="h-8 bg-muted/30 rounded-md w-3/4" />
                   <div className="h-8 bg-muted/30 rounded-md w-5/6" />
                   <div className="h-8 bg-muted/30 rounded-md w-4/5" />
@@ -256,9 +256,9 @@ export default function LandingPage() {
                       <div className="h-3 w-16 bg-rose-500/20 rounded mb-2" />
                       <div className="h-5 w-24 bg-rose-500/15 rounded" />
                     </div>
-                    <div className="h-24 flex-1 bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-3">
-                      <div className="h-3 w-16 bg-indigo-500/20 rounded mb-2" />
-                      <div className="h-5 w-24 bg-indigo-500/15 rounded" />
+                    <div className="h-24 flex-1 bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-3">
+                      <div className="h-3 w-16 bg-emerald-500/20 rounded mb-2" />
+                      <div className="h-5 w-24 bg-emerald-500/15 rounded" />
                     </div>
                   </div>
                   <div className="flex-1 bg-muted/20 border border-border/50 rounded-xl" />
@@ -310,12 +310,12 @@ export default function LandingPage() {
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
                 className={`relative rounded-2xl border p-8 flex flex-col ${
                   plan.popular
-                    ? "border-indigo-500 bg-indigo-500/5 shadow-xl shadow-indigo-500/10"
+                    ? "border-emerald-500 bg-emerald-500/5 shadow-xl shadow-emerald-500/10"
                     : "border-border/50 bg-card/30"
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-xs font-bold px-4 py-1 rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs font-bold px-4 py-1 rounded-full">
                     Le plus populaire
                   </div>
                 )}
@@ -330,7 +330,7 @@ export default function LandingPage() {
                 <ul className="space-y-3 mb-8 flex-1">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm">
-                      <Check className="w-4 h-4 text-indigo-500 mt-0.5 shrink-0" />
+                      <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
                       <span className="text-muted-foreground">{feature}</span>
                     </li>
                   ))}
@@ -339,7 +339,7 @@ export default function LandingPage() {
                   asChild
                   className={`w-full h-12 rounded-xl font-semibold ${
                     plan.popular
-                      ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20"
+                      ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20"
                       : "bg-muted hover:bg-muted/80 text-foreground"
                   }`}
                 >
@@ -383,14 +383,14 @@ export default function LandingPage() {
 
         {/* CTA */}
         <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-700 p-10 sm:p-16 text-center border border-white/10 shadow-2xl shadow-indigo-500/20">
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-600 to-amber-700 p-10 sm:p-16 text-center border border-white/10 shadow-2xl shadow-emerald-500/20">
             <div className="relative z-10 max-w-2xl mx-auto">
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">Pret a propulser votre PME ?</h2>
-              <p className="text-indigo-100 text-lg mb-10">
+              <p className="text-emerald-100 text-lg mb-10">
                 Rejoignez des centaines d&apos;entreprises camerounaises qui font confiance a Nkap Control pour leur gestion quotidienne.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button asChild size="lg" className="h-14 px-8 text-base font-semibold bg-white text-indigo-600 hover:bg-indigo-50 rounded-full shadow-lg">
+                <Button asChild size="lg" className="h-14 px-8 text-base font-semibold bg-white text-emerald-600 hover:bg-emerald-50 rounded-full shadow-lg">
                   <Link href="/register">Creer un compte gratuit</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="h-14 px-8 text-base font-semibold rounded-full border-white/30 text-white hover:bg-white/10">
@@ -408,8 +408,8 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div className="md:col-span-1">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center">
-                  <BarChart3 className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md bg-white overflow-hidden p-0.5">
+                  <img src="/logo.png" alt="Nkap Control Logo" className="w-full h-full object-contain" />
                 </div>
                 <span className="font-bold tracking-tight text-foreground">Nkap Control</span>
               </div>

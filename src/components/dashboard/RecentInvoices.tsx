@@ -56,15 +56,15 @@ export function RecentInvoices({ invoices, loading }: RecentInvoicesProps) {
     <Card className="border-border/50 bg-background/60 backdrop-blur-sm shadow-sm overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border/40">
         <CardTitle className="text-[15px] font-semibold text-foreground flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-            <FileText className="w-4 h-4 text-indigo-500" />
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+            <FileText className="w-4 h-4 text-emerald-500" />
           </div>
           Factures récentes
         </CardTitle>
         <Link
           href="/invoices"
         >
-          <Button variant="ghost" size="sm" className="text-indigo-600 dark:text-indigo-400 text-xs font-semibold gap-1 group">
+          <Button variant="ghost" size="sm" className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold gap-1 group">
             Voir tout
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </Button>
@@ -79,7 +79,7 @@ export function RecentInvoices({ invoices, loading }: RecentInvoicesProps) {
             <p className="text-[15px] font-medium text-foreground mb-1">Aucune facture</p>
             <p className="text-sm text-muted-foreground mb-4 max-w-sm">Vous n'avez pas encore créé de factures. Créez-en une pour commencer.</p>
             <Link href="/invoices/new">
-              <Button size="sm" className="rounded-full shadow-md shadow-indigo-500/20 px-6">
+              <Button size="sm" className="rounded-full shadow-md shadow-emerald-500/20 px-6">
                 Créer une facture
               </Button>
             </Link>
@@ -120,7 +120,7 @@ export function RecentInvoices({ invoices, loading }: RecentInvoicesProps) {
                   </TableCell>
                   <TableCell>
                     <Link href={`/invoices/${invoice.id}`}>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground group-hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-all focus:opacity-100">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground group-hover:text-emerald-500 opacity-0 group-hover:opacity-100 transition-all focus:opacity-100">
                         <Eye className="w-4 h-4" />
                       </Button>
                     </Link>
