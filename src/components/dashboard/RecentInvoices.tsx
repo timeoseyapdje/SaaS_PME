@@ -35,9 +35,9 @@ interface RecentInvoicesProps {
 export function RecentInvoices({ invoices, loading }: RecentInvoicesProps) {
   if (loading) {
     return (
-      <Card className="border-border/50 bg-background/50 backdrop-blur-sm shadow-sm">
+      <Card className="border-white/5 bg-zinc-950/60 backdrop-blur-xl shadow-xl">
         <CardHeader>
-          <CardTitle className="text-base font-semibold">
+          <CardTitle className="text-base font-semibold text-white">
             Factures récentes
           </CardTitle>
         </CardHeader>
@@ -53,9 +53,10 @@ export function RecentInvoices({ invoices, loading }: RecentInvoicesProps) {
   }
 
   return (
-    <Card className="border-border/50 bg-background/60 backdrop-blur-sm shadow-sm overflow-hidden">
-      <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border/40">
-        <CardTitle className="text-[15px] font-semibold text-foreground flex items-center gap-2">
+    <Card className="border-white/5 bg-zinc-950/60 backdrop-blur-xl shadow-xl overflow-hidden relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+      <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-white/5 relative z-10">
+        <CardTitle className="text-[15px] font-semibold text-white flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
             <FileText className="w-4 h-4 text-emerald-500" />
           </div>

@@ -18,6 +18,8 @@ import {
   Sparkles,
   Shield,
   Ticket,
+  Building2,
+  CreditCard,
 } from "lucide-react";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
@@ -65,6 +67,7 @@ const navigation: NavItem[] = [
       { name: "Fournisseurs", href: "/suppliers" },
     ],
   },
+  { name: "Abonnement", href: "/subscription", icon: CreditCard },
   { name: "Paramètres", href: "/settings", icon: Settings },
 ];
 
@@ -73,6 +76,9 @@ const adminNavigation: NavItem[] = [
     name: "Administration",
     icon: Shield,
     children: [
+      { name: "Dashboard Admin", href: "/admin" },
+      { name: "Utilisateurs", href: "/admin/users" },
+      { name: "Entreprises", href: "/admin/companies" },
       { name: "Codes Promo", href: "/admin/promo-codes" },
     ],
   },
@@ -97,11 +103,11 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex flex-col w-64 bg-zinc-950 border-r border-zinc-800 text-zinc-300 h-screen fixed left-0 top-0 z-30 transition-all">
+    <div className="flex flex-col w-64 bg-zinc-950/60 backdrop-blur-2xl border border-white/5 text-zinc-300 h-[calc(100vh-32px)] fixed left-4 top-4 rounded-2xl z-30 transition-all shadow-2xl overflow-hidden">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-6">
         <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20 bg-white overflow-hidden p-0.5">
-          <img src="/logo.png" alt="Nkap Control Logo" className="w-full h-full object-contain" />
+          <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
         </div>
         <div>
           <p className="font-bold text-white text-lg tracking-tight leading-none">Nkap Control</p>

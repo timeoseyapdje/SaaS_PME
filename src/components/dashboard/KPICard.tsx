@@ -33,12 +33,12 @@ export function KPICard({
 
   if (loading) {
     return (
-      <Card className="border-border/50 bg-background/50 backdrop-blur-sm shadow-sm">
+      <Card className="border-white/5 bg-zinc-950/60 backdrop-blur-xl shadow-xl">
         <CardContent className="p-6">
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-muted rounded w-1/2" />
-            <div className="h-8 bg-muted rounded w-3/4" />
-            <div className="h-3 bg-muted rounded w-2/3" />
+            <div className="h-4 bg-zinc-800 rounded w-1/2" />
+            <div className="h-8 bg-zinc-800 rounded w-3/4" />
+            <div className="h-3 bg-zinc-800 rounded w-2/3" />
           </div>
         </CardContent>
       </Card>
@@ -46,15 +46,17 @@ export function KPICard({
   }
 
   return (
-    <Card className="group relative overflow-hidden border-border/50 bg-background/60 backdrop-blur-sm shadow-sm hover:shadow-md hover:shadow-emerald-500/5 transition-all duration-300 hover:-translate-y-0.5">
+    <Card className="group relative overflow-hidden border-white/5 bg-zinc-950/60 backdrop-blur-xl shadow-xl hover:border-emerald-500/50 hover:shadow-[0_0_30px_-5px_rgba(16,185,129,0.2)] transition-all duration-500 hover:-translate-y-1">
       {/* Subtle top gradient line on hover */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/0 to-transparent group-hover:via-emerald-500 transition-colors duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-500/0 to-transparent group-hover:via-emerald-500/50 transition-colors duration-500" />
       
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-1.5 flex-1 min-w-0">
             <p className="text-sm font-medium text-muted-foreground tracking-tight">{title}</p>
-            <p className="text-3xl font-bold text-foreground tracking-tight truncate">
+            <p className="text-2xl font-bold text-foreground tracking-tight whitespace-nowrap">
               {formatCompact(value, currency)}
             </p>
             {description && (

@@ -109,20 +109,20 @@ const plans = [
     popular: true,
   },
   {
-    name: "Entreprise",
+    name: "Max",
     price: "45 000",
     period: "FCFA/mois",
-    description: "Pour les grandes structures",
+    description: "Pour les PME ambitieuses",
     features: [
       "Utilisateurs illimites",
       "Tout du plan Pro",
-      "Multi-societes",
+      "Personnalisation avancee (logo, couleurs, modeles)",
       "API personnalisee",
       "Formation equipe dediee",
       "Support telephonique 24/7",
-      "Personnalisation avancee",
+      "Rapports personnalises",
     ],
-    cta: "Contacter l'equipe",
+    cta: "Choisir Max",
     popular: false,
   },
 ];
@@ -150,20 +150,20 @@ const testimonials = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background selection:bg-emerald-500/30 overflow-hidden">
-      {/* Background */}
+    <div className="min-h-screen bg-zinc-950 selection:bg-emerald-500/30 overflow-hidden relative">
+      {/* Background V2 */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/20 via-background to-background dark:from-emerald-500/10 dark:via-zinc-950 dark:to-zinc-950 blur-3xl" />
-        <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-amber-500/10 blur-[120px]" />
-        <div className="absolute bottom-[10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-500/10 blur-[100px]" />
+        <div className="absolute inset-0 bg-dot-pattern opacity-30 [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-500/10 blur-[120px] rounded-full" />
       </div>
 
-      {/* Navbar */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/60 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      {/* Floating Navbar */}
+      <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[92%] sm:w-[95%] max-w-7xl z-50 rounded-2xl border border-white/10 bg-zinc-950/60 backdrop-blur-xl shadow-2xl shadow-black/50">
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-transparent to-amber-500/5 opacity-50 rounded-2xl pointer-events-none" />
+        <div className="relative px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20 bg-white overflow-hidden p-0.5">
-              <img src="/logo.png" alt="Nkap Control Logo" className="w-full h-full object-contain" />
+              <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-xl font-bold tracking-tight text-foreground">Nkap Control</span>
           </div>
@@ -173,10 +173,10 @@ export default function LandingPage() {
             <Link href="#testimonials" className="hover:text-foreground transition-colors">Temoignages</Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-foreground hover:text-emerald-600 transition-colors hidden sm:block">
+            <Link href="/login" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors hidden sm:block">
               Se connecter
             </Link>
-            <Button asChild className="bg-foreground text-background hover:bg-foreground/90 rounded-full px-6 shadow-md">
+            <Button asChild className="bg-white text-zinc-950 hover:bg-zinc-200 rounded-full px-6 shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all">
               <Link href="/register">Commencer</Link>
             </Button>
           </div>
@@ -187,15 +187,15 @@ export default function LandingPage() {
         {/* Hero */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-16 pb-24">
           <motion.div variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col items-center max-w-4xl mx-auto">
-            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-sm font-medium mb-8 border border-emerald-500/20">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-600 animate-pulse" />
-              Concu pour les PME camerounaises
+            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-sm font-medium mb-8 shadow-xl">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+              Conçu pour les PME camerounaises
             </motion.div>
 
-            <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-extrabold tracking-tight text-foreground mb-6 leading-tight">
-              La gestion financiere{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-amber-500 to-emerald-500">
-                reinventee pour les PME.
+            <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+              La gestion financière{" "}
+              <span className="text-gradient animate-shimmer">
+                réinventée pour les PME.
               </span>
             </motion.h1>
 
@@ -210,7 +210,7 @@ export default function LandingPage() {
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-full border-border/50 bg-background/50 backdrop-blur-sm hover:bg-muted/50">
+              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-full border-zinc-600 bg-zinc-900/80 text-white hover:bg-zinc-800 backdrop-blur-sm">
                 <Link href="/login">Voir la demo</Link>
               </Button>
             </motion.div>
@@ -222,46 +222,75 @@ export default function LandingPage() {
             </motion.div>
           </motion.div>
 
-          {/* Dashboard mockup */}
+          {/* Dashboard mockup V2 */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="mt-20 relative mx-auto max-w-5xl rounded-2xl border border-border/50 bg-card/40 backdrop-blur-md shadow-2xl p-2 sm:p-4 overflow-hidden"
+            className="mt-20 relative mx-auto max-w-5xl group"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10" />
-            <div className="rounded-xl overflow-hidden border border-border/50 bg-background shadow-inner relative aspect-[16/9] md:aspect-[21/9] flex flex-col">
-              <div className="h-12 border-b border-border/50 flex items-center px-4 gap-4 bg-muted/30">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-amber-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/80" />
+            {/* Glowing Aura behind mockup */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-amber-500 rounded-3xl blur-2xl opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+
+            <div className="relative rounded-2xl border border-white/10 bg-zinc-950/80 backdrop-blur-2xl shadow-2xl p-2 sm:p-4 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent z-10 pointer-events-none" />
+              <div className="rounded-xl overflow-hidden border border-zinc-700/60 bg-zinc-950 shadow-inner relative aspect-[16/9] md:aspect-[21/9] flex flex-col">
+                {/* Browser bar */}
+                <div className="h-12 border-b border-zinc-700/60 flex items-center px-4 gap-4 bg-zinc-900">
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-500" />
+                    <div className="w-3 h-3 rounded-full bg-amber-500" />
+                    <div className="w-3 h-3 rounded-full bg-green-500" />
+                  </div>
+                  <div className="h-6 w-64 bg-zinc-800 border border-zinc-700/50 rounded-md mx-auto flex items-center justify-center">
+                    <span className="text-[10px] text-zinc-500">nkapcontrol.cm/dashboard</span>
+                  </div>
                 </div>
-                <div className="h-6 w-64 bg-background border border-border/50 rounded-md mx-auto" />
-              </div>
-              <div className="flex-1 flex p-4 gap-4 bg-background">
-                <div className="w-48 hidden md:flex flex-col gap-2">
-                  <div className="h-8 bg-emerald-500/10 rounded-md w-full" />
-                  <div className="h-8 bg-muted/30 rounded-md w-3/4" />
-                  <div className="h-8 bg-muted/30 rounded-md w-5/6" />
-                  <div className="h-8 bg-muted/30 rounded-md w-4/5" />
-                </div>
-                <div className="flex-1 flex flex-col gap-4">
-                  <div className="flex gap-4">
-                    <div className="h-24 flex-1 bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-3">
-                      <div className="h-3 w-16 bg-emerald-500/20 rounded mb-2" />
-                      <div className="h-5 w-24 bg-emerald-500/15 rounded" />
+                {/* App content */}
+                <div className="flex-1 flex p-4 gap-4 bg-zinc-950">
+                  {/* Sidebar */}
+                  <div className="w-48 hidden md:flex flex-col gap-2">
+                    <div className="h-8 bg-emerald-500/20 border border-emerald-500/30 rounded-md w-full" />
+                    <div className="h-8 bg-zinc-800/80 rounded-md w-3/4" />
+                    <div className="h-8 bg-zinc-800/80 rounded-md w-5/6" />
+                    <div className="h-8 bg-zinc-800/80 rounded-md w-4/5" />
+                    <div className="h-8 bg-zinc-800/60 rounded-md w-3/5 mt-2" />
+                    <div className="h-8 bg-zinc-800/60 rounded-md w-4/6" />
+                  </div>
+                  {/* Main area */}
+                  <div className="flex-1 flex flex-col gap-4">
+                    {/* KPI cards */}
+                    <div className="flex gap-4">
+                      <div className="h-24 flex-1 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3">
+                        <div className="h-3 w-16 bg-emerald-500/40 rounded mb-2" />
+                        <div className="h-5 w-24 bg-emerald-500/30 rounded mb-1" />
+                        <div className="h-2 w-12 bg-emerald-500/20 rounded" />
+                      </div>
+                      <div className="h-24 flex-1 bg-rose-500/10 border border-rose-500/30 rounded-xl p-3">
+                        <div className="h-3 w-16 bg-rose-500/40 rounded mb-2" />
+                        <div className="h-5 w-24 bg-rose-500/30 rounded mb-1" />
+                        <div className="h-2 w-12 bg-rose-500/20 rounded" />
+                      </div>
+                      <div className="h-24 flex-1 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
+                        <div className="h-3 w-16 bg-amber-500/40 rounded mb-2" />
+                        <div className="h-5 w-24 bg-amber-500/30 rounded mb-1" />
+                        <div className="h-2 w-12 bg-amber-500/20 rounded" />
+                      </div>
                     </div>
-                    <div className="h-24 flex-1 bg-rose-500/5 border border-rose-500/10 rounded-xl p-3">
-                      <div className="h-3 w-16 bg-rose-500/20 rounded mb-2" />
-                      <div className="h-5 w-24 bg-rose-500/15 rounded" />
-                    </div>
-                    <div className="h-24 flex-1 bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-3">
-                      <div className="h-3 w-16 bg-emerald-500/20 rounded mb-2" />
-                      <div className="h-5 w-24 bg-emerald-500/15 rounded" />
+                    {/* Chart area */}
+                    <div className="flex-1 bg-zinc-900/80 border border-zinc-700/50 rounded-xl p-3 flex flex-col">
+                      <div className="h-3 w-32 bg-zinc-700/60 rounded mb-3" />
+                      <div className="flex-1 flex items-end gap-2 px-2">
+                        <div className="w-full h-[30%] bg-emerald-500/30 rounded-t-sm" />
+                        <div className="w-full h-[50%] bg-emerald-500/40 rounded-t-sm" />
+                        <div className="w-full h-[40%] bg-emerald-500/30 rounded-t-sm" />
+                        <div className="w-full h-[70%] bg-emerald-500/50 rounded-t-sm" />
+                        <div className="w-full h-[55%] bg-emerald-500/40 rounded-t-sm" />
+                        <div className="w-full h-[80%] bg-emerald-500/60 rounded-t-sm" />
+                        <div className="w-full h-[65%] bg-emerald-500/50 rounded-t-sm" />
+                      </div>
                     </div>
                   </div>
-                  <div className="flex-1 bg-muted/20 border border-border/50 rounded-xl" />
                 </div>
               </div>
             </div>
@@ -308,11 +337,10 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className={`relative rounded-2xl border p-8 flex flex-col ${
-                  plan.popular
+                className={`relative rounded-2xl border p-8 flex flex-col ${plan.popular
                     ? "border-emerald-500 bg-emerald-500/5 shadow-xl shadow-emerald-500/10"
                     : "border-border/50 bg-card/30"
-                }`}
+                  }`}
               >
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-xs font-bold px-4 py-1 rounded-full">
@@ -337,11 +365,10 @@ export default function LandingPage() {
                 </ul>
                 <Button
                   asChild
-                  className={`w-full h-12 rounded-xl font-semibold ${
-                    plan.popular
+                  className={`w-full h-12 rounded-xl font-semibold ${plan.popular
                       ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20"
                       : "bg-muted hover:bg-muted/80 text-foreground"
-                  }`}
+                    }`}
                 >
                   <Link href="/register">{plan.cta}</Link>
                 </Button>
@@ -393,7 +420,7 @@ export default function LandingPage() {
                 <Button asChild size="lg" className="h-14 px-8 text-base font-semibold bg-white text-emerald-600 hover:bg-emerald-50 rounded-full shadow-lg">
                   <Link href="/register">Creer un compte gratuit</Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="h-14 px-8 text-base font-semibold rounded-full border-white/30 text-white hover:bg-white/10">
+                <Button asChild variant="outline" size="lg" className="h-14 px-8 text-base font-semibold rounded-full border-white/50 text-white bg-white/10 hover:bg-white/20">
                   <Link href="/login">Tester la demo</Link>
                 </Button>
               </div>
@@ -409,7 +436,7 @@ export default function LandingPage() {
             <div className="md:col-span-1">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md bg-white overflow-hidden p-0.5">
-                  <img src="/logo.png" alt="Nkap Control Logo" className="w-full h-full object-contain" />
+                  <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
                 </div>
                 <span className="font-bold tracking-tight text-foreground">Nkap Control</span>
               </div>

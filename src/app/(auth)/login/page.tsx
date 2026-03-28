@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { TrendingUp, Loader2, AlertCircle } from "lucide-react";
+import { TrendingUp, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -48,23 +48,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-100 via-background to-background dark:from-emerald-950/20 dark:via-zinc-950 dark:to-zinc-950 flex flex-col items-center justify-center p-4">
-      {/* Background decorations */}
-      <div className="absolute top-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Background decorations V2 */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-dot-pattern opacity-30 [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]" />
         <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-emerald-500/10 blur-[120px]" />
         <div className="absolute top-[20%] -right-[10%] w-[40%] h-[40%] rounded-full bg-amber-500/10 blur-[100px]" />
       </div>
 
       <div className="w-full max-w-md relative z-10">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour à l&apos;accueil
+        </Link>
         <div className="text-center mb-10 flex flex-col items-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-5 shadow-xl shadow-emerald-500/20 border border-border/50 overflow-hidden p-1.5">
-            <img src="/logo.png" alt="Nkap Control Logo" className="w-full h-full object-contain" />
+            <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Nkap Control</h1>
           <p className="text-muted-foreground mt-2 text-[15px]">Gestion financière pour PME camerounaises</p>
         </div>
 
-        <Card className="shadow-2xl shadow-emerald-500/5 border-border/50 bg-background/60 backdrop-blur-xl">
+        <Card className="shadow-2xl shadow-emerald-500/5 border-white/5 bg-zinc-950/60 backdrop-blur-2xl">
           <CardHeader className="space-y-1.5 pb-6">
             <CardTitle className="text-2xl font-bold tracking-tight">Connexion</CardTitle>
             <CardDescription className="text-[15px]">
@@ -88,7 +96,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-12 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
+                  className="h-12 bg-background border-border/60 focus-visible:ring-emerald-500"
                 />
               </div>
               <div className="space-y-2.5">
@@ -105,7 +113,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-12 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
+                  className="h-12 bg-background border-border/60 focus-visible:ring-emerald-500"
                 />
               </div>
               <Button
