@@ -16,12 +16,12 @@ const updatePromoSchema = z.object({
 // GET - Détails d'un code promo
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   const { error } = await requireAdmin();
   if (error) return error;
 
-  const { id } = await params;
+  const { id } = params;
   const promoCode = await prisma.promoCode.findUnique({
     where: { id },
     include: {
@@ -40,12 +40,12 @@ export async function GET(
 // PATCH - Modifier un code promo
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   const { error } = await requireAdmin();
   if (error) return error;
 
-  const { id } = await params;
+  const { id } = params;
   try {
     const body = await request.json();
     const data = updatePromoSchema.parse(body);
@@ -71,12 +71,12 @@ export async function PATCH(
 // DELETE - Supprimer un code promo
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   const { error } = await requireAdmin();
   if (error) return error;
 
-  const { id } = await params;
+  const { id } = params;
   await prisma.promoCode.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

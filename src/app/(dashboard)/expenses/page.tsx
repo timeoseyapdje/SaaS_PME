@@ -25,7 +25,15 @@ import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/currency";
 import { formatDate } from "@/lib/utils";
 import { Expense } from "@/types";
-import { Plus, TrendingDown, TrendingUp, Trash2 } from "lucide-react";
+import { Plus, TrendingDown, TrendingUp, Trash2, Download } from "lucide-react";
+import { exportToExcel, exportToCSV, formatExpensesForExport, formatRevenuesForExport } from "@/lib/export";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { motion } from "framer-motion";
 
 interface Revenue {
   id: string;
@@ -91,7 +99,7 @@ function RevenueForm({
         <div className="space-y-2">
           <label className="text-sm font-medium">Catégorie *</label>
           <select
-            className="w-full h-10 px-3 border border-input rounded-md text-sm bg-background"
+            className="flex h-10 w-full rounded-md border border-border/60 bg-zinc-950/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             required
@@ -107,7 +115,7 @@ function RevenueForm({
           <label className="text-sm font-medium">Date *</label>
           <input
             type="date"
-            className="w-full h-10 px-3 border border-input rounded-md text-sm bg-background"
+            className="flex h-10 w-full rounded-md border border-border/60 bg-zinc-950/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
             value={date}
             onChange={(e) => setDate(e.target.value)}
             required
@@ -117,7 +125,7 @@ function RevenueForm({
       <div className="space-y-2">
         <label className="text-sm font-medium">Description *</label>
         <input
-          className="w-full h-10 px-3 border border-input rounded-md text-sm bg-background"
+          className="flex h-10 w-full rounded-md border border-border/60 bg-zinc-950/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
           placeholder="Description de la recette"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -130,7 +138,7 @@ function RevenueForm({
           <input
             type="number"
             min="0"
-            className="w-full h-10 px-3 border border-input rounded-md text-sm bg-background"
+            className="flex h-10 w-full rounded-md border border-border/60 bg-zinc-950/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
             placeholder="0"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
@@ -140,7 +148,7 @@ function RevenueForm({
         <div className="space-y-2">
           <label className="text-sm font-medium">Mode de paiement</label>
           <select
-            className="w-full h-10 px-3 border border-input rounded-md text-sm bg-background"
+            className="flex h-10 w-full rounded-md border border-border/60 bg-zinc-950/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
           >
@@ -222,15 +230,20 @@ export default function ExpensesPage() {
       />
       <div className="p-6 space-y-6">
         {/* Summary cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        >
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
-                <TrendingDown className="w-5 h-5 text-red-500" />
+                <TrendingDown className="w-5 h-5 text-rose-500" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Total dépenses</p>
-                <p className="text-xl font-bold text-red-600">
+                <p className="text-sm text-zinc-400">Total dépenses</p>
+                <p className="text-xl font-bold text-rose-600">
                   {formatCurrency(totalExpenses)}
                 </p>
               </div>
@@ -239,11 +252,11 @@ export default function ExpensesPage() {
           <Card>
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-green-500" />
+                <TrendingUp className="w-5 h-5 text-emerald-500" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Total recettes directes</p>
-                <p className="text-xl font-bold text-green-600">
+                <p className="text-sm text-zinc-400">Total recettes directes</p>
+                <p className="text-xl font-bold text-emerald-600">
                   {formatCurrency(totalRevenues)}
                 </p>
               </div>
@@ -251,127 +264,173 @@ export default function ExpensesPage() {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-gray-500">Solde net</p>
+              <p className="text-sm text-zinc-400">Solde net</p>
               <p
                 className={`text-xl font-bold ${
                   totalRevenues - totalExpenses >= 0
-                    ? "text-blue-600"
-                    : "text-red-600"
+                    ? "text-emerald-600"
+                    : "text-rose-600"
                 }`}
               >
                 {formatCurrency(totalRevenues - totalExpenses)}
               </p>
             </CardContent>
           </Card>
-        </div>
+        </motion.div>
 
-        <Tabs defaultValue="expenses">
-          <TabsList>
-            <TabsTrigger value="expenses">
-              Dépenses ({expenses.length})
-            </TabsTrigger>
-            <TabsTrigger value="revenues">
-              Recettes ({revenues.length})
-            </TabsTrigger>
-          </TabsList>
+        <motion.div
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          <Tabs defaultValue="expenses">
+            <TabsList>
+              <TabsTrigger value="expenses">
+                Dépenses ({expenses.length})
+              </TabsTrigger>
+              <TabsTrigger value="revenues">
+                Recettes ({revenues.length})
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="expenses">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-base">Liste des dépenses</CardTitle>
-                <Button onClick={() => setShowExpenseForm(true)} size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Ajouter
-                </Button>
-              </CardHeader>
-              <CardContent className="p-0">
-                <ExpenseTable
-                  expenses={expenses}
-                  onDelete={handleDeleteExpense}
-                  loading={loadingExpenses}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="revenues">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-base">
-                  Liste des recettes directes
-                </CardTitle>
-                <Button onClick={() => setShowRevenueForm(true)} size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Ajouter
-                </Button>
-              </CardHeader>
-              <CardContent className="p-0">
-                {loadingRevenues ? (
-                  <div className="space-y-2 p-4">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="h-12 bg-gray-100 animate-pulse rounded"
-                      />
-                    ))}
+            <TabsContent value="expenses">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-base">Liste des dépenses</CardTitle>
+                  <div className="flex items-center gap-2">
+                    {expenses.length > 0 && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Download className="w-4 h-4 mr-2" />
+                            Exporter
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem onClick={() => exportToExcel(formatExpensesForExport(expenses), "Depenses", "Dépenses")}>
+                            Excel (.xlsx)
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => exportToCSV(formatExpensesForExport(expenses), "Depenses")}>
+                            CSV
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                    <Button onClick={() => setShowExpenseForm(true)} size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Ajouter
+                    </Button>
                   </div>
-                ) : revenues.length === 0 ? (
-                  <div className="text-center py-12 text-gray-400">
-                    <TrendingUp className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <p className="text-sm">Aucune recette enregistrée</p>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <ExpenseTable
+                    expenses={expenses}
+                    onDelete={handleDeleteExpense}
+                    loading={loadingExpenses}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="revenues">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-base">
+                    Liste des recettes directes
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    {revenues.length > 0 && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Download className="w-4 h-4 mr-2" />
+                            Exporter
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem onClick={() => exportToExcel(formatRevenuesForExport(revenues), "Recettes", "Recettes")}>
+                            Excel (.xlsx)
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => exportToCSV(formatRevenuesForExport(revenues), "Recettes")}>
+                            CSV
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                    <Button onClick={() => setShowRevenueForm(true)} size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Ajouter
+                    </Button>
                   </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Catégorie</TableHead>
-                        <TableHead>Paiement</TableHead>
-                        <TableHead className="text-right">Montant</TableHead>
-                        <TableHead className="w-12"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {revenues.map((rev) => (
-                        <TableRow key={rev.id}>
-                          <TableCell className="text-sm text-gray-500">
-                            {formatDate(rev.date)}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {rev.description}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="secondary" className="text-xs">
-                              {REVENUE_CATEGORIES[rev.category] || rev.category}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm text-gray-500">
-                            {PAYMENT_METHOD_LABELS[rev.paymentMethod] ||
-                              rev.paymentMethod}
-                          </TableCell>
-                          <TableCell className="text-right text-sm font-semibold text-green-600">
-                            +{formatCurrency(rev.amount, rev.currency)}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-red-400 hover:text-red-600"
-                              onClick={() => handleDeleteRevenue(rev.id)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {loadingRevenues ? (
+                    <div className="space-y-2 p-4">
+                      {[1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="h-12 bg-zinc-800/50 animate-pulse rounded"
+                        />
                       ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                    </div>
+                  ) : revenues.length === 0 ? (
+                    <div className="text-center py-12 text-zinc-500">
+                      <TrendingUp className="w-12 h-12 mx-auto mb-3 text-zinc-600" />
+                      <p className="text-sm">Aucune recette enregistrée</p>
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Description</TableHead>
+                          <TableHead>Catégorie</TableHead>
+                          <TableHead>Paiement</TableHead>
+                          <TableHead className="text-right">Montant</TableHead>
+                          <TableHead className="w-12"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {revenues.map((rev) => (
+                          <TableRow key={rev.id}>
+                            <TableCell className="text-sm text-zinc-400">
+                              {formatDate(rev.date)}
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {rev.description}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="secondary" className="text-xs">
+                                {REVENUE_CATEGORIES[rev.category] || rev.category}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-sm text-zinc-400">
+                              {PAYMENT_METHOD_LABELS[rev.paymentMethod] ||
+                                rev.paymentMethod}
+                            </TableCell>
+                            <TableCell className="text-right text-sm font-semibold text-emerald-500">
+                              +{formatCurrency(rev.amount, rev.currency)}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-rose-400 hover:text-rose-500"
+                                onClick={() => handleDeleteRevenue(rev.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </motion.div>
       </div>
 
       {/* Expense form dialog */}

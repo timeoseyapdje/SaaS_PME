@@ -22,6 +22,15 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { exportToExcel, exportToCSV } from "@/lib/export";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const currentYear = new Date().getFullYear();
 const years = [currentYear, currentYear - 1, currentYear - 2];
@@ -75,21 +84,67 @@ export default function ReportsPage() {
     <div>
       <Header title="Rapports financiers" subtitle="Analyse de votre activité" />
       <div className="p-6 space-y-6">
-        {/* Year selector */}
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-gray-700">Exercice:</span>
-          <Select value={year} onValueChange={setYear}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map((y) => (
-                <SelectItem key={y} value={String(y)}>
-                  {y}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Year selector + Export */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-700">Exercice:</span>
+            <Select value={year} onValueChange={setYear}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {years.map((y) => (
+                  <SelectItem key={y} value={String(y)}>
+                    {y}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {resultatData && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Download className="w-4 h-4 mr-2" />
+                  Exporter le rapport
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => {
+                  const data = [];
+                  if (resultatData.monthlyData) {
+                    for (const m of resultatData.monthlyData as Array<{ month: string; revenus: number; depenses: number }>) {
+                      data.push({
+                        "Mois": m.month,
+                        "Revenus (FCFA)": m.revenus,
+                        "Dépenses (FCFA)": m.depenses,
+                        "Résultat (FCFA)": m.revenus - m.depenses,
+                      });
+                    }
+                  }
+                  if (data.length > 0) exportToExcel(data, `Rapport_${year}`, "Résultat");
+                }}>
+                  Excel (.xlsx)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {
+                  const data = [];
+                  if (resultatData.monthlyData) {
+                    for (const m of resultatData.monthlyData as Array<{ month: string; revenus: number; depenses: number }>) {
+                      data.push({
+                        "Mois": m.month,
+                        "Revenus (FCFA)": m.revenus,
+                        "Dépenses (FCFA)": m.depenses,
+                        "Résultat (FCFA)": m.revenus - m.depenses,
+                      });
+                    }
+                  }
+                  if (data.length > 0) exportToCSV(data, `Rapport_${year}`);
+                }}>
+                  CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         <Tabs defaultValue="resultat">
