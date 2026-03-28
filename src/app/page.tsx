@@ -338,8 +338,8 @@ export default function LandingPage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
                 className={`relative rounded-2xl border p-8 flex flex-col ${plan.popular
-                    ? "border-emerald-500 bg-emerald-500/5 shadow-xl shadow-emerald-500/10"
-                    : "border-border/50 bg-card/30"
+                  ? "border-emerald-500 bg-emerald-500/5 shadow-xl shadow-emerald-500/10"
+                  : "border-border/50 bg-card/30"
                   }`}
               >
                 {plan.popular && (
@@ -366,8 +366,8 @@ export default function LandingPage() {
                 <Button
                   asChild
                   className={`w-full h-12 rounded-xl font-semibold ${plan.popular
-                      ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20"
-                      : "bg-muted hover:bg-muted/80 text-foreground"
+                    ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20"
+                    : "bg-muted hover:bg-muted/80 text-foreground"
                     }`}
                 >
                   <Link href="/register">{plan.cta}</Link>
@@ -472,9 +472,6 @@ export default function LandingPage() {
           <div className="border-t border-border/40 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
               &copy; {new Date().getFullYear()} Nkap Control. Tous droits reserves.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Fait avec passion a Yaounde, Cameroun
             </p>
           </div>
         </div>
