@@ -17,8 +17,10 @@ import {
   Trash2,
   Printer,
   Loader2,
+  FileDown,
 } from "lucide-react";
 import Link from "next/link";
+import { exportInvoicePDF } from "@/lib/export";
 
 export default function InvoiceDetailPage() {
   const params = useParams();
@@ -112,6 +114,29 @@ export default function InvoiceDetailPage() {
             >
               <Printer className="w-4 h-4 mr-2" />
               Imprimer
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportInvoicePDF({
+                number: invoice.number,
+                issueDate: invoice.issueDate,
+                dueDate: invoice.dueDate,
+                status: invoice.status,
+                currency: invoice.currency,
+                subtotal: invoice.subtotal,
+                tvaAmount: invoice.tvaAmount,
+                total: invoice.total,
+                applyTVA: invoice.applyTVA,
+                notes: invoice.notes,
+                terms: invoice.terms,
+                client: invoice.client,
+                items: invoice.items,
+                company: (invoice as unknown as { company?: { name: string; email?: string | null; phone?: string | null; city?: string | null; taxId?: string | null } | null }).company,
+              })}
+            >
+              <FileDown className="w-4 h-4 mr-2" />
+              Exporter PDF
             </Button>
             {invoice.status === "DRAFT" && (
               <Button

@@ -108,6 +108,7 @@ model Company {
   revenues      Revenue[]
   bankAccounts  BankAccount[]
   taxDeclarations TaxDeclaration[]
+  subscription  Subscription?
 
   @@map("companies")
 }
@@ -357,6 +358,68 @@ enum TaxStatus {
   FILED
   PAID
   OVERDUE
+}
+
+// ============================================================
+// SUBSCRIPTIONS
+// ============================================================
+
+model Subscription {
+  id            String           @id @default(cuid())
+  companyId     String           @unique
+  company       Company          @relation(fields: [companyId], references: [id])
+  plan          SubscriptionPlan @default(STARTER)
+  status        SubStatus        @default(ACTIVE)
+  startDate     DateTime         @default(now())
+  endDate       DateTime?
+  amount        Float            @default(0)
+  currency      String           @default("XAF")
+  paymentMethod PaymentMethod?
+  promoCodeId   String?
+  autoRenew     Boolean          @default(true)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  payments      Payment[]
+
+  @@map("subscriptions")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  subscriptionId  String
+  subscription    Subscription  @relation(fields: [subscriptionId], references: [id])
+  amount          Float
+  currency        String        @default("XAF")
+  paymentMethod   PaymentMethod
+  transactionRef  String?
+  phoneNumber     String?       // Pour Mobile Money
+  status          PaymentStatus @default(PENDING)
+  paidAt          DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+enum SubscriptionPlan {
+  STARTER
+  PRO
+  MAX
+}
+
+enum SubStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  SUSPENDED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
 }
 
 // ============================================================

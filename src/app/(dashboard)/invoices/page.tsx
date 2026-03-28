@@ -14,9 +14,17 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Download } from "lucide-react";
+import { motion } from "framer-motion";
 import { Invoice, InvoiceStatus } from "@/types";
 import { formatCurrency } from "@/lib/currency";
+import { exportToExcel, exportToCSV, formatInvoicesForExport } from "@/lib/export";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -81,42 +89,47 @@ export default function InvoicesPage() {
       <Header title="Factures" subtitle="Gérez vos factures clients" />
       <div className="p-6 space-y-6">
         {/* Stats cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4"
+        >
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-gray-500">Total factures</p>
+              <p className="text-sm text-zinc-400">Total factures</p>
               <p className="text-2xl font-bold">{stats.total}</p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-zinc-500 mt-1">
                 {formatCurrency(stats.totalAmount)}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-gray-500">Payées</p>
-              <p className="text-2xl font-bold text-green-600">{stats.paid}</p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-sm text-zinc-400">Payées</p>
+              <p className="text-2xl font-bold text-emerald-500">{stats.paid}</p>
+              <p className="text-xs text-zinc-500 mt-1">
                 {formatCurrency(stats.paidAmount)}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-gray-500">En attente</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.pending}</p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-sm text-zinc-400">En attente</p>
+              <p className="text-2xl font-bold text-amber-500">{stats.pending}</p>
+              <p className="text-xs text-zinc-500 mt-1">
                 {formatCurrency(stats.pendingAmount)}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-gray-500">En retard</p>
-              <p className="text-2xl font-bold text-red-500">{stats.overdue}</p>
-              <p className="text-xs text-gray-400 mt-1">Action requise</p>
+              <p className="text-sm text-zinc-400">En retard</p>
+              <p className="text-2xl font-bold text-rose-500">{stats.overdue}</p>
+              <p className="text-xs text-zinc-500 mt-1">Action requise</p>
             </CardContent>
           </Card>
-        </div>
+        </motion.div>
 
         {/* Filter bar */}
         <div className="flex items-center gap-3 flex-wrap">
@@ -142,6 +155,24 @@ export default function InvoicesPage() {
               <SelectItem value="CANCELLED">Annulée</SelectItem>
             </SelectContent>
           </Select>
+          {invoices.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Download className="w-4 h-4 mr-2" />
+                  Exporter
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => exportToExcel(formatInvoicesForExport(invoices), "Factures", "Factures")}>
+                  Exporter Excel (.xlsx)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportToCSV(formatInvoicesForExport(invoices), "Factures")}>
+                  Exporter CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           <Link href="/invoices/new">
             <Button>
               <Plus className="w-4 h-4 mr-2" />
@@ -151,16 +182,22 @@ export default function InvoicesPage() {
         </div>
 
         {/* Invoice table */}
-        <Card>
-          <CardContent className="p-0">
-            <InvoiceTable
-              invoices={invoices}
-              onStatusChange={handleStatusChange}
-              onDelete={handleDelete}
-              loading={loading}
-            />
-          </CardContent>
-        </Card>
+        <motion.div
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          <Card>
+            <CardContent className="p-0">
+              <InvoiceTable
+                invoices={invoices}
+                onStatusChange={handleStatusChange}
+                onDelete={handleDelete}
+                loading={loading}
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );

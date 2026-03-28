@@ -150,7 +150,7 @@ export default function DashboardOverview() {
           {/* Main Chart Placeholder - Takes 4 columns */}
           <motion.div 
             variants={itemVariants}
-            className="lg:col-span-4 rounded-2xl border border-border/50 bg-card/40 backdrop-blur-md shadow-lg shadow-black/5 overflow-hidden flex flex-col"
+            className="lg:col-span-4 rounded-2xl border border-border/60 bg-card shadow-lg shadow-black/20 overflow-hidden flex flex-col"
           >
             <div className="p-6 border-b border-border/40 flex justify-between items-center">
               <div>
@@ -170,7 +170,7 @@ export default function DashboardOverview() {
                     initial={{ height: 0 }}
                     animate={{ height: `${height}%` }}
                     transition={{ duration: 1, delay: i * 0.05, ease: "easeOut" }}
-                    className="w-full bg-emerald-100 dark:bg-emerald-900/40 rounded-t-sm group-hover/bar:bg-emerald-500 transition-colors relative"
+                    className="w-full bg-emerald-500/20 rounded-t-sm group-hover/bar:bg-emerald-500/60 transition-colors relative"
                   >
                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity bg-foreground text-background text-[10px] font-bold py-1 px-2 rounded pointer-events-none whitespace-nowrap z-10">
                        {height * 10}k
