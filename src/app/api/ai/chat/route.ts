@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { buildFinancialContext } from "@/lib/ai-context";
+import { checkAIUsage, incrementAIUsage } from "@/lib/ai-limits";
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic({
@@ -65,6 +66,20 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Vérifier les limites d'utilisation IA selon le plan
+    const aiUsage = await checkAIUsage(companyId);
+    if (!aiUsage.allowed) {
+      return NextResponse.json({
+        message: aiUsage.message,
+        usage: {
+          used: aiUsage.used,
+          limit: aiUsage.limit,
+          remaining: aiUsage.remaining,
+          plan: aiUsage.plan,
+        },
+      });
+    }
+
     // Build financial context from real data
     const financialContext = await buildFinancialContext(companyId);
 
@@ -82,7 +97,20 @@ export async function POST(request: NextRequest) {
     const textContent = response.content.find((c) => c.type === "text");
     const messageText = textContent ? textContent.text : "Désolé, je n'ai pas pu générer de réponse.";
 
-    return NextResponse.json({ message: messageText });
+    // Incrémenter le compteur d'utilisation
+    await incrementAIUsage(companyId);
+
+    // Retourner la réponse avec les infos d'utilisation
+    const updatedUsage = await checkAIUsage(companyId);
+    return NextResponse.json({
+      message: messageText,
+      usage: {
+        used: updatedUsage.used,
+        limit: updatedUsage.limit,
+        remaining: updatedUsage.remaining,
+        plan: updatedUsage.plan,
+      },
+    });
   } catch (error) {
     console.error("AI Chat error:", error);
     return NextResponse.json(

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { sendSubscriptionConfirmationEmail } from "@/lib/email";
 
 // GET - Récupérer l'abonnement actuel
 export async function GET() {
@@ -54,8 +55,8 @@ export async function POST(request: Request) {
   }
 
   const planPrices: Record<string, number> = {
-    PRO: 15000,
-    MAX: 45000,
+    PRO: 5000,
+    MAX: 15000,
   };
 
   let finalAmount = planPrices[plan];
@@ -136,6 +137,23 @@ export async function POST(request: Request) {
       paidAt: paymentMethod !== "VIREMENT" ? new Date() : null,
     },
   });
+
+  // Envoyer email de confirmation si paiement complété
+  if (payment.status === "COMPLETED") {
+    const userEmail = session.user.email;
+    const userName = session.user.name || "Utilisateur";
+    if (userEmail) {
+      // Envoi asynchrone sans bloquer la réponse
+      sendSubscriptionConfirmationEmail({
+        to: userEmail,
+        userName,
+        plan,
+        amount: finalAmount,
+        paymentMethod,
+        endDate: endDate.toISOString(),
+      }).catch((err) => console.error("Erreur envoi email confirmation:", err));
+    }
+  }
 
   return NextResponse.json({ subscription, payment });
 }

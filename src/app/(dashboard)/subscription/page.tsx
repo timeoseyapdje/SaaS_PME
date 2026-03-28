@@ -48,7 +48,7 @@ const plans = [
   {
     id: "PRO",
     name: "Pro",
-    price: 15000,
+    price: 5000,
     icon: Crown,
     color: "text-emerald-400",
     borderColor: "border-emerald-500/50",
@@ -59,6 +59,7 @@ const plans = [
       "Tableau de bord avancé",
       "Trésorerie multi-comptes",
       "Rapports fiscaux (TVA, IS)",
+      "Nkap AI (50 messages/mois)",
       "Support prioritaire",
       "Export Excel et PDF",
     ],
@@ -66,13 +67,14 @@ const plans = [
   {
     id: "MAX",
     name: "Max",
-    price: 45000,
+    price: 15000,
     icon: Rocket,
     color: "text-amber-400",
     borderColor: "border-amber-500/50",
     features: [
       "Utilisateurs illimités",
       "Tout du plan Pro",
+      "Nkap AI illimité",
       "Personnalisation avancée (logo, couleurs, modèles)",
       "API personnalisée",
       "Formation équipe dédiée",
