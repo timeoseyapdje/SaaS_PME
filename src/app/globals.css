@@ -4,48 +4,66 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 4%; /* zinc-950 */
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 4%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 4%;
-    --primary: 243 75% 59%; /* Indigo-600 */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 5% 96%; /* zinc-100 */
-    --secondary-foreground: 240 6% 10%; /* zinc-900 */
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%; /* zinc-500 */
-    --accent: 240 5% 96%;
-    --accent-foreground: 240 6% 10%;
+    --background: 240 10% 4%; /* zinc-950: #09090b */
+    --foreground: 0 0% 98%; /* zinc-50 */
+
+    --card: 240 5% 10%; /* zinc-900 / zinc-950ish */
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 4%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 142 71% 45%; /* emerald-500 */
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 5% 15%; /* zinc-800 */
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 5% 15%; /* zinc-800 */
+    --muted-foreground: 240 5% 65%; /* zinc-400 */
+
+    --accent: 240 5% 20%; /* zinc-700 */
+    --accent-foreground: 0 0% 98%;
+
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 6% 90%; /* zinc-200 */
-    --input: 240 6% 90%;
-    --ring: 243 75% 59%;
-    --radius: 0.75rem; /* More modern, slightly larger radius */
+
+    /* Strong, structured borders matching the user's landing page edits */
+    --border: 240 5% 20%; /* zinc-700 */
+    --input: 240 5% 20%;
+    --ring: 142 71% 45%; /* emerald-500 */
+
+    --radius: 0.75rem;
   }
 
   .dark {
     --background: 240 10% 4%; /* zinc-950 */
-    --foreground: 0 0% 98%; /* zinc-50 */
-    --card: 240 10% 4%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 5% 12%; /* custom zinc dark */
     --card-foreground: 0 0% 98%;
+
     --popover: 240 10% 4%;
     --popover-foreground: 0 0% 98%;
-    --primary: 243 75% 59%; /* Indigo-600 */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 4% 16%; /* zinc-800 */
+
+    --primary: 142 71% 45%; /* emerald-500 */
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 5% 15%; /* zinc-800 */
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 4% 16%;
+
+    --muted: 240 5% 15%;
     --muted-foreground: 240 5% 65%; /* zinc-400 */
-    --accent: 240 4% 16%;
+
+    --accent: 240 5% 20%; /* zinc-700 */
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 63% 31%;
+
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 4% 16%; /* zinc-800 */
-    --input: 240 4% 16%;
-    --ring: 243 75% 59%;
+
+    --border: 240 5% 20%; /* zinc-700 */
+    --input: 240 5% 20%;
+    --ring: 142 71% 45%; /* emerald-500 */
   }
 }
 
@@ -55,5 +73,20 @@
   }
   body {
     @apply bg-background text-foreground tracking-tight;
+  }
+}
+
+@layer utilities {
+  .bg-grid-pattern {
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .bg-dot-pattern {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-emerald-300 to-amber-400;
   }
 }

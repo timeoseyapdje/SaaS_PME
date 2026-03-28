@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { TrendingUp, Loader2, AlertCircle, CheckCircle2, ChevronLeft } from "lucide-react";
+import { TrendingUp, Loader2, AlertCircle, CheckCircle2, ChevronLeft, ArrowLeft } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -99,8 +99,9 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-100 via-background to-background dark:from-emerald-950/20 dark:via-zinc-950 dark:to-zinc-950 flex flex-col items-center justify-center p-4">
-        <div className="absolute top-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute inset-0 bg-dot-pattern opacity-30 [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full bg-emerald-500/10 blur-[120px]" />
         </div>
         <div className="w-full max-w-md text-center relative z-10 animate-in zoom-in duration-500">
@@ -115,17 +116,25 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-100 via-background to-background dark:from-emerald-950/20 dark:via-zinc-950 dark:to-zinc-950 flex flex-col items-center justify-center p-4">
-      {/* Background decorations */}
-      <div className="absolute top-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Background decorations V2 */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-dot-pattern opacity-30 [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]" />
         <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-emerald-500/10 blur-[120px]" />
         <div className="absolute top-[30%] -left-[10%] w-[40%] h-[40%] rounded-full bg-amber-500/10 blur-[100px]" />
       </div>
 
       <div className="w-full max-w-md relative z-10 py-8">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour à l&apos;accueil
+        </Link>
         <div className="text-center mb-8 flex flex-col items-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-5 shadow-xl shadow-emerald-500/20 border border-border/50 overflow-hidden p-1.5">
-            <img src="/logo.png" alt="Nkap Control Logo" className="w-full h-full object-contain" />
+            <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Nkap Control</h1>
           <p className="text-muted-foreground mt-2 text-[15px]">Créer votre compte entreprise</p>
@@ -142,7 +151,7 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <Card className="shadow-2xl shadow-emerald-500/5 border-border/50 bg-background/60 backdrop-blur-xl">
+        <Card className="shadow-2xl shadow-emerald-500/5 border-white/5 bg-zinc-950/60 backdrop-blur-2xl">
           {step === 1 ? (
             <div className="animate-in fade-in slide-in-from-right-4 duration-300">
               <CardHeader className="space-y-1.5 pb-6">
@@ -165,7 +174,7 @@ export default function RegisterPage() {
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       required
-                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
+                      className="h-11 bg-background border-border/60 focus-visible:ring-emerald-500"
                     />
                   </div>
                   <div className="space-y-2">
@@ -175,7 +184,7 @@ export default function RegisterPage() {
                       placeholder="Ex: TechSarl SARL au capital de..."
                       value={legalName}
                       onChange={(e) => setLegalName(e.target.value)}
-                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
+                      className="h-11 bg-background border-border/60 focus-visible:ring-emerald-500"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -186,7 +195,7 @@ export default function RegisterPage() {
                         placeholder="RC/YAO/..."
                         value={registrationNo}
                         onChange={(e) => setRegistrationNo(e.target.value)}
-                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
+                        className="h-11 bg-background border-border/60 focus-visible:ring-emerald-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -196,7 +205,7 @@ export default function RegisterPage() {
                         placeholder="M0123..."
                         value={taxId}
                         onChange={(e) => setTaxId(e.target.value)}
-                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
+                        className="h-11 bg-background border-border/60 focus-visible:ring-emerald-500"
                       />
                     </div>
                   </div>
@@ -208,7 +217,7 @@ export default function RegisterPage() {
                         placeholder="Yaoundé"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
-                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
+                        className="h-11 bg-background border-border/60 focus-visible:ring-emerald-500"
                       />
                     </div>
                     <div className="space-y-2">
@@ -218,7 +227,7 @@ export default function RegisterPage() {
                         placeholder="+237 6xx xxx xxx"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
+                        className="h-11 bg-background border-border/60 focus-visible:ring-emerald-500"
                       />
                     </div>
                   </div>
@@ -262,7 +271,7 @@ export default function RegisterPage() {
                       value={userName}
                       onChange={(e) => setUserName(e.target.value)}
                       required
-                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
+                      className="h-11 bg-background border-border/60 focus-visible:ring-emerald-500"
                     />
                   </div>
                   <div className="space-y-2">
@@ -274,7 +283,7 @@ export default function RegisterPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
+                      className="h-11 bg-background border-border/60 focus-visible:ring-emerald-500"
                     />
                   </div>
                   <div className="space-y-2">
@@ -286,7 +295,7 @@ export default function RegisterPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
+                      className="h-11 bg-background border-border/60 focus-visible:ring-emerald-500"
                     />
                   </div>
                   <div className="space-y-2">
@@ -298,7 +307,7 @@ export default function RegisterPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
-                      className="h-11 bg-background/50 border-border/50 focus-visible:ring-emerald-500"
+                      className="h-11 bg-background border-border/60 focus-visible:ring-emerald-500"
                     />
                   </div>
                   <Button
