@@ -59,7 +59,7 @@ const plans = [
       "Tableau de bord avancé",
       "Trésorerie multi-comptes",
       "Rapports fiscaux (TVA, IS)",
-      "Nkap AI (50 messages/mois)",
+      "Nkap AI (10 messages/jour)",
       "Support prioritaire",
       "Export Excel et PDF",
     ],
@@ -236,6 +236,39 @@ export default function SubscriptionPage() {
                   <div>
                     <p className="text-xs text-zinc-500">Expire le</p>
                     <p className="text-sm text-zinc-300">{new Date(subscription.endDate).toLocaleDateString("fr-FR")}</p>
+                  </div>
+                )}
+                {subscription.status === "ACTIVE" && subscription.plan !== "STARTER" && (
+                  <div className="ml-auto">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-rose-400 border-rose-500/30 hover:bg-rose-500/10"
+                      onClick={async () => {
+                        if (!confirm("Êtes-vous sûr de vouloir résilier votre abonnement ? Vous conserverez l'accès jusqu'à la fin de la période en cours.")) return;
+                        try {
+                          const res = await fetch("/api/subscription", { method: "DELETE" });
+                          const data = await res.json();
+                          if (res.ok) {
+                            alert(data.message);
+                            fetchSubscription();
+                          } else {
+                            alert(data.error || "Erreur lors de la résiliation");
+                          }
+                        } catch {
+                          alert("Une erreur est survenue");
+                        }
+                      }}
+                    >
+                      Résilier
+                    </Button>
+                  </div>
+                )}
+                {subscription.status === "CANCELLED" && (
+                  <div className="ml-auto">
+                    <span className="text-xs text-rose-400 bg-rose-500/10 px-3 py-1.5 rounded-full border border-rose-500/20">
+                      Résiliation programmée
+                    </span>
                   </div>
                 )}
               </div>

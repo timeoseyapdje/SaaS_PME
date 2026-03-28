@@ -157,3 +157,43 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ subscription, payment });
 }
+
+// DELETE - Résilier l'abonnement
+export async function DELETE() {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  }
+
+  const companyId = (session.user as { companyId?: string }).companyId;
+  if (!companyId) {
+    return NextResponse.json({ error: "Aucune entreprise liée" }, { status: 400 });
+  }
+
+  const subscription = await prisma.subscription.findUnique({
+    where: { companyId },
+  });
+
+  if (!subscription) {
+    return NextResponse.json({ error: "Aucun abonnement trouvé" }, { status: 404 });
+  }
+
+  if (subscription.plan === "STARTER") {
+    return NextResponse.json({ error: "Vous êtes déjà sur le plan gratuit" }, { status: 400 });
+  }
+
+  // Résilier : l'abonnement reste actif jusqu'à la date de fin
+  await prisma.subscription.update({
+    where: { companyId },
+    data: {
+      status: "CANCELLED",
+      autoRenew: false,
+    },
+  });
+
+  return NextResponse.json({
+    success: true,
+    message: `Abonnement résilié. Vous conservez l'accès au plan ${subscription.plan} jusqu'au ${subscription.endDate ? new Date(subscription.endDate).toLocaleDateString("fr-FR") : "fin de période"}.`,
+    endDate: subscription.endDate,
+  });
+}

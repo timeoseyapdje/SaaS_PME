@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   FileText,
-  TrendingUp,
   TrendingDown,
   Landmark,
   BarChart3,
@@ -15,11 +14,12 @@ import {
   Settings,
   ChevronDown,
   ChevronRight,
-  Sparkles,
   Shield,
   Ticket,
   Building2,
   CreditCard,
+  Bell,
+  Mail,
 } from "lucide-react";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
@@ -71,15 +71,23 @@ const navigation: NavItem[] = [
   { name: "Paramètres", href: "/settings", icon: Settings },
 ];
 
-const adminNavigation: NavItem[] = [
+// Navigation dédiée super admin (remplace la navigation standard)
+const superAdminNavigation: NavItem[] = [
+  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   {
-    name: "Administration",
+    name: "Gestion",
     icon: Shield,
     children: [
-      { name: "Dashboard Admin", href: "/admin" },
       { name: "Utilisateurs", href: "/admin/users" },
       { name: "Entreprises", href: "/admin/companies" },
       { name: "Codes Promo", href: "/admin/promo-codes" },
+    ],
+  },
+  {
+    name: "Communication",
+    icon: Mail,
+    children: [
+      { name: "Notifications", href: "/admin/notifications" },
     ],
   },
 ];
@@ -93,7 +101,8 @@ export function Sidebar() {
     "Facturation",
     "Finances",
     "Contacts",
-    "Administration",
+    "Gestion",
+    "Communication",
   ]);
 
   const toggleGroup = (name: string) => {
@@ -117,7 +126,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-4 overflow-y-auto space-y-1.5 scrollbar-none">
-        {[...navigation, ...(isAdmin ? adminNavigation : [])].map((item) => {
+        {(isAdmin ? superAdminNavigation : navigation).map((item) => {
           if (item.children) {
             const isOpen = openGroups.includes(item.name);
             const isActive = item.children.some(

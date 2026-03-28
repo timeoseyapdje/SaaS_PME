@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
 
-// Limites de messages IA par plan
+// Limites de messages IA par plan (PAR JOUR)
 const AI_LIMITS: Record<string, number> = {
   STARTER: 0,   // Pas d'accès IA
-  PRO: 50,      // 50 messages/mois
+  PRO: 10,      // 10 messages/jour
   MAX: -1,      // Illimité (-1 = pas de limite)
 };
 
@@ -49,18 +49,14 @@ export async function checkAIUsage(companyId: string): Promise<AIUsageResult> {
       limit: 0,
       used: 0,
       plan,
-      message: "L'assistant IA est disponible à partir du plan Pro (50 messages/mois). Passez au plan Pro pour en profiter !",
+      message: "L'assistant IA est disponible à partir du plan Pro (10 messages/jour). Passez au plan Pro pour en profiter !",
     };
   }
 
-  // Compter les messages du mois en cours
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
+  // Compter les messages du jour en cours
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
 
-  // On compte via les invocations stockées dans une table simple
-  // Comme on n'a pas de table dédiée, on utilise un compteur en mémoire
-  // via un champ sur la company ou un cache
   const company = await prisma.company.findUnique({
     where: { id: companyId },
     select: { id: true },
@@ -78,13 +74,12 @@ export async function checkAIUsage(companyId: string): Promise<AIUsageResult> {
   }
 
   // Utiliser le modèle CurrencyRate comme compteur temporaire
-  // (en attendant une table dédiée ai_usage)
-  const monthKey = `${startOfMonth.getFullYear()}-${String(startOfMonth.getMonth() + 1).padStart(2, "0")}`;
+  const dayKey = `${startOfDay.getFullYear()}-${String(startOfDay.getMonth() + 1).padStart(2, "0")}-${String(startOfDay.getDate()).padStart(2, "0")}`;
 
   const usageRecord = await prisma.currencyRate.findFirst({
     where: {
       fromCode: `AI_USAGE_${companyId}`,
-      toCode: monthKey,
+      toCode: dayKey,
     },
   });
 
@@ -98,7 +93,7 @@ export async function checkAIUsage(companyId: string): Promise<AIUsageResult> {
       limit,
       used,
       plan,
-      message: `Vous avez atteint votre limite de ${limit} messages IA ce mois-ci. Passez au plan Max pour un accès illimité !`,
+      message: `Vous avez atteint votre limite de ${limit} messages IA aujourd'hui. Revenez demain ou passez au plan Max pour un accès illimité !`,
     };
   }
 
@@ -115,16 +110,15 @@ export async function checkAIUsage(companyId: string): Promise<AIUsageResult> {
  * Incrémente le compteur d'utilisation IA
  */
 export async function incrementAIUsage(companyId: string): Promise<void> {
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
 
-  const monthKey = `${startOfMonth.getFullYear()}-${String(startOfMonth.getMonth() + 1).padStart(2, "0")}`;
+  const dayKey = `${startOfDay.getFullYear()}-${String(startOfDay.getMonth() + 1).padStart(2, "0")}-${String(startOfDay.getDate()).padStart(2, "0")}`;
 
   const existing = await prisma.currencyRate.findFirst({
     where: {
       fromCode: `AI_USAGE_${companyId}`,
-      toCode: monthKey,
+      toCode: dayKey,
     },
   });
 
@@ -137,9 +131,9 @@ export async function incrementAIUsage(companyId: string): Promise<void> {
     await prisma.currencyRate.create({
       data: {
         fromCode: `AI_USAGE_${companyId}`,
-        toCode: monthKey,
+        toCode: dayKey,
         rate: 1,
-        date: startOfMonth,
+        date: startOfDay,
       },
     });
   }
