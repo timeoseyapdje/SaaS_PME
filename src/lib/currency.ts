@@ -71,20 +71,22 @@ export function formatCurrency(
 
   if (currencyCode === "XAF") {
     // French-Cameroonian format: 1 000 000 FCFA
-    return (
-      new Intl.NumberFormat("fr-FR", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(Math.round(amount)) + " FCFA"
-    );
+    // Replace all unicode spaces (narrow no-break space, no-break space) with regular space
+    // to avoid rendering issues in PDF exports (jsPDF shows them as slashes)
+    const formatted = new Intl.NumberFormat("fr-FR", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(Math.round(amount));
+    return formatted.replace(/[\u00A0\u202F\u2009]/g, " ") + " FCFA";
   }
 
-  return new Intl.NumberFormat(currency.locale, {
+  const formatted = new Intl.NumberFormat(currency.locale, {
     style: "currency",
     currency: currency.code,
     minimumFractionDigits: currency.decimals,
     maximumFractionDigits: currency.decimals,
   }).format(amount);
+  return formatted.replace(/[\u00A0\u202F\u2009]/g, " ");
 }
 
 /**
@@ -100,7 +102,7 @@ export function formatWithSymbol(
   const formatted = new Intl.NumberFormat("fr-FR", {
     minimumFractionDigits: currency.decimals,
     maximumFractionDigits: currency.decimals,
-  }).format(amount);
+  }).format(amount).replace(/[\u00A0\u202F\u2009]/g, " ");
 
   if (currencyCode === "XAF") {
     return `${formatted} FCFA`;
