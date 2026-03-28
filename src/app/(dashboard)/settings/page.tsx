@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Save, Building2, Shield, Landmark, User } from "lucide-react";
+import { Loader2, Save, Building2, Shield, Landmark, User, Palette, Pencil, Check } from "lucide-react";
 import { BankAccount } from "@/types";
 import { formatCurrency } from "@/lib/currency";
 
@@ -37,6 +37,23 @@ export default function SettingsPage() {
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState(false);
 
+  // Profile form
+  const [profileName, setProfileName] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileError, setProfileError] = useState("");
+  const [profileSuccess, setProfileSuccess] = useState(false);
+  const [userRole, setUserRole] = useState("");
+  const [userCreatedAt, setUserCreatedAt] = useState("");
+
+  // Personnalisation
+  const [primaryColor, setPrimaryColor] = useState("#10b981");
+  const [invoiceHeader, setInvoiceHeader] = useState("");
+  const [invoiceFooter, setInvoiceFooter] = useState("");
+  const [savedCustom, setSavedCustom] = useState(false);
+  const [userPlan, setUserPlan] = useState("STARTER");
+
   useEffect(() => {
     // Load company data
     fetch("/api/settings/company")
@@ -51,6 +68,27 @@ export default function SettingsPage() {
           setPhone(data.phone || "");
           setEmail(data.email || "");
           setWebsite(data.website || "");
+        }
+      })
+      .catch(() => {});
+
+    // Load subscription plan
+    fetch("/api/subscription")
+      .then((r) => r.json())
+      .then((data) => {
+        setUserPlan(data.plan || "STARTER");
+      })
+      .catch(() => {});
+
+    // Load profile data
+    fetch("/api/settings/profile")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.name) {
+          setProfileName(data.name || "");
+          setProfileEmail(data.email || "");
+          setUserRole(data.role || "");
+          setUserCreatedAt(data.createdAt || "");
         }
       })
       .catch(() => {});
@@ -127,6 +165,38 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleSaveProfile(e: React.FormEvent) {
+    e.preventDefault();
+    setProfileError("");
+    setProfileSuccess(false);
+    setSavingProfile(true);
+
+    try {
+      const response = await fetch("/api/settings/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: profileName, email: profileEmail }),
+      });
+
+      if (response.ok) {
+        setProfileSuccess(true);
+        setEditingProfile(false);
+        setTimeout(() => setProfileSuccess(false), 3000);
+      } else {
+        const err = await response.json();
+        setProfileError(err.error || "Erreur lors de la mise à jour");
+      }
+    } finally {
+      setSavingProfile(false);
+    }
+  }
+
+  const roleLabels: Record<string, string> = {
+    ADMIN: "Administrateur",
+    ACCOUNTANT: "Comptable",
+    VIEWER: "Lecteur",
+  };
+
   return (
     <div>
       <Header title="Paramètres" subtitle="Configuration de votre espace" />
@@ -144,6 +214,10 @@ export default function SettingsPage() {
             <TabsTrigger value="accounts" className="flex items-center gap-2">
               <Landmark className="w-4 h-4" />
               Comptes bancaires
+            </TabsTrigger>
+            <TabsTrigger value="customization" className="flex items-center gap-2">
+              <Palette className="w-4 h-4" />
+              Personnalisation
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="w-4 h-4" />
@@ -348,40 +422,267 @@ export default function SettingsPage() {
             </Card>
           </TabsContent>
 
+          {/* Personnalisation tab */}
+          <TabsContent value="customization">
+            <Card className="mt-4">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Palette className="w-4 h-4" />
+                  Personnalisation
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {userPlan !== "MAX" ? (
+                  <div className="text-center py-8 space-y-4">
+                    <div className="w-16 h-16 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                      <Palette className="w-8 h-8 text-amber-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground">Fonctionnalité réservée au plan Max</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Passez au plan Max pour personnaliser vos factures, couleurs et modèles.
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => window.location.href = "/subscription"}
+                      className="bg-amber-600 hover:bg-amber-700 text-white"
+                    >
+                      Passer au plan Max
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Couleur principale */}
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-semibold text-foreground">Couleur principale</h3>
+                      <p className="text-xs text-muted-foreground">Couleur utilisée sur vos factures et documents.</p>
+                      <div className="flex items-center gap-4">
+                        <input
+                          type="color"
+                          value={primaryColor}
+                          onChange={(e) => setPrimaryColor(e.target.value)}
+                          className="w-12 h-12 rounded-lg cursor-pointer border border-border"
+                        />
+                        <div className="flex gap-2">
+                          {["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"].map((color) => (
+                            <button
+                              key={color}
+                              onClick={() => setPrimaryColor(color)}
+                              className={`w-8 h-8 rounded-full border-2 transition-all ${
+                                primaryColor === color ? "border-white scale-110" : "border-transparent"
+                              }`}
+                              style={{ backgroundColor: color }}
+                            />
+                          ))}
+                        </div>
+                        <Input
+                          value={primaryColor}
+                          onChange={(e) => setPrimaryColor(e.target.value)}
+                          className="w-28 h-10 text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Logo entreprise */}
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-semibold text-foreground">Logo sur les factures</h3>
+                      <p className="text-xs text-muted-foreground">Votre logo sera affiché en en-tête de chaque facture PDF.</p>
+                      <div className="flex items-center gap-4">
+                        <div className="w-20 h-20 rounded-xl border-2 border-dashed border-border flex items-center justify-center bg-muted/30">
+                          <p className="text-xs text-muted-foreground text-center">Logo</p>
+                        </div>
+                        <Button variant="outline" size="sm">
+                          Importer un logo
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* En-tête / pied de facture */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold">En-tête personnalisé (factures)</Label>
+                        <textarea
+                          placeholder="Ex: Merci pour votre confiance..."
+                          value={invoiceHeader}
+                          onChange={(e) => setInvoiceHeader(e.target.value)}
+                          rows={3}
+                          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold">Pied de page personnalisé</Label>
+                        <textarea
+                          placeholder="Ex: Conditions de paiement par défaut..."
+                          value={invoiceFooter}
+                          onChange={(e) => setInvoiceFooter(e.target.value)}
+                          rows={3}
+                          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Modèle de facture */}
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-semibold text-foreground">Modèle de facture</h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        {["Classique", "Moderne", "Minimal"].map((tpl) => (
+                          <div
+                            key={tpl}
+                            className="border border-border rounded-xl p-4 text-center cursor-pointer hover:border-emerald-500/50 transition-colors"
+                          >
+                            <div className="h-24 bg-muted/30 rounded-lg mb-2 flex items-center justify-center">
+                              <p className="text-xs text-muted-foreground">{tpl}</p>
+                            </div>
+                            <p className="text-xs font-medium text-foreground">{tpl}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-2">
+                      <Button
+                        onClick={() => {
+                          setSavedCustom(true);
+                          setTimeout(() => setSavedCustom(false), 3000);
+                        }}
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        Enregistrer la personnalisation
+                      </Button>
+                      {savedCustom && (
+                        <span className="text-sm text-green-600">
+                          Personnalisation enregistrée !
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Profile tab */}
           <TabsContent value="profile">
             <div className="mt-4 space-y-4">
               <Card>
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="text-base">
                     Informations du compte
                   </CardTitle>
+                  {!editingProfile ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditingProfile(true)}
+                    >
+                      <Pencil className="w-4 h-4 mr-2" />
+                      Modifier
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setEditingProfile(false);
+                        setProfileError("");
+                        // Reset to current values
+                        setProfileName(session?.user?.name || profileName);
+                        setProfileEmail(session?.user?.email || profileEmail);
+                      }}
+                    >
+                      Annuler
+                    </Button>
+                  )}
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-xs text-gray-400 uppercase">
-                        Nom
-                      </Label>
-                      <p className="text-sm font-medium mt-1">
-                        {session?.user?.name || "—"}
-                      </p>
+                <CardContent>
+                  {profileError && (
+                    <div className="text-sm text-red-600 bg-red-50 p-3 rounded mb-4">
+                      {profileError}
                     </div>
-                    <div>
-                      <Label className="text-xs text-gray-400 uppercase">
-                        Email
-                      </Label>
-                      <p className="text-sm font-medium mt-1">
-                        {session?.user?.email || "—"}
-                      </p>
+                  )}
+                  {profileSuccess && (
+                    <div className="text-sm text-green-600 bg-green-50 p-3 rounded mb-4 flex items-center gap-2">
+                      <Check className="w-4 h-4" />
+                      Profil mis à jour avec succès !
                     </div>
-                    <div>
-                      <Label className="text-xs text-gray-400 uppercase">
-                        Rôle
-                      </Label>
-                      <p className="text-sm font-medium mt-1">Administrateur</p>
+                  )}
+
+                  {editingProfile ? (
+                    <form onSubmit={handleSaveProfile} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Nom complet *</Label>
+                          <Input
+                            value={profileName}
+                            onChange={(e) => setProfileName(e.target.value)}
+                            placeholder="Votre nom"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Adresse email *</Label>
+                          <Input
+                            type="email"
+                            value={profileEmail}
+                            onChange={(e) => setProfileEmail(e.target.value)}
+                            placeholder="votre@email.com"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 pt-2">
+                        <Button type="submit" disabled={savingProfile}>
+                          {savingProfile ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <Save className="w-4 h-4 mr-2" />
+                          )}
+                          Enregistrer
+                        </Button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-xs text-gray-400 uppercase">
+                          Nom
+                        </Label>
+                        <p className="text-sm font-medium mt-1">
+                          {profileName || session?.user?.name || "—"}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-gray-400 uppercase">
+                          Email
+                        </Label>
+                        <p className="text-sm font-medium mt-1">
+                          {profileEmail || session?.user?.email || "—"}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-gray-400 uppercase">
+                          Rôle
+                        </Label>
+                        <p className="text-sm font-medium mt-1">
+                          {roleLabels[userRole] || userRole || "Utilisateur"}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-gray-400 uppercase">
+                          Membre depuis
+                        </Label>
+                        <p className="text-sm font-medium mt-1">
+                          {userCreatedAt ? new Date(userCreatedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "—"}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
               <Card>
