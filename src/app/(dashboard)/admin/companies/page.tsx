@@ -2,22 +2,24 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Building2, Search, Users, FileText, TrendingUp, TrendingDown, ShoppingCart } from "lucide-react";
+import { Building2, Search, Users, MapPin, Mail, Phone, FileText, Crown, Zap, Rocket } from "lucide-react";
 
 interface AdminCompany {
   id: string;
   name: string;
+  legalName: string | null;
+  registrationNo: string | null;
+  taxId: string | null;
   city: string | null;
   country: string | null;
   phone: string | null;
   email: string | null;
+  address: string | null;
+  website: string | null;
   createdAt: string;
+  plan: string;
   _count: {
     users: number;
-    invoices: number;
-    clients: number;
-    expenses: number;
-    revenues: number;
   };
 }
 
@@ -45,8 +47,15 @@ export default function AdminCompaniesPage() {
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       (c.city || "").toLowerCase().includes(search.toLowerCase()) ||
-      (c.email || "").toLowerCase().includes(search.toLowerCase())
+      (c.email || "").toLowerCase().includes(search.toLowerCase()) ||
+      (c.registrationNo || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  const planBadge: Record<string, { label: string; color: string; icon: typeof Zap }> = {
+    STARTER: { label: "Starter", color: "text-zinc-400 bg-zinc-500/10 border-zinc-500/20", icon: Zap },
+    PRO: { label: "Pro", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20", icon: Crown },
+    MAX: { label: "Max", color: "text-amber-400 bg-amber-500/10 border-amber-500/20", icon: Rocket },
+  };
 
   if (loading) {
     return (
@@ -79,61 +88,82 @@ export default function AdminCompaniesPage() {
 
       {/* Companies grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {filtered.map((company, idx) => (
-          <motion.div
-            key={company.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.03 }}
-            className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5 hover:border-zinc-700/50 transition-colors"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-emerald-400" />
+        {filtered.map((company, idx) => {
+          const plan = planBadge[company.plan] || planBadge.STARTER;
+          const PlanIcon = plan.icon;
+          return (
+            <motion.div
+              key={company.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.03 }}
+              className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5 hover:border-zinc-700/50 transition-colors"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-white">{company.name}</h3>
+                    {company.legalName && company.legalName !== company.name && (
+                      <p className="text-[10px] text-zinc-600">{company.legalName}</p>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-white">{company.name}</h3>
-                  <p className="text-xs text-zinc-500">
-                    {[company.city, company.country].filter(Boolean).join(", ") || "Localisation non renseignée"}
+                <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border flex items-center gap-1 ${plan.color}`}>
+                  <PlanIcon className="w-2.5 h-2.5" />
+                  {plan.label}
+                </span>
+              </div>
+
+              {/* Infos entreprise */}
+              <div className="space-y-1.5 mb-3">
+                {company.city && (
+                  <p className="text-xs text-zinc-400 flex items-center gap-1.5">
+                    <MapPin className="w-3 h-3 text-zinc-600" />
+                    {[company.city, company.country].filter(Boolean).join(", ")}
                   </p>
+                )}
+                {company.email && (
+                  <p className="text-xs text-zinc-400 flex items-center gap-1.5">
+                    <Mail className="w-3 h-3 text-zinc-600" />
+                    {company.email}
+                  </p>
+                )}
+                {company.phone && (
+                  <p className="text-xs text-zinc-400 flex items-center gap-1.5">
+                    <Phone className="w-3 h-3 text-zinc-600" />
+                    {company.phone}
+                  </p>
+                )}
+                {company.registrationNo && (
+                  <p className="text-xs text-zinc-400 flex items-center gap-1.5">
+                    <FileText className="w-3 h-3 text-zinc-600" />
+                    RCCM: {company.registrationNo}
+                  </p>
+                )}
+                {company.taxId && (
+                  <p className="text-xs text-zinc-400 flex items-center gap-1.5">
+                    <FileText className="w-3 h-3 text-zinc-600" />
+                    NIU: {company.taxId}
+                  </p>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between pt-3 border-t border-zinc-800/30">
+                <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+                  <Users className="w-3 h-3" />
+                  <span>{company._count.users} utilisateur{company._count.users > 1 ? "s" : ""}</span>
                 </div>
+                <p className="text-[10px] text-zinc-600">
+                  Inscrite le {new Date(company.createdAt).toLocaleDateString("fr-FR")}
+                </p>
               </div>
-            </div>
-
-            {company.email && (
-              <p className="text-xs text-zinc-500 mb-3 truncate">{company.email}</p>
-            )}
-
-            <div className="grid grid-cols-3 gap-2 mt-3">
-              {[
-                { label: "Utilisateurs", value: company._count.users, icon: Users, color: "text-blue-400" },
-                { label: "Factures", value: company._count.invoices, icon: FileText, color: "text-amber-400" },
-                { label: "Clients", value: company._count.clients, icon: ShoppingCart, color: "text-violet-400" },
-              ].map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <stat.icon className={`w-3.5 h-3.5 mx-auto mb-1 ${stat.color}`} />
-                  <p className="text-sm font-bold text-zinc-200">{stat.value}</p>
-                  <p className="text-[10px] text-zinc-600">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-3 mt-3 pt-3 border-t border-zinc-800/30">
-              <div className="flex items-center gap-1 text-xs text-emerald-400">
-                <TrendingUp className="w-3 h-3" />
-                <span>{company._count.revenues} rev.</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-rose-400">
-                <TrendingDown className="w-3 h-3" />
-                <span>{company._count.expenses} dép.</span>
-              </div>
-              <p className="text-[10px] text-zinc-600 ml-auto">
-                {new Date(company.createdAt).toLocaleDateString("fr-FR")}
-              </p>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
 
       {filtered.length === 0 && (

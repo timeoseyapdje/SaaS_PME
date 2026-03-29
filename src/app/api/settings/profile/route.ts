@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { isDemoAccount } from "@/lib/demo";
 
 const updateProfileSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères").max(100),
@@ -53,6 +54,10 @@ export async function PATCH(request: NextRequest) {
     const userId = (session.user as { id?: string }).id;
     if (!userId) {
       return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
+    }
+
+    if (isDemoAccount(session.user.email)) {
+      return NextResponse.json({ error: "Modification non autorisée en mode démo" }, { status: 403 });
     }
 
     const body = await request.json();

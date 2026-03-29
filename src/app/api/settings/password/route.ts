@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { isDemoAccount } from "@/lib/demo";
 
 export async function POST(request: Request) {
   try {
@@ -13,6 +14,10 @@ export async function POST(request: Request) {
     const userId = (session.user as { id?: string }).id;
     if (!userId) {
       return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
+    }
+
+    if (isDemoAccount(session.user.email)) {
+      return NextResponse.json({ error: "Modification non autorisée en mode démo" }, { status: 403 });
     }
 
     const body = await request.json();

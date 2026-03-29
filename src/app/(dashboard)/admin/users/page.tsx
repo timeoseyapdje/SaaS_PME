@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
-import { Users, Search, Building2, Mail, Calendar, ShieldCheck, Loader2 } from "lucide-react";
+import { Users, Search, Building2, Mail, Calendar, ShieldCheck, Loader2, Crown, Zap, Rocket, MapPin } from "lucide-react";
 
 const SUPER_ADMIN_EMAIL = "admin@nkapcontrol.cm";
 
@@ -13,7 +13,7 @@ interface AdminUser {
   email: string;
   role: string;
   createdAt: string;
-  company: { id: string; name: string; city: string | null } | null;
+  company: { id: string; name: string; city: string | null; plan: string } | null;
 }
 
 export default function AdminUsersPage() {
@@ -78,6 +78,12 @@ export default function AdminUsersPage() {
     return styles[role] || styles.VIEWER;
   };
 
+  const planBadge: Record<string, { label: string; color: string; icon: typeof Zap }> = {
+    STARTER: { label: "Starter", color: "text-zinc-400", icon: Zap },
+    PRO: { label: "Pro", color: "text-emerald-400", icon: Crown },
+    MAX: { label: "Max", color: "text-amber-400", icon: Rocket },
+  };
+
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center h-64">
@@ -108,11 +114,12 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         {[
           { label: "Total", value: users.length, color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
           { label: "Admins", value: users.filter((u) => u.role === "ADMIN").length, color: "text-rose-400", bg: "bg-rose-500/10 border-rose-500/20" },
           { label: "Avec entreprise", value: users.filter((u) => u.company).length, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
+          { label: "Abonnés Pro/Max", value: users.filter((u) => u.company?.plan === "PRO" || u.company?.plan === "MAX").length, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
         ].map((stat) => (
           <div key={stat.label} className={`p-4 rounded-xl border ${stat.bg}`}>
             <p className="text-xs text-zinc-500 font-medium">{stat.label}</p>
@@ -138,6 +145,7 @@ export default function AdminUsersPage() {
                 <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3">Utilisateur</th>
                 <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3">Rôle</th>
                 <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3">Entreprise</th>
+                <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3">Abonnement</th>
                 <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3">Inscription</th>
                 {isSuperAdmin && (
                   <th className="text-left text-xs font-medium text-zinc-500 px-4 py-3">Actions</th>
@@ -145,86 +153,101 @@ export default function AdminUsersPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((user, idx) => (
-                <motion.tr
-                  key={user.id}
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.02 }}
-                  className="border-b border-zinc-800/30 last:border-0 hover:bg-zinc-800/20 transition-colors"
-                >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
-                        <Users className="w-4 h-4 text-zinc-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-zinc-200">
-                          {user.name || "Sans nom"}
-                          {user.email === SUPER_ADMIN_EMAIL && (
-                            <span className="ml-2 text-[10px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded-full border border-amber-500/30">
-                              SUPER ADMIN
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-xs text-zinc-500 flex items-center gap-1">
-                          <Mail className="w-3 h-3" />
-                          {user.email}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`text-xs font-medium px-2 py-1 rounded-full border ${roleBadge(user.role)}`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {user.company ? (
-                      <div className="flex items-center gap-2">
-                        <Building2 className="w-3.5 h-3.5 text-zinc-500" />
-                        <div>
-                          <p className="text-sm text-zinc-300">{user.company.name}</p>
-                          {user.company.city && (
-                            <p className="text-xs text-zinc-600">{user.company.city}</p>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-zinc-600">Aucune</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <p className="text-xs text-zinc-400 flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {new Date(user.createdAt).toLocaleDateString("fr-FR")}
-                    </p>
-                  </td>
-                  {isSuperAdmin && (
+              {filtered.map((user, idx) => {
+                const plan = planBadge[user.company?.plan || "STARTER"] || planBadge.STARTER;
+                const PlanIcon = plan.icon;
+                return (
+                  <motion.tr
+                    key={user.id}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.02 }}
+                    className="border-b border-zinc-800/30 last:border-0 hover:bg-zinc-800/20 transition-colors"
+                  >
                     <td className="px-4 py-3">
-                      {user.email === SUPER_ADMIN_EMAIL ? (
-                        <span className="text-[10px] text-zinc-600">Protégé</span>
-                      ) : (
-                        <div className="flex items-center gap-1">
-                          {changingRole === user.id ? (
-                            <Loader2 className="w-4 h-4 text-zinc-500 animate-spin" />
-                          ) : (
-                            <select
-                              value={user.role}
-                              onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                              className="text-xs bg-zinc-800 border border-zinc-700/50 rounded-lg px-2 py-1.5 text-zinc-300 outline-none focus:border-emerald-500/50 cursor-pointer"
-                            >
-                              <option value="VIEWER">VIEWER</option>
-                              <option value="ACCOUNTANT">ACCOUNTANT</option>
-                              <option value="ADMIN">ADMIN</option>
-                            </select>
-                          )}
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
+                          <Users className="w-4 h-4 text-zinc-500" />
                         </div>
+                        <div>
+                          <p className="text-sm font-medium text-zinc-200">
+                            {user.name || "Sans nom"}
+                            {user.email === SUPER_ADMIN_EMAIL && (
+                              <span className="ml-2 text-[10px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded-full border border-amber-500/30">
+                                SUPER ADMIN
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-zinc-500 flex items-center gap-1">
+                            <Mail className="w-3 h-3" />
+                            {user.email}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full border ${roleBadge(user.role)}`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {user.company ? (
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-3.5 h-3.5 text-zinc-500" />
+                          <div>
+                            <p className="text-sm text-zinc-300">{user.company.name}</p>
+                            {user.company.city && (
+                              <p className="text-xs text-zinc-600 flex items-center gap-0.5">
+                                <MapPin className="w-2.5 h-2.5" />
+                                {user.company.city}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-zinc-600">Aucune</span>
                       )}
                     </td>
-                  )}
-                </motion.tr>
-              ))}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5">
+                        <PlanIcon className={`w-3.5 h-3.5 ${plan.color}`} />
+                        <span className={`text-xs font-medium ${plan.color}`}>
+                          {plan.label}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <p className="text-xs text-zinc-400 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(user.createdAt).toLocaleDateString("fr-FR")}
+                      </p>
+                    </td>
+                    {isSuperAdmin && (
+                      <td className="px-4 py-3">
+                        {user.email === SUPER_ADMIN_EMAIL ? (
+                          <span className="text-[10px] text-zinc-600">Protégé</span>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            {changingRole === user.id ? (
+                              <Loader2 className="w-4 h-4 text-zinc-500 animate-spin" />
+                            ) : (
+                              <select
+                                value={user.role}
+                                onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                                className="text-xs bg-zinc-800 border border-zinc-700/50 rounded-lg px-2 py-1.5 text-zinc-300 outline-none focus:border-emerald-500/50 cursor-pointer"
+                              >
+                                <option value="VIEWER">VIEWER</option>
+                                <option value="ACCOUNTANT">ACCOUNTANT</option>
+                                <option value="ADMIN">ADMIN</option>
+                              </select>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                    )}
+                  </motion.tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

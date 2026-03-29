@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isDemoAccount } from "@/lib/demo";
 
 export async function GET() {
   try {
@@ -34,6 +35,10 @@ export async function PATCH(request: Request) {
     const companyId = (session.user as { companyId?: string }).companyId;
     if (!companyId) {
       return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
+    }
+
+    if (isDemoAccount(session.user.email)) {
+      return NextResponse.json({ error: "Modification non autorisée en mode démo" }, { status: 403 });
     }
 
     const body = await request.json();

@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         legalName: data.legalName,
         registrationNo: data.registrationNo,
         taxId: data.taxId,
-        city: data.city || "Yaoundé",
+        city: data.city || "Douala",
         phone: data.phone,
         bankAccounts: {
           create: [
