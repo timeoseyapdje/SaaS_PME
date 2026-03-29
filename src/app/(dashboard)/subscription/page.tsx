@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +28,9 @@ import {
   Tag,
   Clock,
   AlertCircle,
+  AlertTriangle,
 } from "lucide-react";
+import { DEMO_EMAIL } from "@/lib/demo";
 
 const plans = [
   {
@@ -106,6 +109,8 @@ interface Subscription {
 }
 
 export default function SubscriptionPage() {
+  const { data: session } = useSession();
+  const isDemo = session?.user?.email === DEMO_EMAIL;
   const [currentPlan, setCurrentPlan] = useState("STARTER");
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
@@ -206,6 +211,17 @@ export default function SubscriptionPage() {
     <div>
       <Header title="Abonnement" subtitle="Gérez votre plan et vos paiements" />
       <div className="p-6 max-w-6xl mx-auto space-y-8">
+        {isDemo && (
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+            <AlertTriangle className="w-5 h-5 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold">Mode Démonstration</p>
+              <p className="text-xs text-amber-400/70">
+                Vous utilisez un compte démo en lecture seule. Les souscriptions et paiements sont désactivés.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Abonnement actuel */}
         {subscription && (
@@ -290,7 +306,7 @@ export default function SubscriptionPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
                   onClick={() => {
-                    if (!isCurrent && plan.id !== "STARTER") setSelectedPlan(plan.id);
+                    if (!isDemo && !isCurrent && plan.id !== "STARTER") setSelectedPlan(plan.id);
                   }}
                   className={`relative rounded-xl border p-5 cursor-pointer transition-all ${
                     isSelected

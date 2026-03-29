@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 
 // GET - Stats globales de la plateforme Nkap Control
+// Le super admin ne voit PAS les finances des utilisateurs (revenus, dépenses)
+// Il voit uniquement : utilisateurs, entreprises, abonnements
 export async function GET() {
   const { error } = await requireAdmin();
   if (error) return error;
@@ -15,18 +17,9 @@ export async function GET() {
   const [
     totalUsers,
     totalCompanies,
-    totalInvoices,
-    // Revenus plateforme = paiements d'abonnements
-    platformRevenue,
-    platformRevenueThisMonth,
-    platformRevenueLastMonth,
     // Abonnements
     activeSubscriptions,
     subscriptionsByPlan,
-    // Paiements
-    totalPayments,
-    pendingPayments,
-    recentPayments,
     // Codes promo
     totalPromoCodes,
     activePromoCodes,
@@ -38,25 +31,6 @@ export async function GET() {
   ] = await Promise.all([
     prisma.user.count(),
     prisma.company.count(),
-    prisma.invoice.count(),
-    // Total revenus plateforme (paiements COMPLETED)
-    prisma.payment.aggregate({
-      where: { status: "COMPLETED" },
-      _sum: { amount: true },
-    }),
-    // Revenus ce mois
-    prisma.payment.aggregate({
-      where: { status: "COMPLETED", paidAt: { gte: startOfMonth } },
-      _sum: { amount: true },
-    }),
-    // Revenus mois dernier
-    prisma.payment.aggregate({
-      where: {
-        status: "COMPLETED",
-        paidAt: { gte: startOfLastMonth, lte: endOfLastMonth },
-      },
-      _sum: { amount: true },
-    }),
     // Abonnements actifs
     prisma.subscription.count({ where: { status: "ACTIVE" } }),
     // Répartition par plan
@@ -65,35 +39,27 @@ export async function GET() {
       where: { status: "ACTIVE" },
       _count: { plan: true },
     }),
-    // Nombre total de paiements
-    prisma.payment.count({ where: { status: "COMPLETED" } }),
-    // Paiements en attente
-    prisma.payment.count({ where: { status: "PENDING" } }),
-    // Derniers paiements
-    prisma.payment.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 10,
-      include: {
-        subscription: {
-          include: {
-            company: { select: { name: true } },
-          },
-        },
-      },
-    }),
     // Codes promo
     prisma.promoCode.count(),
     prisma.promoCode.count({ where: { isActive: true } }),
-    // Derniers inscrits
+    // Derniers inscrits avec leur abonnement
     prisma.user.findMany({
       orderBy: { createdAt: "desc" },
-      take: 5,
+      take: 10,
       select: {
         id: true,
         name: true,
         email: true,
         createdAt: true,
-        company: { select: { name: true } },
+        company: {
+          select: {
+            name: true,
+            city: true,
+            subscription: {
+              select: { plan: true, status: true },
+            },
+          },
+        },
       },
     }),
     // Nouveaux inscrits ce mois
@@ -106,22 +72,6 @@ export async function GET() {
     }),
   ]);
 
-  // Calculer le MRR (Monthly Recurring Revenue)
-  const planPrices: Record<string, number> = { PRO: 15000, MAX: 45000 };
-  const mrr = subscriptionsByPlan.reduce((sum, s) => {
-    return sum + (planPrices[s.plan] || 0) * s._count.plan;
-  }, 0);
-
-  // Croissance revenus mois/mois
-  const revenueThisMonth = platformRevenueThisMonth._sum.amount || 0;
-  const revenueLastMonth = platformRevenueLastMonth._sum.amount || 0;
-  const revenueGrowth =
-    revenueLastMonth > 0
-      ? ((revenueThisMonth - revenueLastMonth) / revenueLastMonth) * 100
-      : revenueThisMonth > 0
-      ? 100
-      : 0;
-
   // Croissance utilisateurs
   const userGrowth =
     newUsersLastMonth > 0
@@ -133,38 +83,25 @@ export async function GET() {
   return NextResponse.json({
     totalUsers,
     totalCompanies,
-    totalInvoices,
-    // Revenus plateforme
-    platformRevenue: platformRevenue._sum.amount || 0,
-    revenueThisMonth,
-    revenueLastMonth,
-    revenueGrowth: Math.round(revenueGrowth),
-    mrr,
     // Abonnements
     activeSubscriptions,
     subscriptionsByPlan: subscriptionsByPlan.map((s) => ({
       plan: s.plan,
       count: s._count.plan,
     })),
-    // Paiements
-    totalPayments,
-    pendingPayments,
-    recentPayments: recentPayments.map((p) => ({
-      id: p.id,
-      amount: p.amount,
-      currency: p.currency,
-      paymentMethod: p.paymentMethod,
-      status: p.status,
-      paidAt: p.paidAt,
-      createdAt: p.createdAt,
-      companyName: p.subscription?.company?.name || "—",
-      plan: p.subscription?.plan || "—",
-    })),
     // Codes promo
     totalPromoCodes,
     activePromoCodes,
     // Utilisateurs
-    recentUsers,
+    recentUsers: recentUsers.map((u) => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      createdAt: u.createdAt,
+      companyName: u.company?.name || null,
+      companyCity: u.company?.city || null,
+      plan: u.company?.subscription?.status === "ACTIVE" ? u.company.subscription.plan : "STARTER",
+    })),
     newUsersThisMonth,
     userGrowth: Math.round(userGrowth),
   });

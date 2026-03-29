@@ -12,6 +12,8 @@ import { Separator } from "@/components/ui/separator";
 import { Loader2, Save, Building2, Shield, Landmark, User, Palette, Pencil, Check } from "lucide-react";
 import { BankAccount } from "@/types";
 import { formatCurrency } from "@/lib/currency";
+import { DEMO_EMAIL } from "@/lib/demo";
+import { AlertTriangle } from "lucide-react";
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -191,6 +193,8 @@ export default function SettingsPage() {
     }
   }
 
+  const isDemo = session?.user?.email === DEMO_EMAIL;
+
   const roleLabels: Record<string, string> = {
     ADMIN: "Administrateur",
     ACCOUNTANT: "Comptable",
@@ -201,6 +205,17 @@ export default function SettingsPage() {
     <div>
       <Header title="Paramètres" subtitle="Configuration de votre espace" />
       <div className="p-6">
+        {isDemo && (
+          <div className="flex items-center gap-3 p-4 mb-6 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+            <AlertTriangle className="w-5 h-5 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold">Mode Démonstration</p>
+              <p className="text-xs text-amber-400/70">
+                Vous utilisez un compte démo en lecture seule. Créez votre propre compte pour modifier les paramètres.
+              </p>
+            </div>
+          </div>
+        )}
         <Tabs defaultValue="company">
           <TabsList>
             <TabsTrigger value="company" className="flex items-center gap-2">
@@ -299,13 +314,13 @@ export default function SettingsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 pt-2">
-                    <Button type="submit" disabled={savingCompany}>
+                    <Button type="submit" disabled={savingCompany || isDemo}>
                       {savingCompany ? (
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       ) : (
                         <Save className="w-4 h-4 mr-2" />
                       )}
-                      Enregistrer
+                      {isDemo ? "Lecture seule (démo)" : "Enregistrer"}
                     </Button>
                     {savedCompany && (
                       <span className="text-sm text-green-600">
@@ -580,9 +595,10 @@ export default function SettingsPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => setEditingProfile(true)}
+                      disabled={isDemo}
                     >
                       <Pencil className="w-4 h-4 mr-2" />
-                      Modifier
+                      {isDemo ? "Lecture seule" : "Modifier"}
                     </Button>
                   ) : (
                     <Button
@@ -733,11 +749,11 @@ export default function SettingsPage() {
                         required
                       />
                     </div>
-                    <Button type="submit" disabled={savingPassword}>
+                    <Button type="submit" disabled={savingPassword || isDemo}>
                       {savingPassword && (
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       )}
-                      Modifier le mot de passe
+                      {isDemo ? "Non disponible (démo)" : "Modifier le mot de passe"}
                     </Button>
                   </form>
                 </CardContent>

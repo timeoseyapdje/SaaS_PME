@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { sendSubscriptionConfirmationEmail } from "@/lib/email";
+import { isDemoAccount } from "@/lib/demo";
 
 // GET - Récupérer l'abonnement actuel
 export async function GET() {
@@ -36,6 +37,10 @@ export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  }
+
+  if (isDemoAccount(session.user.email)) {
+    return NextResponse.json({ error: "Modification non autorisée en mode démo" }, { status: 403 });
   }
 
   const companyId = (session.user as { companyId?: string }).companyId;
@@ -163,6 +168,10 @@ export async function DELETE() {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  }
+
+  if (isDemoAccount(session.user.email)) {
+    return NextResponse.json({ error: "Modification non autorisée en mode démo" }, { status: 403 });
   }
 
   const companyId = (session.user as { companyId?: string }).companyId;

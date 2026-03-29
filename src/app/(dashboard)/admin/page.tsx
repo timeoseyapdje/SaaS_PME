@@ -5,62 +5,40 @@ import { motion } from "framer-motion";
 import {
   Users,
   Building2,
-  FileText,
-  TrendingUp,
-  TrendingDown,
   Ticket,
   Clock,
-  CreditCard,
-  DollarSign,
-  ArrowUpRight,
-  ArrowDownRight,
   Crown,
   Zap,
   Rocket,
-  AlertCircle,
+  ArrowUpRight,
+  ArrowDownRight,
+  MapPin,
 } from "lucide-react";
 import Link from "next/link";
-
-interface RecentPayment {
-  id: string;
-  amount: number;
-  currency: string;
-  paymentMethod: string;
-  status: string;
-  paidAt: string | null;
-  createdAt: string;
-  companyName: string;
-  plan: string;
-}
 
 interface PlanCount {
   plan: string;
   count: number;
 }
 
+interface RecentUser {
+  id: string;
+  name: string | null;
+  email: string;
+  createdAt: string;
+  companyName: string | null;
+  companyCity: string | null;
+  plan: string;
+}
+
 interface AdminStats {
   totalUsers: number;
   totalCompanies: number;
-  totalInvoices: number;
-  platformRevenue: number;
-  revenueThisMonth: number;
-  revenueLastMonth: number;
-  revenueGrowth: number;
-  mrr: number;
   activeSubscriptions: number;
   subscriptionsByPlan: PlanCount[];
-  totalPayments: number;
-  pendingPayments: number;
-  recentPayments: RecentPayment[];
   totalPromoCodes: number;
   activePromoCodes: number;
-  recentUsers: {
-    id: string;
-    name: string | null;
-    email: string;
-    createdAt: string;
-    company: { name: string } | null;
-  }[];
+  recentUsers: RecentUser[];
   newUsersThisMonth: number;
   userGrowth: number;
 }
@@ -92,44 +70,19 @@ export default function AdminDashboardPage() {
     );
   }
 
-  const formatXAF = (amount: number) => {
-    if (amount >= 1000000) return `${(amount / 1000000).toFixed(1)}M XAF`;
-    if (amount >= 1000) return `${(amount / 1000).toFixed(0)}K XAF`;
-    return `${amount.toLocaleString()} XAF`;
+  const planLabels: Record<string, { label: string; color: string }> = {
+    STARTER: { label: "Starter", color: "text-zinc-400" },
+    PRO: { label: "Pro", color: "text-emerald-400" },
+    MAX: { label: "Max", color: "text-amber-400" },
+  };
+
+  const planIcons: Record<string, typeof Zap> = {
+    STARTER: Zap,
+    PRO: Crown,
+    MAX: Rocket,
   };
 
   const kpis = [
-    {
-      label: "Revenus plateforme",
-      value: formatXAF(stats?.platformRevenue || 0),
-      icon: DollarSign,
-      color: "text-emerald-400",
-      bg: "bg-emerald-500/10 border-emerald-500/20",
-      subtitle: "Total des paiements",
-    },
-    {
-      label: "MRR",
-      value: formatXAF(stats?.mrr || 0),
-      icon: TrendingUp,
-      color: "text-blue-400",
-      bg: "bg-blue-500/10 border-blue-500/20",
-      subtitle: "Revenu mensuel récurrent",
-    },
-    {
-      label: "Revenus ce mois",
-      value: formatXAF(stats?.revenueThisMonth || 0),
-      icon: CreditCard,
-      color: "text-amber-400",
-      bg: "bg-amber-500/10 border-amber-500/20",
-      growth: stats?.revenueGrowth,
-    },
-    {
-      label: "Abonnements actifs",
-      value: stats?.activeSubscriptions || 0,
-      icon: Crown,
-      color: "text-violet-400",
-      bg: "bg-violet-500/10 border-violet-500/20",
-    },
     {
       label: "Utilisateurs",
       value: stats?.totalUsers || 0,
@@ -145,29 +98,21 @@ export default function AdminDashboardPage() {
       color: "text-pink-400",
       bg: "bg-pink-500/10 border-pink-500/20",
     },
+    {
+      label: "Abonnements actifs",
+      value: stats?.activeSubscriptions || 0,
+      icon: Crown,
+      color: "text-violet-400",
+      bg: "bg-violet-500/10 border-violet-500/20",
+    },
+    {
+      label: "Codes promo actifs",
+      value: `${stats?.activePromoCodes || 0} / ${stats?.totalPromoCodes || 0}`,
+      icon: Ticket,
+      color: "text-amber-400",
+      bg: "bg-amber-500/10 border-amber-500/20",
+    },
   ];
-
-  const paymentMethodLabels: Record<string, string> = {
-    MTN_MONEY: "MTN MoMo",
-    ORANGE_MONEY: "Orange Money",
-    VIREMENT: "Virement",
-    CARTE_BANCAIRE: "Carte",
-    ESPECES: "Especes",
-    CHEQUE: "Cheque",
-  };
-
-  const paymentStatusLabels: Record<string, { label: string; color: string }> = {
-    PENDING: { label: "En attente", color: "text-amber-400 bg-amber-500/10" },
-    COMPLETED: { label: "Payé", color: "text-emerald-400 bg-emerald-500/10" },
-    FAILED: { label: "Échoué", color: "text-rose-400 bg-rose-500/10" },
-    REFUNDED: { label: "Remboursé", color: "text-zinc-400 bg-zinc-500/10" },
-  };
-
-  const planIcons: Record<string, typeof Zap> = {
-    STARTER: Zap,
-    PRO: Crown,
-    MAX: Rocket,
-  };
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto w-full">
@@ -179,7 +124,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {kpis.map((kpi, idx) => (
           <motion.div
             key={kpi.label}
@@ -196,9 +141,6 @@ export default function AdminDashboardPage() {
                 <div>
                   <p className="text-xs text-zinc-500 font-medium">{kpi.label}</p>
                   <p className={`text-xl font-bold ${kpi.color}`}>{kpi.value}</p>
-                  {"subtitle" in kpi && kpi.subtitle && (
-                    <p className="text-[10px] text-zinc-600">{kpi.subtitle}</p>
-                  )}
                 </div>
               </div>
               {kpi.growth !== undefined && kpi.growth !== 0 && (
@@ -220,7 +162,7 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* Répartition abonnements + Stats rapides */}
+      {/* Répartition abonnements + Accès rapide */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Répartition par plan */}
         <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5">
@@ -258,16 +200,8 @@ export default function AdminDashboardPage() {
 
           <div className="mt-5 pt-4 border-t border-zinc-800/50 space-y-2">
             <div className="flex justify-between text-xs">
-              <span className="text-zinc-500">Factures créées</span>
-              <span className="text-zinc-300 font-medium">{stats?.totalInvoices || 0}</span>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-zinc-500">Paiements reçus</span>
-              <span className="text-zinc-300 font-medium">{stats?.totalPayments || 0}</span>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-zinc-500">Paiements en attente</span>
-              <span className="text-amber-400 font-medium">{stats?.pendingPayments || 0}</span>
+              <span className="text-zinc-500">Nouveaux ce mois</span>
+              <span className="text-emerald-400 font-medium">+{stats?.newUsersThisMonth || 0}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-zinc-500">Codes promo actifs</span>
@@ -278,95 +212,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Derniers paiements plateforme */}
-        <div className="lg:col-span-2 bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-zinc-500" />
-              <h2 className="text-sm font-semibold text-white">Derniers paiements</h2>
-            </div>
-            {(stats?.pendingPayments || 0) > 0 && (
-              <div className="flex items-center gap-1 text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded-full">
-                <AlertCircle className="w-3 h-3" />
-                {stats?.pendingPayments} en attente
-              </div>
-            )}
-          </div>
-          {stats?.recentPayments && stats.recentPayments.length > 0 ? (
-            <div className="space-y-2">
-              {stats.recentPayments.map((payment) => {
-                const statusInfo = paymentStatusLabels[payment.status] || {
-                  label: payment.status,
-                  color: "text-zinc-400",
-                };
-                return (
-                  <div
-                    key={payment.id}
-                    className="flex items-center justify-between py-2.5 border-b border-zinc-800/30 last:border-0"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-zinc-800/80 flex items-center justify-center">
-                        <CreditCard className="w-4 h-4 text-zinc-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-zinc-200">
-                          {payment.companyName}
-                        </p>
-                        <p className="text-xs text-zinc-500">
-                          {paymentMethodLabels[payment.paymentMethod] || payment.paymentMethod} · Plan{" "}
-                          {payment.plan}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-white">
-                        {payment.amount.toLocaleString()} {payment.currency}
-                      </p>
-                      <div className="flex items-center gap-2 justify-end">
-                        <span
-                          className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${statusInfo.color}`}
-                        >
-                          {statusInfo.label}
-                        </span>
-                        <span className="text-[10px] text-zinc-600">
-                          {new Date(payment.createdAt).toLocaleDateString("fr-FR")}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-zinc-600">Aucun paiement enregistré</p>
-          )}
-        </div>
-      </div>
-
-      {/* Accès rapide + Derniers inscrits */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Quick links */}
-        <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-white mb-4">Accès rapide</h2>
-          <div className="space-y-2">
-            {[
-              { label: "Gérer les utilisateurs", href: "/admin/users", icon: Users },
-              { label: "Gérer les entreprises", href: "/admin/companies", icon: Building2 },
-              { label: "Gérer les codes promo", href: "/admin/promo-codes", icon: Ticket },
-            ].map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-colors"
-              >
-                <link.icon className="w-4 h-4" />
-                {link.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent users */}
+        {/* Derniers inscrits */}
         <div className="lg:col-span-2 bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -380,32 +226,76 @@ export default function AdminDashboardPage() {
             )}
           </div>
           {stats?.recentUsers && stats.recentUsers.length > 0 ? (
-            <div className="space-y-3">
-              {stats.recentUsers.map((user) => (
-                <div
-                  key={user.id}
-                  className="flex items-center justify-between py-2 border-b border-zinc-800/30 last:border-0"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-zinc-200">
-                      {user.name || "Sans nom"}
-                    </p>
-                    <p className="text-xs text-zinc-500">{user.email}</p>
+            <div className="space-y-2">
+              {stats.recentUsers.map((user) => {
+                const planInfo = planLabels[user.plan] || planLabels.STARTER;
+                const PlanIcon = planIcons[user.plan] || Zap;
+                return (
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between py-2.5 border-b border-zinc-800/30 last:border-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
+                        <Users className="w-4 h-4 text-zinc-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-zinc-200">
+                          {user.name || "Sans nom"}
+                        </p>
+                        <p className="text-xs text-zinc-500">{user.email}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center gap-1.5 justify-end">
+                        <PlanIcon className={`w-3 h-3 ${planInfo.color}`} />
+                        <span className={`text-xs font-medium ${planInfo.color}`}>
+                          {planInfo.label}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 justify-end mt-0.5">
+                        {user.companyCity && (
+                          <span className="text-[10px] text-zinc-600 flex items-center gap-0.5">
+                            <MapPin className="w-2.5 h-2.5" />
+                            {user.companyCity}
+                          </span>
+                        )}
+                        <span className="text-[10px] text-zinc-600 ml-1">
+                          {new Date(user.createdAt).toLocaleDateString("fr-FR")}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-zinc-400">
-                      {user.company?.name || "Aucune entreprise"}
-                    </p>
-                    <p className="text-[10px] text-zinc-600">
-                      {new Date(user.createdAt).toLocaleDateString("fr-FR")}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p className="text-sm text-zinc-600">Aucun utilisateur inscrit</p>
           )}
+        </div>
+      </div>
+
+      {/* Accès rapide */}
+      <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5">
+        <h2 className="text-sm font-semibold text-white mb-4">Accès rapide</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+          {[
+            { label: "Gérer les utilisateurs", href: "/admin/users", icon: Users, desc: `${stats?.totalUsers || 0} utilisateurs` },
+            { label: "Gérer les entreprises", href: "/admin/companies", icon: Building2, desc: `${stats?.totalCompanies || 0} entreprises` },
+            { label: "Gérer les codes promo", href: "/admin/promo-codes", icon: Ticket, desc: `${stats?.activePromoCodes || 0} actifs` },
+          ].map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-colors border border-transparent hover:border-zinc-700/50"
+            >
+              <link.icon className="w-4 h-4" />
+              <div>
+                <p className="font-medium">{link.label}</p>
+                <p className="text-[10px] text-zinc-600">{link.desc}</p>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </div>
