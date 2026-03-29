@@ -328,12 +328,18 @@ export default function RegisterPage() {
               </CardContent>
             </div>
           )}
-          <CardFooter className="pt-2 pb-8">
+          <CardFooter className="flex flex-col gap-3 pt-2 pb-8">
             <p className="text-[15px] text-muted-foreground text-center w-full">
               Déjà un compte ?{" "}
               <Link href="/login" className="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold">
                 Se connecter
               </Link>
+            </p>
+            <p className="text-[11px] text-muted-foreground/60 text-center">
+              En créant un compte, vous acceptez nos{" "}
+              <Link href="/terms" className="text-emerald-500/70 hover:underline">CGU</Link>
+              {" "}et notre{" "}
+              <Link href="/privacy" className="text-emerald-500/70 hover:underline">Politique de confidentialité</Link>
             </p>
           </CardFooter>
         </Card>

@@ -132,7 +132,7 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col gap-4 pt-2 pb-8">
+          <CardFooter className="flex flex-col gap-3 pt-2 pb-8">
             <p className="text-[15px] text-muted-foreground text-center">
               Pas encore de compte ?{" "}
               <Link
@@ -147,6 +147,11 @@ export default function LoginPage() {
                 Demo: <span className="text-foreground">demo@nkapcontrol.cm</span> / <span className="text-foreground">demo123456</span>
               </p>
             </div>
+            <p className="text-[11px] text-muted-foreground/60 text-center">
+              <Link href="/terms" className="text-emerald-500/70 hover:underline">CGU</Link>
+              {" · "}
+              <Link href="/privacy" className="text-emerald-500/70 hover:underline">Confidentialité</Link>
+            </p>
           </CardFooter>
         </Card>
       </div>
