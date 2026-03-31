@@ -93,7 +93,7 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "15 000",
+    price: "5 000",
     period: "FCFA/mois",
     description: "Pour les PME en croissance",
     features: [
@@ -102,6 +102,7 @@ const plans = [
       "Tableau de bord avance",
       "Gestion tresorerie multi-comptes",
       "Rapports fiscaux (TVA, IS)",
+      "Nkap AI (10 messages/jour)",
       "Support prioritaire",
       "Export Excel et PDF",
     ],
@@ -110,12 +111,13 @@ const plans = [
   },
   {
     name: "Max",
-    price: "45 000",
+    price: "15 000",
     period: "FCFA/mois",
     description: "Pour les PME ambitieuses",
     features: [
       "Utilisateurs illimites",
       "Tout du plan Pro",
+      "Nkap AI illimite",
       "Personnalisation avancee (logo, couleurs, modeles)",
       "API personnalisee",
       "Formation equipe dediee",
@@ -171,6 +173,7 @@ export default function LandingPage() {
             <Link href="#features" className="hover:text-foreground transition-colors">Fonctionnalites</Link>
             <Link href="#pricing" className="hover:text-foreground transition-colors">Tarifs</Link>
             <Link href="#testimonials" className="hover:text-foreground transition-colors">Temoignages</Link>
+            <Link href="/help" className="hover:text-foreground transition-colors">Aide</Link>
           </nav>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors hidden sm:block">
@@ -455,17 +458,15 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold text-foreground mb-3 text-sm">Support</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="#" className="hover:text-foreground transition-colors">Centre d&apos;aide</Link></li>
-                <li><Link href="#" className="hover:text-foreground transition-colors">Contact</Link></li>
-                <li><Link href="#" className="hover:text-foreground transition-colors">WhatsApp</Link></li>
+                <li><Link href="/help" className="hover:text-foreground transition-colors">Centre d&apos;aide</Link></li>
+                <li><a href="mailto:contact@nkapcontrol.cm" className="hover:text-foreground transition-colors">Contact</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-3 text-sm">Legal</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="#" className="hover:text-foreground transition-colors">Conditions generales</Link></li>
-                <li><Link href="#" className="hover:text-foreground transition-colors">Confidentialite</Link></li>
-                <li><Link href="#" className="hover:text-foreground transition-colors">Mentions legales</Link></li>
+                <li><Link href="/terms" className="hover:text-foreground transition-colors">Conditions generales</Link></li>
+                <li><Link href="/privacy" className="hover:text-foreground transition-colors">Confidentialite</Link></li>
               </ul>
             </div>
           </div>

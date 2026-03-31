@@ -11,7 +11,9 @@ import {
   Bot,
   User,
   ChevronDown,
+  Lock,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 // Simple markdown-like formatting (bold, italic, line breaks)
 function formatMessage(text: string) {
@@ -66,8 +68,12 @@ function TypingIndicator() {
   );
 }
 
+const DEMO_EMAIL = "demo@nkapcontrol.cm";
+
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: session } = useSession();
+  const isDemo = session?.user?.email === DEMO_EMAIL;
   const { messages, isLoading, sendMessage, clearChat, suggestions } = useChat();
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -158,7 +164,7 @@ export function AIChatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 z-50 w-[420px] h-[600px] max-h-[85vh] flex flex-col rounded-2xl overflow-hidden border border-white/10 bg-zinc-950/80 backdrop-blur-2xl shadow-2xl shadow-emerald-500/10"
+            className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[420px] h-[100dvh] sm:h-[600px] sm:max-h-[85vh] flex flex-col sm:rounded-2xl overflow-hidden border-0 sm:border border-white/10 bg-zinc-950/95 sm:bg-zinc-950/80 backdrop-blur-2xl shadow-2xl shadow-emerald-500/10"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-emerald-900/40 to-zinc-950/50 backdrop-blur-md border-b border-white/5">
@@ -278,7 +284,7 @@ export function AIChatbot() {
 
             {/* Suggestions */}
             <AnimatePresence>
-              {showSuggestions && !isLoading && (
+              {showSuggestions && !isLoading && !isDemo && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
@@ -305,30 +311,41 @@ export function AIChatbot() {
 
             {/* Input area */}
             <div className="px-4 py-3 border-t border-white/5 bg-zinc-950/50 backdrop-blur-md">
-              <div className="flex items-center gap-2">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Posez une question..."
-                  disabled={isLoading}
-                  className="flex-1 bg-zinc-900/50 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 disabled:opacity-50 transition-all shadow-inner"
-                />
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.92 }}
-                  onClick={handleSend}
-                  disabled={!input.trim() || isLoading}
-                  className="w-10 h-10 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center disabled:opacity-30 disabled:hover:bg-emerald-500 transition-colors cursor-pointer shadow-lg shadow-emerald-500/20"
-                >
-                  <Send className="w-4 h-4" />
-                </motion.button>
-              </div>
-              <p className="text-[9px] text-zinc-500 text-center mt-2">
-                Nkap AI analyse vos données en temps réel • Propulsé par Claude
-              </p>
+              {isDemo ? (
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-zinc-900/50 border border-amber-500/20">
+                  <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+                  <p className="text-xs text-amber-300/80">
+                    Nkap AI n&apos;est pas disponible en mode démo. Créez votre compte pour utiliser l&apos;assistant.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Posez une question..."
+                      disabled={isLoading}
+                      className="flex-1 bg-zinc-900/50 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 disabled:opacity-50 transition-all shadow-inner"
+                    />
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.92 }}
+                      onClick={handleSend}
+                      disabled={!input.trim() || isLoading}
+                      className="w-10 h-10 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center disabled:opacity-30 disabled:hover:bg-emerald-500 transition-colors cursor-pointer shadow-lg shadow-emerald-500/20"
+                    >
+                      <Send className="w-4 h-4" />
+                    </motion.button>
+                  </div>
+                  <p className="text-[9px] text-zinc-500 text-center mt-2">
+                    Nkap AI analyse vos données en temps réel • Propulsé par Claude
+                  </p>
+                </>
+              )}
             </div>
           </motion.div>
         )}
