@@ -20,9 +20,12 @@ import {
   CreditCard,
   Bell,
   Mail,
+  LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 interface NavChild {
   name: string;
@@ -104,6 +107,7 @@ export function Sidebar() {
     "Gestion",
     "Communication",
   ]);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const toggleGroup = (name: string) => {
     setOpenGroups((prev) =>
@@ -111,21 +115,29 @@ export function Sidebar() {
     );
   };
 
-  return (
-    <div className="flex flex-col w-64 bg-zinc-950/60 backdrop-blur-2xl border border-white/5 text-zinc-300 h-[calc(100vh-32px)] fixed left-4 top-4 rounded-2xl z-30 transition-all shadow-2xl overflow-hidden">
+  const sidebarContent = (
+    <>
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-6">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20 bg-white overflow-hidden p-0.5">
-          <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
+      <div className="flex items-center justify-between px-5 py-5 lg:px-6 lg:py-6">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20 bg-white overflow-hidden p-0.5">
+            <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
+          </div>
+          <div>
+            <p className="font-bold text-white text-lg tracking-tight leading-none">Nkap Control</p>
+            <p className="text-zinc-500 text-[11px] mt-1 font-medium tracking-wide">GESTION FINANCIERE</p>
+          </div>
         </div>
-        <div>
-          <p className="font-bold text-white text-lg tracking-tight leading-none">Nkap Control</p>
-          <p className="text-zinc-500 text-[11px] mt-1 font-medium tracking-wide">GESTION FINANCIERE</p>
-        </div>
+        <button
+          onClick={() => setMobileOpen(false)}
+          className="lg:hidden p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-4 overflow-y-auto space-y-1.5 scrollbar-none">
+      <nav className="flex-1 px-3 py-3 lg:px-4 lg:py-4 overflow-y-auto space-y-1.5 scrollbar-none">
         {(isAdmin ? superAdminNavigation : navigation).map((item) => {
           if (item.children) {
             const isOpen = openGroups.includes(item.name);
@@ -168,6 +180,7 @@ export function Sidebar() {
                         <Link
                           key={child.href}
                           href={child.href}
+                          onClick={() => setMobileOpen(false)}
                           className="block relative"
                         >
                           {isChildActive && (
@@ -200,6 +213,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href!}
+              onClick={() => setMobileOpen(false)}
               className="block relative"
             >
               {isActive && (
@@ -227,7 +241,16 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-6 py-6 mt-auto">
+      <div className="px-4 py-4 lg:px-6 lg:py-6 mt-auto space-y-3">
+        {/* Logout button */}
+        <button
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all group cursor-pointer"
+        >
+          <LogOut className="w-5 h-5 text-red-500 group-hover:text-red-400" />
+          Déconnexion
+        </button>
+
         <div className="flex items-center gap-3 bg-zinc-900/50 p-3 rounded-xl border border-zinc-800/50">
           <div className="bg-zinc-800 p-2 rounded-lg">
             <Landmark className="w-4 h-4 text-emerald-400" />
@@ -238,6 +261,41 @@ export function Sidebar() {
           </div>
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile hamburger button */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="lg:hidden fixed top-4 left-4 z-50 w-10 h-10 rounded-xl bg-zinc-900/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors shadow-lg"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Mobile sidebar */}
+      <div
+        className={cn(
+          "lg:hidden fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-zinc-950/95 backdrop-blur-2xl border-r border-white/5 text-zinc-300 transition-transform duration-300 ease-in-out shadow-2xl",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        {sidebarContent}
+      </div>
+
+      {/* Desktop sidebar */}
+      <div className="hidden lg:flex flex-col w-64 bg-zinc-950/60 backdrop-blur-2xl border border-white/5 text-zinc-300 h-[calc(100vh-32px)] fixed left-4 top-4 rounded-2xl z-30 transition-all shadow-2xl overflow-hidden">
+        {sidebarContent}
+      </div>
+    </>
   );
 }

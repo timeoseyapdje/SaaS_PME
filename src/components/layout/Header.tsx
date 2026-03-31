@@ -140,10 +140,10 @@ export function Header({ title, subtitle }: HeaderProps) {
   };
 
   return (
-    <header className="h-16 bg-zinc-950/60 backdrop-blur-xl border border-white/5 rounded-2xl flex items-center justify-between px-6 mb-6 sticky top-4 z-20 transition-all shadow-xl">
+    <header className="h-14 lg:h-16 bg-zinc-950/60 backdrop-blur-xl border border-white/5 rounded-2xl flex items-center justify-between px-3 sm:px-4 lg:px-6 mb-4 lg:mb-6 sticky top-0 lg:top-4 z-20 transition-all shadow-xl">
       <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-transparent opacity-50 rounded-2xl pointer-events-none" />
       <div className="flex flex-col justify-center relative z-10">
-        <h1 className="text-xl font-semibold text-foreground tracking-tight">{title}</h1>
+        <h1 className="text-base sm:text-lg lg:text-xl font-semibold text-foreground tracking-tight truncate">{title}</h1>
         {subtitle && <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>}
       </div>
       <div className="flex items-center gap-4">
