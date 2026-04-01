@@ -12,6 +12,7 @@ import {
   Mail,
   Search,
 } from "lucide-react";
+import { Header } from "@/components/layout/Header";
 
 interface UserItem {
   id: string;
@@ -98,13 +99,9 @@ export default function AdminNotificationsPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-4xl mx-auto w-full">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Notifications</h1>
-        <p className="text-zinc-400 text-sm mt-1">
-          Envoyez des emails et notifications aux utilisateurs
-        </p>
-      </div>
+    <div className="flex flex-col min-h-full">
+      <Header title="Notifications" subtitle="Envoyez des emails et notifications aux utilisateurs" />
+      <div className="p-4 lg:p-6 max-w-4xl mx-auto w-full">
 
       {/* Résultat */}
       {result && (
@@ -256,6 +253,7 @@ export default function AdminNotificationsPage() {
             Envoyer la notification
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

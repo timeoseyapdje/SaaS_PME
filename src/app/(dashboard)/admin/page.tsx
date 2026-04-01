@@ -19,6 +19,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { Header } from "@/components/layout/Header";
 
 interface RecentPayment {
   id: string;
@@ -177,14 +178,10 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto w-full">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Panneau d&apos;administration</h1>
-        <p className="text-zinc-400 text-sm mt-1">
-          Vue d&apos;ensemble de la plateforme Nkap Control
-        </p>
-      </div>
+    <div className="flex flex-col min-h-full">
+      <Header title="Administration" subtitle="Vue d'ensemble de la plateforme Nkap Control" />
 
+      <div className="p-4 lg:p-6 max-w-7xl mx-auto w-full space-y-6">
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {kpis.map((kpi, idx) => (
@@ -437,6 +434,7 @@ export default function AdminDashboardPage() {
             <p className="text-sm text-zinc-600">Aucun utilisateur inscrit</p>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

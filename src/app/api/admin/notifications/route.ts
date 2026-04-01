@@ -49,11 +49,24 @@ export async function POST(request: Request) {
       );
     }
 
+    // 1. Stocker les notifications in-app dans la base de données
+    const notifData = users.map((user) => ({
+      userId: user.id,
+      title: subject,
+      message,
+      type: "info",
+      read: false,
+    }));
+
+    await prisma.notification.createMany({
+      data: notifData,
+    });
+
+    // 2. Envoyer les emails (optionnel - si Resend est configuré)
     const resend = getResendClient();
     let emailsSent = 0;
     let emailsFailed = 0;
 
-    // Envoyer les emails
     if (resend) {
       for (const user of users) {
         try {
@@ -95,19 +108,15 @@ export async function POST(request: Request) {
           emailsFailed++;
         }
       }
-    } else {
-      return NextResponse.json(
-        { error: "Service email non configuré (RESEND_API_KEY manquante)" },
-        { status: 503 }
-      );
     }
 
     return NextResponse.json({
       success: true,
       totalTargeted: users.length,
+      notificationsCreated: users.length,
       emailsSent,
       emailsFailed,
-      message: `Notification envoyée à ${emailsSent} utilisateur(s)`,
+      message: `Notification envoyée à ${users.length} utilisateur(s)${resend ? ` (${emailsSent} email(s))` : " (in-app uniquement)"}`,
     });
   } catch (err) {
     console.error("Admin notification error:", err);

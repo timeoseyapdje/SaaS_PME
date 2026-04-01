@@ -123,7 +123,7 @@ export default function DashboardPage() {
           year: "numeric",
         })}`}
       />
-      <div className="p-8 max-w-[1600px] mx-auto w-full">
+      <div className="p-2 sm:p-4 lg:p-8 max-w-[1600px] mx-auto w-full">
         <motion.div
           variants={containerVariants}
           initial="hidden"
