@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Building2, Search, Users, MapPin, Mail, Phone, FileText, Crown, Zap, Rocket } from "lucide-react";
+import { Header } from "@/components/layout/Header";
 
 interface AdminCompany {
   id: string;
@@ -66,14 +67,10 @@ export default function AdminCompaniesPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto w-full">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Entreprises</h1>
-          <p className="text-zinc-400 text-sm mt-1">
-            {companies.length} entreprise{companies.length > 1 ? "s" : ""} enregistrée{companies.length > 1 ? "s" : ""}
-          </p>
-        </div>
+    <div className="flex flex-col min-h-full">
+      <Header title="Entreprises" subtitle={`${companies.length} entreprise${companies.length > 1 ? "s" : ""} enregistrée${companies.length > 1 ? "s" : ""}`} />
+      <div className="p-4 lg:p-6 max-w-7xl mx-auto w-full">
+      <div className="flex items-center justify-end mb-6">
         <div className="flex items-center gap-2 bg-zinc-900/50 border border-zinc-800/50 rounded-lg px-3 py-2">
           <Search className="w-4 h-4 text-zinc-500" />
           <input
@@ -171,6 +168,7 @@ export default function AdminCompaniesPage() {
           Aucune entreprise trouvée
         </div>
       )}
+      </div>
     </div>
   );
 }

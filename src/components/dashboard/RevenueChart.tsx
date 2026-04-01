@@ -33,26 +33,26 @@ interface TooltipProps {
 const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white border rounded-lg shadow-lg p-3 text-sm">
-        <p className="font-semibold text-gray-700 mb-2 capitalize">{label}</p>
+      <div className="bg-zinc-900 border border-zinc-700/50 rounded-xl shadow-2xl p-3 text-sm backdrop-blur-xl">
+        <p className="font-semibold text-zinc-200 mb-2 capitalize">{label}</p>
         {payload.map((entry) => (
           <div key={entry.name} className="flex items-center gap-2 mt-1">
             <div
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-gray-600">{entry.name}:</span>
-            <span className="font-medium">{formatCompact(entry.value)}</span>
+            <span className="text-zinc-400">{entry.name}:</span>
+            <span className="font-medium text-white">{formatCompact(entry.value)}</span>
           </div>
         ))}
         {payload.length === 2 && (
-          <div className="mt-2 pt-2 border-t flex items-center gap-2">
-            <span className="text-gray-600">Résultat:</span>
+          <div className="mt-2 pt-2 border-t border-zinc-700/50 flex items-center gap-2">
+            <span className="text-zinc-400">Résultat:</span>
             <span
               className={`font-bold ${
                 payload[0].value - payload[1].value >= 0
-                  ? "text-green-600"
-                  : "text-red-600"
+                  ? "text-emerald-400"
+                  : "text-rose-400"
               }`}
             >
               {formatCompact(payload[0].value - payload[1].value)}
@@ -68,21 +68,21 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 export function RevenueChart({ data, loading }: RevenueChartProps) {
   if (loading) {
     return (
-      <Card>
+      <Card className="border-border/50 bg-background/60 backdrop-blur-sm shadow-sm">
         <CardHeader>
           <CardTitle className="text-base font-semibold">
             Revenus & Dépenses
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />
+          <div className="h-64 bg-muted/30 animate-pulse rounded-lg" />
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card>
+    <Card className="border-border/50 bg-background/60 backdrop-blur-sm shadow-sm">
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-semibold">
           Revenus & Dépenses (6 derniers mois)
@@ -94,25 +94,35 @@ export function RevenueChart({ data, loading }: RevenueChartProps) {
             data={data}
             margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+            <XAxis
+              dataKey="month"
+              tick={{ fontSize: 12, fill: "#a1a1aa" }}
+              axisLine={{ stroke: "#3f3f46" }}
+              tickLine={{ stroke: "#3f3f46" }}
+            />
             <YAxis
               tickFormatter={(v) => formatCompact(v)}
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: 11, fill: "#a1a1aa" }}
+              axisLine={{ stroke: "#3f3f46" }}
+              tickLine={{ stroke: "#3f3f46" }}
             />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+            <Legend
+              wrapperStyle={{ fontSize: "12px", color: "#a1a1aa" }}
+              formatter={(value) => <span style={{ color: "#a1a1aa" }}>{value}</span>}
+            />
             <Bar
               dataKey="revenus"
               name="Revenus"
-              fill="#3b82f6"
-              radius={[4, 4, 0, 0]}
+              fill="#34d399"
+              radius={[6, 6, 0, 0]}
             />
             <Bar
               dataKey="depenses"
               name="Dépenses"
-              fill="#f87171"
-              radius={[4, 4, 0, 0]}
+              fill="#fb7185"
+              radius={[6, 6, 0, 0]}
             />
           </BarChart>
         </ResponsiveContainer>

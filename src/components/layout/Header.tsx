@@ -48,58 +48,116 @@ export function Header({ title, subtitle }: HeaderProps) {
 
   const fetchNotifications = useCallback(async () => {
     try {
-      const res = await fetch("/api/dashboard");
-      if (!res.ok) return;
-      const data = await res.json();
-
       const notifs: Notification[] = [];
 
-      // Factures en retard
-      if (data.pendingInvoices) {
-        data.pendingInvoices.forEach((inv: { id: string; number: string; client?: { name: string } | null; total: number; currency: string; dueDate: string }) => {
-          const due = new Date(inv.dueDate);
-          const now = new Date();
-          if (due < now) {
-            notifs.push({
-              id: `overdue-${inv.id}`,
-              type: "alert",
-              title: "Facture en retard",
-              message: `${inv.number} - ${inv.client?.name || "Client"} (${formatCurrency(inv.total, inv.currency)})`,
-              time: due.toLocaleDateString("fr-FR"),
-              read: false,
-            });
-          } else {
-            notifs.push({
-              id: `pending-${inv.id}`,
-              type: "invoice",
-              title: "Facture en attente",
-              message: `${inv.number} - ${inv.client?.name || "Client"} (${formatCurrency(inv.total, inv.currency)})`,
-              time: `Échéance: ${due.toLocaleDateString("fr-FR")}`,
-              read: false,
+      // 1. Fetch stored notifications from DB (works for all users)
+      try {
+        const dbRes = await fetch("/api/notifications");
+        if (dbRes.ok) {
+          const dbNotifs = await dbRes.json();
+          if (Array.isArray(dbNotifs)) {
+            dbNotifs.forEach((n: { id: string; title: string; message: string; type: string; read: boolean; createdAt: string }) => {
+              const date = new Date(n.createdAt);
+              notifs.push({
+                id: n.id,
+                type: (n.type as Notification["type"]) || "invoice",
+                title: n.title,
+                message: n.message,
+                time: date.toLocaleDateString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }),
+                read: n.read,
+              });
             });
           }
-        });
+        }
+      } catch {
+        // silently fail for DB notifications
       }
 
-      // Alerte si dépenses > revenus
-      if (data.kpis && data.kpis.expenses.current > data.kpis.revenue.current && data.kpis.expenses.current > 0) {
-        notifs.push({
-          id: "expense-alert",
-          type: "expense",
-          title: "Attention aux dépenses",
-          message: `Vos dépenses (${formatCurrency(data.kpis.expenses.current, "XAF")}) dépassent vos revenus ce mois-ci.`,
-          time: "Ce mois",
-          read: false,
-        });
+      // 2. Add dynamic notifications based on role
+      if (userRole === "ADMIN") {
+        try {
+          const res = await fetch("/api/admin/stats");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.pendingPayments > 0) {
+              notifs.push({
+                id: "pending-payments",
+                type: "alert",
+                title: "Paiements en attente",
+                message: `${data.pendingPayments} paiement(s) en attente de validation.`,
+                time: "Maintenant",
+                read: false,
+              });
+            }
+            if (data.newUsersThisMonth > 0) {
+              notifs.push({
+                id: "new-users",
+                type: "success",
+                title: "Nouveaux utilisateurs",
+                message: `${data.newUsersThisMonth} nouveau(x) utilisateur(s) ce mois-ci.`,
+                time: "Ce mois",
+                read: false,
+              });
+            }
+          }
+        } catch {
+          // silently fail
+        }
+      } else {
+        try {
+          const res = await fetch("/api/dashboard");
+          if (res.ok) {
+            const data = await res.json();
+            // Factures en retard
+            if (data.pendingInvoices) {
+              data.pendingInvoices.forEach((inv: { id: string; number: string; client?: { name: string } | null; total: number; currency: string; dueDate: string }) => {
+                const due = new Date(inv.dueDate);
+                const now = new Date();
+                if (due < now) {
+                  notifs.push({
+                    id: `overdue-${inv.id}`,
+                    type: "alert",
+                    title: "Facture en retard",
+                    message: `${inv.number} - ${inv.client?.name || "Client"} (${formatCurrency(inv.total, inv.currency)})`,
+                    time: due.toLocaleDateString("fr-FR"),
+                    read: false,
+                  });
+                } else {
+                  notifs.push({
+                    id: `pending-${inv.id}`,
+                    type: "invoice",
+                    title: "Facture en attente",
+                    message: `${inv.number} - ${inv.client?.name || "Client"} (${formatCurrency(inv.total, inv.currency)})`,
+                    time: `Échéance: ${due.toLocaleDateString("fr-FR")}`,
+                    read: false,
+                  });
+                }
+              });
+            }
+            // Alerte si dépenses > revenus
+            if (data.kpis && data.kpis.expenses.current > data.kpis.revenue.current && data.kpis.expenses.current > 0) {
+              notifs.push({
+                id: "expense-alert",
+                type: "expense",
+                title: "Attention aux dépenses",
+                message: `Vos dépenses (${formatCurrency(data.kpis.expenses.current, "XAF")}) dépassent vos revenus ce mois-ci.`,
+                time: "Ce mois",
+                read: false,
+              });
+            }
+          }
+        } catch {
+          // silently fail
+        }
       }
 
-      // Message de bienvenue si aucune notif
+      // 3. Default message if no notifications
       if (notifs.length === 0) {
         notifs.push({
           id: "welcome",
           type: "success",
           title: "Tout est en ordre",
-          message: "Aucune alerte pour le moment. Votre gestion financière est à jour.",
+          message: "Aucune alerte pour le moment.",
           time: "Maintenant",
           read: true,
         });
@@ -109,7 +167,7 @@ export function Header({ title, subtitle }: HeaderProps) {
     } catch {
       // silently fail
     }
-  }, []);
+  }, [userRole]);
 
   useEffect(() => {
     fetchNotifications();
@@ -119,6 +177,12 @@ export function Header({ title, subtitle }: HeaderProps) {
 
   function markAllRead() {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    // Mark all stored notifications as read in DB
+    fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ markAll: true }),
+    }).catch(() => {});
     toast({
       title: "Notifications lues",
       description: "Toutes les notifications ont été marquées comme lues.",
@@ -127,6 +191,8 @@ export function Header({ title, subtitle }: HeaderProps) {
 
   function dismissNotif(id: string) {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
+    // Delete stored notification from DB (dynamic ones like "overdue-xxx" won't match, which is fine)
+    fetch(`/api/notifications?id=${id}`, { method: "DELETE" }).catch(() => {});
   }
 
   const notifIcon = (type: string) => {

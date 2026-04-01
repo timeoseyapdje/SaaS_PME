@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Users, Search, Building2, Mail, Calendar, ShieldCheck, Loader2, Crown, Zap, Rocket, MapPin } from "lucide-react";
+import { Header } from "@/components/layout/Header";
 
 const SUPER_ADMIN_EMAIL = "admin@nkapcontrol.cm";
 
@@ -93,14 +94,10 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto w-full">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Utilisateurs</h1>
-          <p className="text-zinc-400 text-sm mt-1">
-            {users.length} utilisateur{users.length > 1 ? "s" : ""} inscrit{users.length > 1 ? "s" : ""}
-          </p>
-        </div>
+    <div className="flex flex-col min-h-full">
+      <Header title="Utilisateurs" subtitle={`${users.length} utilisateur${users.length > 1 ? "s" : ""} inscrit${users.length > 1 ? "s" : ""}`} />
+      <div className="p-4 lg:p-6 max-w-7xl mx-auto w-full">
+      <div className="flex items-center justify-end mb-6">
         <div className="flex items-center gap-2 bg-zinc-900/50 border border-zinc-800/50 rounded-lg px-3 py-2">
           <Search className="w-4 h-4 text-zinc-500" />
           <input
@@ -256,6 +253,7 @@ export default function AdminUsersPage() {
             Aucun utilisateur trouvé
           </div>
         )}
+      </div>
       </div>
     </div>
   );
