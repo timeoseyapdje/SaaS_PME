@@ -1,7 +1,7 @@
 "use client";
 
 import jsPDF from "jspdf";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import { formatCurrency } from "@/lib/currency";
 
 // ============================================================
@@ -163,22 +163,36 @@ export function exportInvoicePDF(invoice: InvoiceForPDF) {
 // Excel Export - Tableau générique
 // ============================================================
 
-export function exportToExcel(data: Record<string, unknown>[], fileName: string, sheetName: string = "Données") {
-  const ws = XLSX.utils.json_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+export async function exportToExcel(data: Record<string, unknown>[], fileName: string, sheetName: string = "Données") {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet(sheetName);
 
-  // Auto-size columns
-  const colWidths = Object.keys(data[0] || {}).map((key) => {
+  if (data.length === 0) return;
+
+  const headers = Object.keys(data[0]);
+  sheet.columns = headers.map((key) => {
     const maxLen = Math.max(
       key.length,
       ...data.map((row) => String(row[key] || "").length)
     );
-    return { wch: Math.min(maxLen + 2, 40) };
+    return { header: key, key, width: Math.min(maxLen + 2, 40) };
   });
-  ws["!cols"] = colWidths;
 
-  XLSX.writeFile(wb, `${fileName}.xlsx`);
+  for (const row of data) {
+    sheet.addRow(row);
+  }
+
+  // Bold headers
+  sheet.getRow(1).font = { bold: true };
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${fileName}.xlsx`;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 // ============================================================
