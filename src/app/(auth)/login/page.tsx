@@ -23,12 +23,33 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [sendingCode, setSendingCode] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setNeedsVerification(false);
     setLoading(true);
     try {
+      // Vérifier le statut email avant tentative de connexion
+      const checkRes = await fetch("/api/auth/check-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const checkData = await checkRes.json();
+
+      if (checkData.status === "email_not_verified") {
+        setNeedsVerification(true);
+        setError("Veuillez vérifier votre adresse email avant de vous connecter.");
+        setLoading(false);
+        return;
+      }
+
       const result = await signIn("credentials", {
         email,
         password,
@@ -44,6 +65,52 @@ export default function LoginPage() {
       setError("Une erreur est survenue");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleSendCode() {
+    setSendingCode(true);
+    setError("");
+    try {
+      const res = await fetch("/api/email/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) {
+        setCodeSent(true);
+      } else {
+        setError("Erreur lors de l'envoi du code");
+      }
+    } catch {
+      setError("Erreur réseau");
+    } finally {
+      setSendingCode(false);
+    }
+  }
+
+  async function handleVerifyCode() {
+    setVerifying(true);
+    setError("");
+    try {
+      const res = await fetch("/api/email/verify", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code: verificationCode }),
+      });
+      if (res.ok) {
+        setNeedsVerification(false);
+        setCodeSent(false);
+        setVerificationCode("");
+        // Re-tenter la connexion automatiquement
+        handleSubmit(new Event("submit") as unknown as React.FormEvent);
+      } else {
+        setError("Code invalide ou expiré");
+      }
+    } catch {
+      setError("Erreur réseau");
+    } finally {
+      setVerifying(false);
     }
   }
 
@@ -131,6 +198,56 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
+
+            {needsVerification && (
+              <div className="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-3">
+                <p className="text-sm text-amber-400 font-medium">
+                  Votre email n&apos;est pas encore vérifié.
+                </p>
+                {!codeSent ? (
+                  <Button
+                    onClick={handleSendCode}
+                    disabled={sendingCode}
+                    variant="outline"
+                    className="w-full h-10 text-sm border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+                  >
+                    {sendingCode ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Envoi en cours...
+                      </>
+                    ) : (
+                      "Envoyer un code de vérification"
+                    )}
+                  </Button>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">Un code a été envoyé à {email}</p>
+                    <Input
+                      placeholder="Code à 6 chiffres"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      maxLength={6}
+                      className="h-10 bg-background border-border/60 text-center text-lg tracking-widest"
+                    />
+                    <Button
+                      onClick={handleVerifyCode}
+                      disabled={verifying || verificationCode.length !== 6}
+                      className="w-full h-10 text-sm bg-amber-600 hover:bg-amber-700 text-white"
+                    >
+                      {verifying ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Vérification...
+                        </>
+                      ) : (
+                        "Vérifier"
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col gap-3 pt-2 pb-8">
             <p className="text-[15px] text-muted-foreground text-center">

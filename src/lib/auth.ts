@@ -10,6 +10,8 @@ const loginSchema = z.object({
   password: z.string().min(6),
 });
 
+const EXEMPT_EMAILS = ["admin@nkapcontrol.cm", "demo@nkapcontrol.cm"];
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: {
@@ -42,6 +44,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const isValid = await bcrypt.compare(password, user.password);
 
           if (!isValid) {
+            return null;
+          }
+
+          // Vérification email requise sauf pour super admin et compte démo
+          if (!EXEMPT_EMAILS.includes(email) && !user.emailVerified) {
             return null;
           }
 

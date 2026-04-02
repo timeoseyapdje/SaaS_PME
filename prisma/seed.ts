@@ -7,6 +7,7 @@ async function main() {
   console.log("Seeding database...");
 
   const hashedPassword = await bcrypt.hash("demo123456", 12);
+  const adminHashedPassword = await bcrypt.hash("Admin@2026!", 12);
 
   // Create demo company
   const company = await prisma.company.upsert({
@@ -55,7 +56,23 @@ async function main() {
 
   console.log(`Company created: ${company.name}`);
 
-  // Create demo admin user
+  // Create super admin user
+  const superAdmin = await prisma.user.upsert({
+    where: { email: "admin@nkapcontrol.cm" },
+    update: {},
+    create: {
+      email: "admin@nkapcontrol.cm",
+      name: "Super Admin",
+      password: adminHashedPassword,
+      role: "ADMIN",
+      emailVerified: new Date(),
+      companyId: company.id,
+    },
+  });
+
+  console.log(`Super Admin created: ${superAdmin.email}`);
+
+  // Create demo user
   const user = await prisma.user.upsert({
     where: { email: "demo@nkapcontrol.cm" },
     update: {},
@@ -64,6 +81,7 @@ async function main() {
       name: "Utilisateur Démo",
       password: hashedPassword,
       role: "VIEWER",
+      emailVerified: new Date(),
       companyId: company.id,
     },
   });
