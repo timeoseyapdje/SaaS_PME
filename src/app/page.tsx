@@ -214,7 +214,7 @@ export default function LandingPage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-full border-zinc-600 bg-zinc-900/80 text-white hover:bg-zinc-800 backdrop-blur-sm">
-                <Link href="/login">Voir la demo</Link>
+                <Link href="/onboarding">Voir le tutoriel</Link>
               </Button>
             </motion.div>
 
@@ -424,7 +424,7 @@ export default function LandingPage() {
                   <Link href="/register">Creer un compte gratuit</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="h-14 px-8 text-base font-semibold rounded-full border-white/50 text-white bg-white/10 hover:bg-white/20">
-                  <Link href="/login">Tester la demo</Link>
+                  <Link href="/onboarding">Voir le tutoriel</Link>
                 </Button>
               </div>
             </div>
@@ -452,7 +452,7 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="#features" className="hover:text-foreground transition-colors">Fonctionnalites</Link></li>
                 <li><Link href="#pricing" className="hover:text-foreground transition-colors">Tarifs</Link></li>
-                <li><Link href="/login" className="hover:text-foreground transition-colors">Demo</Link></li>
+                <li><Link href="/onboarding" className="hover:text-foreground transition-colors">Tutoriel</Link></li>
               </ul>
             </div>
             <div>
