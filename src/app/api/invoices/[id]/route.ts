@@ -5,9 +5,10 @@ import { calculateInvoiceTotal } from "@/lib/tax";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -15,7 +16,7 @@ export async function GET(
     const companyId = (session.user as { companyId?: string }).companyId;
 
     const invoice = await prisma.invoice.findFirst({
-      where: { id: params.id, companyId },
+      where: { id, companyId },
       include: {
         client: true,
         items: true,
@@ -35,9 +36,10 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -48,7 +50,7 @@ export async function PATCH(
     const { status, items, clientId, dueDate, notes, terms, currency, applyTVA } = body;
 
     const existingInvoice = await prisma.invoice.findFirst({
-      where: { id: params.id, companyId },
+      where: { id, companyId },
     });
 
     if (!existingInvoice) {
@@ -86,7 +88,7 @@ export async function PATCH(
       updateData.total = total;
 
       // Delete existing items and recreate
-      await prisma.invoiceItem.deleteMany({ where: { invoiceId: params.id } });
+      await prisma.invoiceItem.deleteMany({ where: { invoiceId: id } });
       await prisma.invoiceItem.createMany({
         data: items.map(
           (item: {
@@ -94,7 +96,7 @@ export async function PATCH(
             quantity: number;
             unitPrice: number;
           }) => ({
-            invoiceId: params.id,
+            invoiceId: id,
             description: item.description,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
@@ -105,7 +107,7 @@ export async function PATCH(
     }
 
     const invoice = await prisma.invoice.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: { client: true, items: true },
     });
@@ -119,9 +121,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -129,14 +132,14 @@ export async function DELETE(
     const companyId = (session.user as { companyId?: string }).companyId;
 
     const invoice = await prisma.invoice.findFirst({
-      where: { id: params.id, companyId },
+      where: { id, companyId },
     });
 
     if (!invoice) {
       return NextResponse.json({ error: "Facture non trouvée" }, { status: 404 });
     }
 
-    await prisma.invoice.delete({ where: { id: params.id } });
+    await prisma.invoice.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

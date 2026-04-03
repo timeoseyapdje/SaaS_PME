@@ -24,7 +24,7 @@ export default async function DashboardLayout({
         <div className="flex-1 ml-0 lg:ml-[288px] p-3 pt-16 lg:p-4 lg:pt-4 overflow-auto flex flex-col relative z-10">{children}</div>
       </div>
       <Toaster />
-      <AIChatbot />
+      {session.user.email !== "admin@nkapcontrol.cm" && <AIChatbot />}
     </SessionProvider>
   );
 }
