@@ -88,7 +88,7 @@ export default function RegisterPage() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push("/login");
+        router.push("/onboarding");
       }, 2000);
     } catch {
       setError("Une erreur est survenue. Veuillez réessayer.");
@@ -109,7 +109,7 @@ export default function RegisterPage() {
             <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-foreground mb-3 tracking-tight">Compte créé !</h2>
-          <p className="text-muted-foreground text-lg">Redirection vers la page de connexion...</p>
+          <p className="text-muted-foreground text-lg">Découvrez la plateforme en quelques étapes...</p>
         </div>
       </div>
     );
