@@ -5,8 +5,9 @@ import { requireSuperAdmin, SUPER_ADMIN_EMAIL } from "@/lib/admin";
 // PATCH - Modifier le rôle d'un utilisateur (Super Admin uniquement)
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const { error } = await requireSuperAdmin();
   if (error) return error;
 
@@ -19,7 +20,7 @@ export async function PATCH(
 
   // Vérifier que l'utilisateur cible existe
   const targetUser = await prisma.user.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: { email: true },
   });
 
@@ -33,7 +34,7 @@ export async function PATCH(
   }
 
   const updated = await prisma.user.update({
-    where: { id: params.id },
+    where: { id },
     data: { role },
     select: { id: true, name: true, email: true, role: true },
   });
