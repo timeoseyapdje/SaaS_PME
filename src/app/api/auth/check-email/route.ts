@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findUnique({
       where: { email },
-      select: { password: true, emailVerified: true },
+      select: { password: true, emailVerified: true, role: true },
     });
 
     if (!user || !user.password) {
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ status: "email_not_verified" });
     }
 
-    return NextResponse.json({ status: "ok" });
+    return NextResponse.json({ status: "ok", role: user.role });
   } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
