@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nkap Control — Guide de démarrage</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00C896;
+    --green-dark: #009e77;
+    --green-glow: rgba(0,200,150,0.15);
+    --black: #0A0F0D;
+    --dark: #111815;
+    --card: #161d1a;
+    --card2: #1c2521;
+    --border: rgba(0,200,150,0.15);
+    --text: #e8f0ed;
+    --muted: #7a9990;
+    --fcfa: #F5C518;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--black);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* -- HERO -- */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 24px;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,200,150,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 60%, rgba(0,200,150,0.07) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,200,150,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,200,150,0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--green-glow);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .badge span { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+
+  .hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.08;
+    max-width: 760px;
+    margin-bottom: 24px;
+    animation: fadeDown 0.7s ease 0.1s both;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--green);
+    position: relative;
+  }
+
+  .hero h1 em::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -4px;
+    width: 100%; height: 3px;
+    background: var(--green);
+    border-radius: 2px;
+    opacity: 0.5;
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+    animation: fadeDown 0.7s ease 0.2s both;
+  }
+
+  .cta-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeDown 0.7s ease 0.3s both;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: var(--black);
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 14px 28px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 0 24px rgba(0,200,150,0.3);
+  }
+  .btn-primary:hover { background: var(--green-dark); transform: translateY(-2px); box-shadow: 0 0 36px rgba(0,200,150,0.4); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 14px 28px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--green); color: var(--green); transform: translateY(-2px); }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    animation: bounce 2s infinite;
+  }
+
+  .scroll-hint svg { opacity: 0.5; }
+
+  /* -- NAV -- */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    background: rgba(10,15,13,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-logo span { color: var(--green); }
+
+  .nav-links { display: flex; gap: 8px; }
+
+  .nav-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: 'Sora', sans-serif;
+  }
+  .nav-link:hover, .nav-link.active { color: var(--green); background: var(--green-glow); }
+
+  .step-count {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* -- STEPS -- */
+  .section {
+    padding: 100px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+
+  .section-desc {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 560px;
+    margin-bottom: 64px;
+  }
+
+  .steps-list { display: flex; flex-direction: column; gap: 0; }
+
+  .step-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+  }
+
+  .step-item.visible { opacity: 1; transform: translateY(0); }
+  .step-item:nth-child(even) .step-content { order: 2; }
+  .step-item:nth-child(even) .step-visual { order: 1; }
+
+  .step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .step-num::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    max-width: 40px;
+  }
+
+  .step-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.25;
+  }
+
+  .step-text {
+    color: var(--muted);
+    line-height: 1.75;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+  }
+
+  .tip-box {
+    background: var(--green-glow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--green);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* -- MOCK UI -- */
+  .step-visual {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--card);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,200,150,0.08);
+    position: relative;
+  }
+
+  .mock-header {
+    background: var(--card2);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .mock-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .mock-dot.red { background: #ff5f57; }
+  .mock-dot.yellow { background: #febc2e; }
+  .mock-dot.green { background: #28c840; }
+
+  .mock-url {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin: 0 12px;
+  }
+
+  .mock-body { padding: 24px; }
+
+  .login-mock { display: flex; flex-direction: column; gap: 16px; }
+
+  .mock-logo-area { text-align: center; margin-bottom: 8px; }
+
+  .mock-logo-icon {
+    width: 48px; height: 48px;
+    background: var(--green);
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+
+  .mock-title { font-size: 15px; font-weight: 700; }
+  .mock-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .mock-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+
+  .mock-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .mock-input.filled { border-color: var(--green); background: rgba(0,200,150,0.05); }
+
+  .mock-btn {
+    background: var(--green);
+    color: var(--black);
+    border-radius: 8px;
+    padding: 11px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 4px;
+    cursor: default;
+  }
+
+  .demo-creds {
+    background: rgba(245,197,24,0.08);
+    border: 1px solid rgba(245,197,24,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: var(--fcfa);
+    font-family: 'DM Mono', monospace;
+    line-height: 1.7;
+  }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+
+  .kpi-card {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  .kpi-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .kpi-value { font-size: 15px; font-weight: 700; font-family: 'DM Mono', monospace; }
+  .kpi-value.green { color: var(--green); }
+  .kpi-value.yellow { color: var(--fcfa); }
+  .kpi-delta { font-size: 9px; color: var(--green); margin-top: 2px; }
+
+  .mock-chart {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .chart-label { font-size: 10px; color: var(--muted); margin-bottom: 10px; font-weight: 600; }
+
+  .bars { display: flex; align-items: flex-end; gap: 6px; height: 60px; }
+
+  .bar {
+    flex: 1;
+    background: linear-gradient(180deg, var(--green) 0%, rgba(0,200,150,0.3) 100%);
+    border-radius: 3px 3px 0 0;
+    transition: opacity 0.3s;
+  }
+
+  .bar:hover { opacity: 0.8; }
+
+  .invoice-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .invoice-row:last-child { border: none; }
+  .inv-status { font-size: 10px; padding: 3px 8px; border-radius: 100px; font-weight: 600; }
+  .inv-status.paid { background: rgba(0,200,150,0.15); color: var(--green); }
+  .inv-status.pending { background: rgba(245,197,24,0.15); color: var(--fcfa); }
+
+  .account-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+
+  .account-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .account-icon.mtn { background: rgba(245,197,24,0.15); }
+  .account-icon.orange { background: rgba(255,100,0,0.12); }
+  .account-icon.bank { background: rgba(0,200,150,0.1); }
+
+  .account-name { font-size: 12px; font-weight: 600; }
+  .account-sub { font-size: 10px; color: var(--muted); }
+  .account-bal { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600; margin-left: auto; }
+
+  .rapport-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .rapport-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .rapport-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--green-glow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .rapport-name { font-size: 12px; font-weight: 600; }
+  .rapport-sub { font-size: 10px; color: var(--muted); }
+
+  .export-btn {
+    margin-left: auto;
+    font-size: 10px;
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+  }
+
+  /* -- QUICK REF -- */
+  .quickref {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px;
+    margin: 0 auto;
+    max-width: 900px;
+  }
+
+  .quickref-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .qr-item {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s;
+  }
+
+  .qr-item:hover { border-color: var(--green); transform: translateY(-2px); }
+
+  .qr-emoji { font-size: 24px; margin-bottom: 10px; }
+  .qr-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .qr-desc { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+  /* -- FOOTER -- */
+  footer {
+    text-align: center;
+    padding: 48px 24px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  footer a { color: var(--green); text-decoration: none; }
+
+  /* -- PROGRESS BAR -- */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--green), #00e5ae);
+    z-index: 200;
+    transition: width 0.1s;
+    box-shadow: 0 0 8px var(--green);
+  }
+
+  /* -- SIDEBAR NAV -- */
+  .side-nav {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 90;
+  }
+
+  .side-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid var(--muted);
+  }
+
+  .side-dot.active {
+    background: var(--green);
+    border-color: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    transform: scale(1.4);
+  }
+
+  /* -- ANIMATIONS -- */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  @media (max-width: 768px) {
+    .step-item { grid-template-columns: 1fr; gap: 32px; }
+    .step-item:nth-child(even) .step-content { order: 1; }
+    .step-item:nth-child(even) .step-visual { order: 2; }
+    .quickref { padding: 32px 24px; }
+    .side-nav { display: none; }
+    nav { padding: 12px 20px; }
+    .nav-links { gap: 4px; }
+    .nav-link { padding: 6px 10px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<nav>
+  <a class="nav-logo" href="#">Nkap<span>Control</span></a>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="scrollTo('#hero')">Accueil</button>
+    <button class="nav-link" onclick="scrollTo('#steps')">Etapes</button>
+    <button class="nav-link" onclick="scrollTo('#ref')">Reference</button>
+  </div>
+  <div class="step-count" id="stepCounter">Etape -- / 6</div>
+</nav>
+
+<div class="side-nav" id="sideNav">
+  <div class="side-dot active" data-target="hero" title="Intro"></div>
+  <div class="side-dot" data-target="step-1" title="Connexion"></div>
+  <div class="side-dot" data-target="step-2" title="Dashboard"></div>
+  <div class="side-dot" data-target="step-3" title="Facturation"></div>
+  <div class="side-dot" data-target="step-4" title="Tresorerie"></div>
+  <div class="side-dot" data-target="step-5" title="Rapports"></div>
+  <div class="side-dot" data-target="step-6" title="Nkap IA"></div>
+</div>
+
+<section class="hero" id="hero">
+  <div class="grid-bg"></div>
+  <div class="badge"><span></span>Guide de demarrage rapide</div>
+  <h1>Bienvenue sur<br><em>Nkap Control</em></h1>
+  <p>Votre solution de gestion financiere concue pour les PME camerounaises. Ce guide vous accompagne pas a pas pour prendre en main la plateforme des votre premiere connexion.</p>
+  <div class="cta-row">
+    <a href="https://nkap-control.vercel.app/login" class="btn-primary" target="_blank">Acceder a la demo</a>
+    <a href="#steps" class="btn-secondary">Voir le tutoriel</a>
+  </div>
+  <div class="scroll-hint">
+    <span>Defiler</span>
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path d="M19 9l-7 7-7-7"/>
+    </svg>
+  </div>
+</section>
+
+<section class="section" id="steps">
+  <div class="section-label">// Tutoriel interactif</div>
+  <h2 class="section-title">6 etapes pour<br>maitriser la plateforme</h2>
+  <p class="section-desc">Suivez ce guide dans l'ordre pour decouvrir toutes les fonctionnalites essentielles de Nkap Control.</p>
+
+  <div class="steps-list">
+
+    <div class="step-item" id="step-1">
+      <div class="step-content">
+        <div class="step-num">ETAPE 01</div>
+        <h3 class="step-title">Se connecter a la plateforme</h3>
+        <p class="step-text">Rendez-vous sur <strong style="color:var(--green)">nkap-control.vercel.app/login</strong>. Entrez votre email et votre mot de passe, puis cliquez sur <em>Se connecter</em>. Pour la demo, utilisez les identifiants publics fournis ci-dessous.</p>
+        <div class="tip-box">
+          <span class="tip-icon">*</span>
+          <div>Utilisez le <strong>compte demo</strong> pour explorer sans risque avant de creer votre vrai compte.</div>
+        </div>
+      </div>
+      <div class="step-visual">
+        <div class="mock-header">
+          <div class="mock-dot red"></div>
+          <div class="mock-dot yellow"></div>
+          <div class="mock-dot green"></div>
+          <div class="mock-url">nkap-control.vercel.app/login</div>
+        </div>
+        <div class="mock-body">
+          <div class="login-mock">
+            <div class="mock-logo-area">
+              <div class="mock-logo-icon">N</div>
+              <div class="mock-title">Nkap Control</div>
+              <div class="mock-sub">Gestion financiere pour PME camerounaises</div>
+            </div>
+            <div>
+              <div class="mock-label">Adresse email</div>
+              <div class="mock-input filled">demo@nkapcontrol.cm</div>
+            </div>
+            <div>
+              <div class="mock-label">Mot de passe</div>
+              <div class="mock-input filled">demo123456</div>
+            </div>
+            <div class="mock-btn">Se connecter</div>
+            <div class="demo-creds">
+              Identifiants demo :<br>
+              Email : demo@nkapcontrol.cm<br>
+              MDP : demo123456
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-item" id="step-2">
+      <div class="step-content">
+        <div class="step-num">ETAPE 02</div>
+        <h3 class="step-title">Lire votre tableau de bord</h3>
+        <p class="step-text">Le dashboard est votre centre de controle. Il affiche en temps reel vos <strong>revenus</strong>, <strong>depenses</strong>, <strong>tresorerie nette</strong> et vos <strong>factures en attente</strong>. Les graphiques vous donnent une vue mensuelle d'un coup d'oeil.</p>
+        <div class="tip-box">
+          <span class="tip-icon">*</span>
+          <div>Les KPIs se mettent a jour automatiquement a chaque nouvelle transaction ou facture enregistree.</div>
+        </div>
+      </div>
+      <div class="step-visual">
+        <div class="mock-header">
+          <div class="mock-dot red"></div>
+          <div class="mock-dot yellow"></div>
+          <div class="mock-dot green"></div>
+          <div class="mock-url">nkap-control.vercel.app/dashboard</div>
+        </div>
+        <div class="mock-body">
+          <div class="dashboard-mock">
+            <div class="kpi-row">
+              <div class="kpi-card">
+                <div class="kpi-label">Revenus</div>
+                <div class="kpi-value green">2 850 000</div>
+                <div class="kpi-delta">+12% ce mois</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Depenses</div>
+                <div class="kpi-value" style="color:#ff6b6b">980 000</div>
+                <div class="kpi-delta" style="color:var(--muted)">FCFA</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Tresorerie</div>
+                <div class="kpi-value yellow">1 870 000</div>
+                <div class="kpi-delta">Net</div>
+              </div>
+            </div>
+            <div class="mock-chart">
+              <div class="chart-label">Revenus -- 6 derniers mois (FCFA)</div>
+              <div class="bars">
+                <div class="bar" style="height:35%"></div>
+                <div class="bar" style="height:55%"></div>
+                <div class="bar" style="height:45%"></div>
+                <div class="bar" style="height:70%"></div>
+                <div class="bar" style="height:60%"></div>
+                <div class="bar" style="height:100%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-item" id="step-3">
+      <div class="step-content">
+        <div class="step-num">ETAPE 03</div>
+        <h3 class="step-title">Creer et gerer vos factures</h3>
+        <p class="step-text">Dans la section <strong>Facturation</strong>, creez une facture en quelques clics. La TVA (19,25%) est calculee automatiquement selon la norme OHADA. Vous pouvez suivre le statut de chaque facture : <em>Payee</em>, <em>En attente</em> ou <em>En retard</em>.</p>
+        <div class="tip-box">
+          <span class="tip-icon">*</span>
+          <div>Le plan Starter est limite a <strong>20 factures/mois</strong>. Passez au plan Pro pour les factures illimitees.</div>
+        </div>
+      </div>
+      <div class="step-visual">
+        <div class="mock-header">
+          <div class="mock-dot red"></div>
+          <div class="mock-dot yellow"></div>
+          <div class="mock-dot green"></div>
+          <div class="mock-url">nkap-control.vercel.app/invoices</div>
+        </div>
+        <div class="mock-body">
+          <div class="invoice-mock">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div style="font-size:13px;font-weight:700;">Mes factures</div>
+              <div class="mock-btn" style="padding:7px 14px;font-size:11px;border-radius:7px;display:inline-block">+ Nouvelle</div>
+            </div>
+            <div class="invoice-row">
+              <div>
+                <div style="font-size:11px;font-weight:600;">FAC-2026-042</div>
+                <div style="font-size:10px;color:var(--muted)">Fotso Trading - 15 mars</div>
+              </div>
+              <div style="font-family:'DM Mono',monospace;font-size:12px;">250 000 FCFA</div>
+              <span class="inv-status paid">Payee</span>
+            </div>
+            <div class="invoice-row">
+              <div>
+                <div style="font-size:11px;font-weight:600;">FAC-2026-043</div>
+                <div style="font-size:10px;color:var(--muted)">TechSarl - 20 mars</div>
+              </div>
+              <div style="font-family:'DM Mono',monospace;font-size:12px;">180 000 FCFA</div>
+              <span class="inv-status pending">En attente</span>
+            </div>
+            <div class="invoice-row">
+              <div>
+                <div style="font-size:11px;font-weight:600;">FAC-2026-044</div>
+                <div style="font-size:10px;color:var(--muted)">Cabinet Nganou - 28 mars</div>
+              </div>
+              <div style="font-family:'DM Mono',monospace;font-size:12px;">420 000 FCFA</div>
+              <span class="inv-status paid">Payee</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-item" id="step-4">
+      <div class="step-content">
+        <div class="step-num">ETAPE 04</div>
+        <h3 class="step-title">Gerer votre tresorerie multi-comptes</h3>
+        <p class="step-text">La section <strong>Tresorerie</strong> centralise tous vos comptes : banque, <em>MTN MoMo</em>, <em>Orange Money</em> et caisse. Vous visualisez le solde de chaque compte en temps reel et enregistrez facilement vos entrees et sorties d'argent.</p>
+        <div class="tip-box">
+          <span class="tip-icon">*</span>
+          <div>La tresorerie multi-comptes est disponible des le plan <strong>Pro (5 000 FCFA/mois)</strong>.</div>
+        </div>
+      </div>
+      <div class="step-visual">
+        <div class="mock-header">
+          <div class="mock-dot red"></div>
+          <div class="mock-dot yellow"></div>
+          <div class="mock-dot green"></div>
+          <div class="mock-url">nkap-control.vercel.app/treasury</div>
+        </div>
+        <div class="mock-body">
+          <div class="treso-mock">
+            <div style="font-size:13px;font-weight:700;margin-bottom:14px;">Mes comptes</div>
+            <div class="account-row">
+              <div class="account-icon mtn">M</div>
+              <div>
+                <div class="account-name">MTN MoMo</div>
+                <div class="account-sub">Mobile Money</div>
+              </div>
+              <div class="account-bal" style="color:var(--fcfa)">650 000 FCFA</div>
+            </div>
+            <div class="account-row">
+              <div class="account-icon orange">O</div>
+              <div>
+                <div class="account-name">Orange Money</div>
+                <div class="account-sub">Mobile Money</div>
+              </div>
+              <div class="account-bal" style="color:#ff7c2a">320 000 FCFA</div>
+            </div>
+            <div class="account-row">
+              <div class="account-icon bank">B</div>
+              <div>
+                <div class="account-name">Compte bancaire</div>
+                <div class="account-sub">Afriland First Bank</div>
+              </div>
+              <div class="account-bal" style="color:var(--green)">900 000 FCFA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-item" id="step-5">
+      <div class="step-content">
+        <div class="step-num">ETAPE 05</div>
+        <h3 class="step-title">Generer vos rapports fiscaux OHADA</h3>
+        <p class="step-text">La section <strong>Rapports</strong> vous permet de generer votre compte de resultat, bilan simplifie, calcul de TVA et d'IS conformes a la legislation camerounaise. Exportez en PDF ou Excel pour votre expert-comptable.</p>
+        <div class="tip-box">
+          <span class="tip-icon">*</span>
+          <div>Les rapports sont conformes aux normes <strong>OHADA</strong>. Votre expert-comptable les acceptera directement.</div>
+        </div>
+      </div>
+      <div class="step-visual">
+        <div class="mock-header">
+          <div class="mock-dot red"></div>
+          <div class="mock-dot yellow"></div>
+          <div class="mock-dot green"></div>
+          <div class="mock-url">nkap-control.vercel.app/reports</div>
+        </div>
+        <div class="mock-body">
+          <div class="rapport-list">
+            <div style="font-size:13px;font-weight:700;margin-bottom:6px;">Rapports disponibles</div>
+            <div class="rapport-item">
+              <div class="rapport-icon">R</div>
+              <div>
+                <div class="rapport-name">Compte de resultat</div>
+                <div class="rapport-sub">Produits & charges -- T1 2026</div>
+              </div>
+              <div class="export-btn">PDF</div>
+            </div>
+            <div class="rapport-item">
+              <div class="rapport-icon">B</div>
+              <div>
+                <div class="rapport-name">Bilan simplifie</div>
+                <div class="rapport-sub">Actif / Passif au 31/03/2026</div>
+              </div>
+              <div class="export-btn">PDF</div>
+            </div>
+            <div class="rapport-item">
+              <div class="rapport-icon">T</div>
+              <div>
+                <div class="rapport-name">Declaration TVA</div>
+                <div class="rapport-sub">19,25% -- Mars 2026</div>
+              </div>
+              <div class="export-btn">Excel</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-item" id="step-6">
+      <div class="step-content">
+        <div class="step-num">ETAPE 06</div>
+        <h3 class="step-title">Utiliser Nkap IA, votre assistant intelligent</h3>
+        <p class="step-text">Cliquez sur le <strong>bouton vert flottant</strong> en bas a droite de votre ecran pour ouvrir <strong>Nkap IA</strong>. Posez vos questions en langage naturel : analyse de tresorerie, conseils fiscaux, explication de vos KPIs, aide a la facturation... L'IA connait vos donnees et repond en contexte.</p>
+        <div class="tip-box">
+          <span class="tip-icon">*</span>
+          <div><strong>Starter</strong> : 5 messages/jour | <strong>Pro</strong> : 10 messages/jour | <strong>Max</strong> : illimite. L'IA est alimentee par Claude d'Anthropic.</div>
+        </div>
+      </div>
+      <div class="step-visual">
+        <div class="mock-header">
+          <div class="mock-dot red"></div>
+          <div class="mock-dot yellow"></div>
+          <div class="mock-dot green"></div>
+          <div class="mock-url">nkap-control.vercel.app/dashboard</div>
+        </div>
+        <div class="mock-body">
+          <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+            <div style="background:var(--green);padding:12px 16px;display:flex;align-items:center;gap:8px;">
+              <div style="width:28px;height:28px;background:rgba(0,0,0,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:white;">AI</div>
+              <div>
+                <div style="font-size:12px;font-weight:700;color:var(--black);">Nkap IA</div>
+                <div style="font-size:9px;color:rgba(0,0,0,0.6);">Assistant financier intelligent</div>
+              </div>
+            </div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:10px;">
+              <div style="align-self:flex-start;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:11px;color:var(--muted);max-width:85%;line-height:1.6;">
+                Bonjour ! Je suis Nkap IA. Comment puis-je vous aider ? Posez-moi vos questions sur vos finances, factures, tresorerie ou fiscalite.
+              </div>
+              <div style="align-self:flex-end;background:rgba(0,200,150,0.1);border:1px solid rgba(0,200,150,0.2);border-radius:10px;padding:10px 14px;font-size:11px;color:var(--green);max-width:80%;">
+                Quel est mon chiffre d'affaires ce mois-ci ?
+              </div>
+              <div style="align-self:flex-start;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:11px;color:var(--muted);max-width:85%;line-height:1.6;">
+                Votre CA ce mois est de <strong style="color:var(--green)">2 850 000 FCFA</strong>, en hausse de +12% par rapport au mois dernier. Vous avez 3 factures en attente pour un total de 430 000 FCFA.
+              </div>
+            </div>
+            <div style="padding:8px 12px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;">
+              <div style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--muted);">Posez votre question...</div>
+              <div style="width:32px;height:32px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--black);">></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="section" id="ref">
+  <div class="quickref">
+    <div class="section-label">// Reference rapide</div>
+    <h2 class="section-title" style="margin-bottom:8px;">L'essentiel en un coup d'oeil</h2>
+    <p style="color:var(--muted);font-size:0.9rem;">Tout ce qu'il faut retenir pour utiliser Nkap Control au quotidien.</p>
+    <div class="quickref-grid">
+      <div class="qr-item">
+        <div class="qr-emoji">K</div>
+        <div class="qr-title">Compte demo</div>
+        <div class="qr-desc">demo@nkapcontrol.cm<br>Mot de passe : demo123456</div>
+      </div>
+      <div class="qr-item">
+        <div class="qr-emoji">T</div>
+        <div class="qr-title">TVA automatique</div>
+        <div class="qr-desc">19,25% calculee automatiquement sur chaque facture conforme OHADA</div>
+      </div>
+      <div class="qr-item">
+        <div class="qr-emoji">M</div>
+        <div class="qr-title">Mobile Money</div>
+        <div class="qr-desc">MTN MoMo et Orange Money integres nativement dans la tresorerie</div>
+      </div>
+      <div class="qr-item">
+        <div class="qr-emoji">S</div>
+        <div class="qr-title">Plan Starter</div>
+        <div class="qr-desc">Gratuit pour toujours -- 1 utilisateur, 20 factures/mois</div>
+      </div>
+      <div class="qr-item">
+        <div class="qr-emoji">P</div>
+        <div class="qr-title">Plan Pro</div>
+        <div class="qr-desc">5 000 FCFA/mois -- 5 utilisateurs, factures illimitees, rapports fiscaux</div>
+      </div>
+      <div class="qr-item">
+        <div class="qr-emoji">AI</div>
+        <div class="qr-title">Nkap AI</div>
+        <div class="qr-desc">Assistant IA inclus (10 msg/jour en Pro, illimite en Max)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p style="margin-bottom:12px;"><strong>Nkap Control</strong> -- La gestion financiere reinventee pour les PME camerounaises</p>
+  <p><a href="https://nkap-control.vercel.app" target="_blank">nkap-control.vercel.app</a> - <a href="https://nkap-control.vercel.app/login" target="_blank">Acceder a la demo</a></p>
+  <p style="margin-top:16px;font-size:11px;opacity:0.5">Guide de demarrage rapide -- 2026</p>
+</footer>
+
+<script>
+  window.addEventListener('scroll', function() {
+    var doc = document.documentElement;
+    var scrollTop = window.scrollY;
+    var scrollHeight = doc.scrollHeight - doc.clientHeight;
+    var progress = (scrollTop / scrollHeight) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+  });
+
+  function scrollTo(id) {
+    var el = document.querySelector(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  var stepItems = document.querySelectorAll('.step-item');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  stepItems.forEach(function(item) { observer.observe(item); });
+
+  var sections = ['hero', 'step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6'];
+  var dots = document.querySelectorAll('.side-dot');
+  var stepCounter = document.getElementById('stepCounter');
+
+  var sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var id = entry.target.id;
+        var idx = sections.indexOf(id);
+        dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+        if (idx === 0) stepCounter.textContent = 'Etape -- / 6';
+        else stepCounter.textContent = 'Etape ' + idx + ' / 6';
+
+        document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('active'); });
+        if (id === 'hero') document.querySelectorAll('.nav-link')[0].classList.add('active');
+        else if (id.indexOf('step') === 0) document.querySelectorAll('.nav-link')[1].classList.add('active');
+        else if (id === 'ref') document.querySelectorAll('.nav-link')[2].classList.add('active');
+      }
+    });
+  }, { threshold: 0.4 });
+
+  sections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+
+  dots.forEach(function(dot, i) {
+    dot.addEventListener('click', function() {
+      var el = document.getElementById(sections[i]);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>

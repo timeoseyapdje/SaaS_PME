@@ -58,7 +58,9 @@ export default function LoginPage() {
       if (result?.error) {
         setError("Email ou mot de passe incorrect");
       } else {
-        router.push("/dashboard");
+        // Rediriger les admins vers le dashboard admin
+        const destination = checkData.role === "ADMIN" ? "/admin" : "/dashboard";
+        router.push(destination);
         router.refresh();
       }
     } catch {
