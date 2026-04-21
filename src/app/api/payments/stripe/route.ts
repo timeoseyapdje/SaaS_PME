@@ -49,6 +49,7 @@ export async function POST(request: Request) {
       if (promo && promo.isActive) {
         const now = new Date();
         const isValid =
+          (!promo.startDate || promo.startDate <= now) &&
           (!promo.endDate || promo.endDate > now) &&
           (!promo.maxUses || promo.currentUses < promo.maxUses);
 

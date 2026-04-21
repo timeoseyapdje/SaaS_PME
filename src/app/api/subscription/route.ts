@@ -66,6 +66,7 @@ export async function POST(request: Request) {
 
   let finalAmount = planPrices[plan];
   let promoCodeId: string | null = null;
+  let subscriptionMonths = 1; // Par défaut 1 mois
 
   // Vérifier le code promo
   if (promoCode) {
@@ -76,10 +77,14 @@ export async function POST(request: Request) {
     if (promo && promo.isActive) {
       const now = new Date();
       const isValid =
+        (!promo.startDate || promo.startDate <= now) &&
         (!promo.endDate || promo.endDate > now) &&
         (!promo.maxUses || promo.currentUses < promo.maxUses);
 
       if (isValid) {
+        // Appliquer la durée de l'avantage
+        subscriptionMonths = promo.benefitMonths || 1;
+
         if (promo.discountType === "PERCENTAGE") {
           finalAmount = finalAmount * (1 - promo.discountValue / 100);
         } else {
@@ -104,7 +109,7 @@ export async function POST(request: Request) {
   }
 
   const endDate = new Date();
-  endDate.setMonth(endDate.getMonth() + 1);
+  endDate.setMonth(endDate.getMonth() + subscriptionMonths);
 
   // Créer ou mettre à jour l'abonnement
   const subscription = await prisma.subscription.upsert({

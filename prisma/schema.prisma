@@ -433,10 +433,11 @@ model PromoCode {
   description     String?
   discountType    DiscountType    @default(PERCENTAGE)
   discountValue   Float           // Pourcentage ou montant fixe
+  benefitMonths   Int             @default(1) // Durée de l'avantage en mois (ex: 2 = 2 mois de réduction)
   maxUses         Int?            // null = illimité
   currentUses     Int             @default(0)
   startDate       DateTime        @default(now())
-  endDate         DateTime?       // null = à vie
+  endDate         DateTime?       // null = à vie (pas de limite de saisie)
   isActive        Boolean         @default(true)
   createdBy       String
   createdAt       DateTime        @default(now())

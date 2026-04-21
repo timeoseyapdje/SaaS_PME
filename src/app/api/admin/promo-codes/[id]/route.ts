@@ -7,6 +7,7 @@ const updatePromoSchema = z.object({
   description: z.string().optional(),
   discountType: z.enum(["PERCENTAGE", "FIXED_AMOUNT"]).optional(),
   discountValue: z.number().positive().optional(),
+  benefitMonths: z.number().int().min(1).max(24).optional(),
   maxUses: z.number().int().positive().nullable().optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().nullable().optional(),
