@@ -26,6 +26,7 @@ interface PromoCode {
   description: string | null;
   discountType: "PERCENTAGE" | "FIXED_AMOUNT";
   discountValue: number;
+  benefitMonths: number;
   maxUses: number | null;
   currentUses: number;
   startDate: string;
@@ -49,12 +50,20 @@ export default function PromoCodesPage() {
     description: "",
     discountType: "PERCENTAGE" as "PERCENTAGE" | "FIXED_AMOUNT",
     discountValue: 10,
+    benefitMonths: 1,
     maxUses: null as number | null,
-    hasEndDate: false,
     startDate: new Date().toISOString().split("T")[0],
     endDate: "",
     isLifetime: true,
   });
+
+  const benefitOptions = [
+    { value: 1, label: "1 mois" },
+    { value: 2, label: "2 mois" },
+    { value: 3, label: "3 mois" },
+    { value: 6, label: "6 mois" },
+    { value: 12, label: "12 mois" },
+  ];
 
   const fetchPromoCodes = useCallback(async () => {
     try {
@@ -82,6 +91,7 @@ export default function PromoCodesPage() {
         description: form.description || undefined,
         discountType: form.discountType,
         discountValue: form.discountValue,
+        benefitMonths: form.benefitMonths,
         maxUses: form.maxUses,
         startDate: new Date(form.startDate).toISOString(),
         endDate: form.isLifetime ? null : form.endDate ? new Date(form.endDate).toISOString() : null,
@@ -100,8 +110,8 @@ export default function PromoCodesPage() {
           description: "",
           discountType: "PERCENTAGE",
           discountValue: 10,
+          benefitMonths: 1,
           maxUses: null,
-          hasEndDate: false,
           startDate: new Date().toISOString().split("T")[0],
           endDate: "",
           isLifetime: true,
@@ -173,7 +183,7 @@ export default function PromoCodesPage() {
           { label: "Total codes", value: promoCodes.length, color: "text-indigo-400" },
           { label: "Actifs", value: promoCodes.filter((p) => p.isActive).length, color: "text-emerald-400" },
           { label: "Utilisations", value: promoCodes.reduce((sum, p) => sum + p.currentUses, 0), color: "text-violet-400" },
-          { label: "À vie", value: promoCodes.filter((p) => !p.endDate).length, color: "text-amber-400" },
+          { label: "Expirés", value: promoCodes.filter((p) => p.endDate && new Date(p.endDate) < new Date()).length, color: "text-amber-400" },
         ].map((stat) => (
           <div key={stat.label} className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4">
             <p className="text-zinc-500 text-xs font-medium">{stat.label}</p>
@@ -337,9 +347,41 @@ export default function PromoCodesPage() {
                   />
                 </div>
 
-                {/* Durée */}
+                {/* Durée de l'avantage */}
                 <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-3">Durée de validité</label>
+                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">
+                    Durée de l&apos;avantage
+                  </label>
+                  <p className="text-xs text-zinc-500 mb-3">
+                    Nombre de mois de réduction offerts à l&apos;utilisateur, peu importe quand il saisit le code.
+                  </p>
+                  <div className="grid grid-cols-5 gap-2">
+                    {benefitOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setForm({ ...form, benefitMonths: opt.value })}
+                        className={cn(
+                          "px-3 py-2.5 rounded-xl border text-xs font-medium transition-all text-center",
+                          form.benefitMonths === opt.value
+                            ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400"
+                            : "bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:border-zinc-600"
+                        )}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Période de saisie */}
+                <div>
+                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">
+                    Période de saisie du code
+                  </label>
+                  <p className="text-xs text-zinc-500 mb-3">
+                    Fenêtre pendant laquelle le code peut être utilisé. Après la date limite, le code expire.
+                  </p>
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       type="button"
@@ -352,7 +394,7 @@ export default function PromoCodesPage() {
                       )}
                     >
                       <Infinity className="w-4 h-4" />
-                      À vie
+                      Sans limite
                     </button>
                     <button
                       type="button"
@@ -365,7 +407,7 @@ export default function PromoCodesPage() {
                       )}
                     >
                       <Calendar className="w-4 h-4" />
-                      Période définie
+                      Date limite
                     </button>
                   </div>
                 </div>
@@ -376,7 +418,9 @@ export default function PromoCodesPage() {
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                   >
-                    <label className="block text-sm font-medium text-zinc-300 mb-1.5">Date de fin</label>
+                    <label className="block text-sm font-medium text-zinc-300 mb-1.5">
+                      Date limite de saisie
+                    </label>
                     <input
                       type="date"
                       required
@@ -457,6 +501,10 @@ export default function PromoCodesPage() {
                             ? `${promo.discountValue}%`
                             : `${promo.discountValue.toLocaleString()} XAF`}
                         </span>
+                        {" "}&middot;{" "}
+                        <span className="text-emerald-400">
+                          {promo.benefitMonths} mois
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -470,12 +518,24 @@ export default function PromoCodesPage() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-zinc-500">Période</p>
-                      <p className="text-sm font-medium text-zinc-300">
-                        {promo.endDate
-                          ? `${new Date(promo.startDate).toLocaleDateString("fr-FR")} → ${new Date(promo.endDate).toLocaleDateString("fr-FR")}`
-                          : "À vie"}
-                      </p>
+                      <p className="text-xs text-zinc-500">Validité</p>
+                      {promo.endDate ? (() => {
+                        const now = new Date();
+                        const end = new Date(promo.endDate);
+                        const daysLeft = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                        return (
+                          <>
+                            <p className="text-sm font-medium text-zinc-300">
+                              {new Date(promo.startDate).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} → {end.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                            </p>
+                            <p className={cn("text-[10px] font-medium", daysLeft > 7 ? "text-emerald-400" : daysLeft > 0 ? "text-amber-400" : "text-red-400")}>
+                              {daysLeft > 0 ? `${daysLeft}j restant${daysLeft > 1 ? "s" : ""}` : "Expiré"}
+                            </p>
+                          </>
+                        );
+                      })() : (
+                        <p className="text-sm font-medium text-zinc-500">Sans limite</p>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       <button

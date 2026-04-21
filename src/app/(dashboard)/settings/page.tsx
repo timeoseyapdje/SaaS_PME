@@ -217,26 +217,29 @@ export default function SettingsPage() {
           </div>
         )}
         <Tabs defaultValue="company">
-          <TabsList>
-            <TabsTrigger value="company" className="flex items-center gap-2">
-              <Building2 className="w-4 h-4" />
+          <TabsList className="w-full flex overflow-x-auto scrollbar-hide h-auto flex-wrap sm:flex-nowrap gap-1 p-1">
+            <TabsTrigger value="company" className="flex items-center gap-1.5 text-xs sm:text-sm px-2 sm:px-3 py-1.5">
+              <Building2 className="w-4 h-4 hidden sm:block" />
               Entreprise
             </TabsTrigger>
-            <TabsTrigger value="fiscalite" className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
+            <TabsTrigger value="fiscalite" className="flex items-center gap-1.5 text-xs sm:text-sm px-2 sm:px-3 py-1.5">
+              <Shield className="w-4 h-4 hidden sm:block" />
               Fiscalité
             </TabsTrigger>
-            <TabsTrigger value="accounts" className="flex items-center gap-2">
-              <Landmark className="w-4 h-4" />
-              Comptes bancaires
+            <TabsTrigger value="accounts" className="flex items-center gap-1.5 text-xs sm:text-sm px-2 sm:px-3 py-1.5">
+              <Landmark className="w-4 h-4 hidden sm:block" />
+              <span className="sm:hidden">Comptes</span>
+              <span className="hidden sm:inline">Comptes bancaires</span>
             </TabsTrigger>
-            <TabsTrigger value="customization" className="flex items-center gap-2">
-              <Palette className="w-4 h-4" />
-              Personnalisation
+            <TabsTrigger value="customization" className="flex items-center gap-1.5 text-xs sm:text-sm px-2 sm:px-3 py-1.5">
+              <Palette className="w-4 h-4 hidden sm:block" />
+              <span className="sm:hidden">Perso.</span>
+              <span className="hidden sm:inline">Personnalisation</span>
             </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="w-4 h-4" />
-              Mon profil
+            <TabsTrigger value="profile" className="flex items-center gap-1.5 text-xs sm:text-sm px-2 sm:px-3 py-1.5">
+              <User className="w-4 h-4 hidden sm:block" />
+              <span className="sm:hidden">Profil</span>
+              <span className="hidden sm:inline">Mon profil</span>
             </TabsTrigger>
           </TabsList>
 
