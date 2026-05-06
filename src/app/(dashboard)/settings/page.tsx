@@ -422,21 +422,21 @@ export default function SettingsPage() {
                 </div>
                 <Separator />
                 <div className="space-y-3">
-                  <p className="text-sm font-semibold text-gray-700">
+                  <p className="text-sm font-semibold text-foreground">
                     Calendrier fiscal
                   </p>
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <div className="flex justify-between p-3 bg-gray-50 rounded">
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    <div className="flex justify-between p-3 bg-muted/50 rounded">
                       <span>Déclaration TVA mensuelle</span>
                       <span className="font-medium">
                         15 du mois suivant
                       </span>
                     </div>
-                    <div className="flex justify-between p-3 bg-gray-50 rounded">
+                    <div className="flex justify-between p-3 bg-muted/50 rounded">
                       <span>Déclaration IS annuelle</span>
                       <span className="font-medium">31 mars</span>
                     </div>
-                    <div className="flex justify-between p-3 bg-gray-50 rounded">
+                    <div className="flex justify-between p-3 bg-muted/50 rounded">
                       <span>Patente professionnelle</span>
                       <span className="font-medium">1er trimestre</span>
                     </div>
@@ -466,7 +466,7 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent>
                 {accounts.length === 0 ? (
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-muted-foreground">
                     Aucun compte configuré.
                   </p>
                 ) : (
@@ -474,11 +474,11 @@ export default function SettingsPage() {
                     {accounts.map((acc) => (
                       <div
                         key={acc.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
                       >
                         <div>
                           <p className="text-sm font-medium">{acc.name}</p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-muted-foreground">
                             {acc.type}
                             {acc.bankName && ` · ${acc.bankName}`}
                             {acc.isDefault && " · Compte principal"}
@@ -727,7 +727,7 @@ export default function SettingsPage() {
                   ) : (
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-xs text-gray-400 uppercase">
+                        <Label className="text-xs text-muted-foreground uppercase">
                           Nom
                         </Label>
                         <p className="text-sm font-medium mt-1">
@@ -735,7 +735,7 @@ export default function SettingsPage() {
                         </p>
                       </div>
                       <div>
-                        <Label className="text-xs text-gray-400 uppercase">
+                        <Label className="text-xs text-muted-foreground uppercase">
                           Email
                         </Label>
                         <p className="text-sm font-medium mt-1">
@@ -743,7 +743,7 @@ export default function SettingsPage() {
                         </p>
                       </div>
                       <div>
-                        <Label className="text-xs text-gray-400 uppercase">
+                        <Label className="text-xs text-muted-foreground uppercase">
                           Rôle
                         </Label>
                         <p className="text-sm font-medium mt-1">
@@ -751,7 +751,7 @@ export default function SettingsPage() {
                         </p>
                       </div>
                       <div>
-                        <Label className="text-xs text-gray-400 uppercase">
+                        <Label className="text-xs text-muted-foreground uppercase">
                           Membre depuis
                         </Label>
                         <p className="text-sm font-medium mt-1">

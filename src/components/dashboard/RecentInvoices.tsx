@@ -35,11 +35,9 @@ interface RecentInvoicesProps {
 export function RecentInvoices({ invoices, loading }: RecentInvoicesProps) {
   if (loading) {
     return (
-      <Card className="border-white/5 bg-zinc-950/60 backdrop-blur-xl shadow-xl">
+      <Card className="border-border bg-card shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base font-semibold text-white">
-            Factures récentes
-          </CardTitle>
+          <CardTitle className="text-base font-semibold">Factures récentes</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -53,18 +51,15 @@ export function RecentInvoices({ invoices, loading }: RecentInvoicesProps) {
   }
 
   return (
-    <Card className="border-white/5 bg-zinc-950/60 backdrop-blur-xl shadow-xl overflow-hidden relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
-      <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-white/5 relative z-10">
-        <CardTitle className="text-[15px] font-semibold text-white flex items-center gap-2">
+    <Card className="border-border bg-card shadow-sm overflow-hidden">
+      <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border">
+        <CardTitle className="text-[15px] font-semibold flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
             <FileText className="w-4 h-4 text-emerald-500" />
           </div>
           Factures récentes
         </CardTitle>
-        <Link
-          href="/invoices"
-        >
+        <Link href="/invoices">
           <Button variant="ghost" size="sm" className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold gap-1 group">
             Voir tout
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -78,17 +73,17 @@ export function RecentInvoices({ invoices, loading }: RecentInvoicesProps) {
               <FileText className="w-5 h-5 text-muted-foreground" />
             </div>
             <p className="text-[15px] font-medium text-foreground mb-1">Aucune facture</p>
-            <p className="text-sm text-muted-foreground mb-4 max-w-sm">Vous n'avez pas encore créé de factures. Créez-en une pour commencer.</p>
+            <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+              Vous n&apos;avez pas encore créé de factures.
+            </p>
             <Link href="/invoices/new">
-              <Button size="sm" className="rounded-full shadow-md shadow-emerald-500/20 px-6">
-                Créer une facture
-              </Button>
+              <Button size="sm" className="rounded-full px-6">Créer une facture</Button>
             </Link>
           </div>
         ) : (
           <Table>
-            <TableHeader className="bg-muted/30">
-              <TableRow className="border-border/40 hover:bg-transparent">
+            <TableHeader>
+              <TableRow className="border-border hover:bg-transparent">
                 <TableHead className="font-medium text-muted-foreground text-[13px]">Numéro</TableHead>
                 <TableHead className="font-medium text-muted-foreground text-[13px]">Client</TableHead>
                 <TableHead className="font-medium text-muted-foreground text-[13px]">Échéance</TableHead>
@@ -99,7 +94,7 @@ export function RecentInvoices({ invoices, loading }: RecentInvoicesProps) {
             </TableHeader>
             <TableBody>
               {invoices.map((invoice) => (
-                <TableRow key={invoice.id} className="border-border/30 hover:bg-muted/30 transition-colors group cursor-pointer">
+                <TableRow key={invoice.id} className="border-border hover:bg-muted/40 transition-colors group cursor-pointer">
                   <TableCell className="font-medium text-sm text-muted-foreground">
                     {invoice.number}
                   </TableCell>
@@ -114,14 +109,12 @@ export function RecentInvoices({ invoices, loading }: RecentInvoicesProps) {
                   </TableCell>
                   <TableCell>
                     <div className="scale-90 origin-left">
-                      <InvoiceStatusBadge
-                        status={invoice.status as InvoiceStatus}
-                      />
+                      <InvoiceStatusBadge status={invoice.status as InvoiceStatus} />
                     </div>
                   </TableCell>
                   <TableCell>
                     <Link href={`/invoices/${invoice.id}`}>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground group-hover:text-emerald-500 opacity-0 group-hover:opacity-100 transition-all focus:opacity-100">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground group-hover:text-emerald-600 opacity-0 group-hover:opacity-100 transition-all">
                         <Eye className="w-4 h-4" />
                       </Button>
                     </Link>
