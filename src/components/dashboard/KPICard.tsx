@@ -22,7 +22,7 @@ export function KPICard({
   currency = "XAF",
   icon: Icon,
   iconColor = "text-emerald-600",
-  iconBg = "bg-emerald-50",
+  iconBg = "bg-emerald-50 dark:bg-emerald-500/10",
   loading,
   description,
 }: KPICardProps) {
@@ -33,12 +33,12 @@ export function KPICard({
 
   if (loading) {
     return (
-      <Card className="border-white/5 bg-zinc-950/60 backdrop-blur-xl shadow-xl">
+      <Card className="border-border bg-card shadow-sm">
         <CardContent className="p-6">
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-zinc-800 rounded w-1/2" />
-            <div className="h-8 bg-zinc-800 rounded w-3/4" />
-            <div className="h-3 bg-zinc-800 rounded w-2/3" />
+            <div className="h-4 bg-muted rounded w-1/2" />
+            <div className="h-8 bg-muted rounded w-3/4" />
+            <div className="h-3 bg-muted rounded w-2/3" />
           </div>
         </CardContent>
       </Card>
@@ -46,12 +46,8 @@ export function KPICard({
   }
 
   return (
-    <Card className="group relative overflow-hidden border-white/5 bg-zinc-950/60 backdrop-blur-xl shadow-xl hover:border-emerald-500/50 hover:shadow-[0_0_30px_-5px_rgba(16,185,129,0.2)] transition-all duration-500 hover:-translate-y-1">
-      {/* Subtle top gradient line on hover */}
-      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/0 to-transparent group-hover:via-emerald-500 transition-colors duration-500" />
-      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-500/0 to-transparent group-hover:via-emerald-500/50 transition-colors duration-500" />
-      
+    <Card className="group relative overflow-hidden border-border bg-card shadow-sm hover:shadow-md hover:border-emerald-500/40 transition-all duration-300 hover:-translate-y-0.5">
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/0 to-transparent group-hover:via-emerald-500/60 transition-colors duration-500" />
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-1.5 flex-1 min-w-0">
@@ -65,7 +61,7 @@ export function KPICard({
           </div>
           <div
             className={cn(
-              "w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ml-4 shadow-sm group-hover:scale-105 transition-transform duration-300",
+              "w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ml-4 group-hover:scale-105 transition-transform duration-300",
               iconBg
             )}
           >
@@ -76,14 +72,14 @@ export function KPICard({
           <div className="mt-4 flex items-center gap-2">
             <div className={cn(
               "flex items-center justify-center w-5 h-5 rounded-full",
-              trend > 0 ? "bg-emerald-500/10" : trend < 0 ? "bg-rose-500/10" : "bg-zinc-500/10"
+              trend > 0 ? "bg-emerald-500/10" : trend < 0 ? "bg-rose-500/10" : "bg-muted"
             )}>
               {trend > 0 ? (
                 <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
               ) : trend < 0 ? (
                 <TrendingDown className="w-3.5 h-3.5 text-rose-500" />
               ) : (
-                <Minus className="w-3.5 h-3.5 text-zinc-400" />
+                <Minus className="w-3.5 h-3.5 text-muted-foreground" />
               )}
             </div>
             <span
@@ -93,7 +89,7 @@ export function KPICard({
                   ? "text-emerald-600 dark:text-emerald-400"
                   : trend < 0
                   ? "text-rose-600 dark:text-rose-400"
-                  : "text-zinc-500"
+                  : "text-muted-foreground"
               )}
             >
               {trend > 0 ? "+" : ""}

@@ -99,7 +99,7 @@ function RevenueForm({
         <div className="space-y-2">
           <label className="text-sm font-medium">Catégorie *</label>
           <select
-            className="flex h-10 w-full rounded-md border border-border/60 bg-zinc-950/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
+            className="flex h-10 w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             required
@@ -115,7 +115,7 @@ function RevenueForm({
           <label className="text-sm font-medium">Date *</label>
           <input
             type="date"
-            className="flex h-10 w-full rounded-md border border-border/60 bg-zinc-950/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
+            className="flex h-10 w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
             value={date}
             onChange={(e) => setDate(e.target.value)}
             required
@@ -125,7 +125,7 @@ function RevenueForm({
       <div className="space-y-2">
         <label className="text-sm font-medium">Description *</label>
         <input
-          className="flex h-10 w-full rounded-md border border-border/60 bg-zinc-950/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
+          className="flex h-10 w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
           placeholder="Description de la recette"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -138,7 +138,7 @@ function RevenueForm({
           <input
             type="number"
             min="0"
-            className="flex h-10 w-full rounded-md border border-border/60 bg-zinc-950/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
+            className="flex h-10 w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
             placeholder="0"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
@@ -148,7 +148,7 @@ function RevenueForm({
         <div className="space-y-2">
           <label className="text-sm font-medium">Mode de paiement</label>
           <select
-            className="flex h-10 w-full rounded-md border border-border/60 bg-zinc-950/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
+            className="flex h-10 w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 transition-colors"
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
           >

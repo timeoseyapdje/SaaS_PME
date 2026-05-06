@@ -227,7 +227,7 @@ export default function AdminDashboardPage() {
       {/* Répartition abonnements + Derniers paiements */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Répartition par plan */}
-        <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5">
+        <div className="bg-card border border-border rounded-xl p-5">
           <h2 className="text-sm font-semibold text-white mb-4">Répartition par plan</h2>
           {stats?.subscriptionsByPlan && stats.subscriptionsByPlan.length > 0 ? (
             <div className="space-y-3">
@@ -246,7 +246,7 @@ export default function AdminDashboardPage() {
                         {s.count} <span className="text-zinc-500 font-normal text-xs">({percent}%)</span>
                       </span>
                     </div>
-                    <div className="w-full bg-zinc-800 rounded-full h-1.5">
+                    <div className="w-full bg-muted rounded-full h-1.5">
                       <div
                         className="bg-emerald-500 h-1.5 rounded-full transition-all"
                         style={{ width: `${percent}%` }}
@@ -283,7 +283,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Derniers paiements plateforme */}
-        <div className="lg:col-span-2 bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5">
+        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-zinc-500" />
@@ -309,7 +309,7 @@ export default function AdminDashboardPage() {
                     className="flex items-center justify-between py-2.5 border-b border-zinc-800/30 last:border-0"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-zinc-800/80 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
                         <CreditCard className="w-4 h-4 text-zinc-500" />
                       </div>
                       <div>
@@ -350,7 +350,7 @@ export default function AdminDashboardPage() {
       {/* Accès rapide + Derniers inscrits */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Quick links */}
-        <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5">
+        <div className="bg-card border border-border rounded-xl p-5">
           <h2 className="text-sm font-semibold text-white mb-4">Accès rapide</h2>
           <div className="space-y-2">
             {[
@@ -361,7 +361,7 @@ export default function AdminDashboardPage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               >
                 <link.icon className="w-4 h-4" />
                 <div>
@@ -374,7 +374,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Recent users */}
-        <div className="lg:col-span-2 bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5">
+        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-zinc-500" />
@@ -397,7 +397,7 @@ export default function AdminDashboardPage() {
                     className="flex items-center justify-between py-2.5 border-b border-zinc-800/30 last:border-0"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                         <Users className="w-4 h-4 text-zinc-500" />
                       </div>
                       <div>

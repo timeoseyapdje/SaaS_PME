@@ -97,36 +97,36 @@ export default function InvoicesPage() {
         >
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-zinc-400">Total factures</p>
+              <p className="text-sm text-muted-foreground">Total factures</p>
               <p className="text-2xl font-bold">{stats.total}</p>
-              <p className="text-xs text-zinc-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 {formatCurrency(stats.totalAmount)}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-zinc-400">Payées</p>
+              <p className="text-sm text-muted-foreground">Payées</p>
               <p className="text-2xl font-bold text-emerald-500">{stats.paid}</p>
-              <p className="text-xs text-zinc-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 {formatCurrency(stats.paidAmount)}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-zinc-400">En attente</p>
+              <p className="text-sm text-muted-foreground">En attente</p>
               <p className="text-2xl font-bold text-amber-500">{stats.pending}</p>
-              <p className="text-xs text-zinc-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 {formatCurrency(stats.pendingAmount)}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-zinc-400">En retard</p>
+              <p className="text-sm text-muted-foreground">En retard</p>
               <p className="text-2xl font-bold text-rose-500">{stats.overdue}</p>
-              <p className="text-xs text-zinc-500 mt-1">Action requise</p>
+              <p className="text-xs text-muted-foreground mt-1">Action requise</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -134,7 +134,7 @@ export default function InvoicesPage() {
         {/* Filter bar */}
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Rechercher par numéro ou client..."
               value={search}

@@ -40,7 +40,7 @@ const typeLabels: Record<ClientType, string> = {
 };
 
 const typeBadgeColors: Record<ClientType, string> = {
-  PARTICULIER: "bg-gray-100 text-gray-700",
+  PARTICULIER: "bg-muted/50 text-gray-700",
   ENTREPRISE: "bg-blue-100 text-blue-700",
   ONG: "bg-purple-100 text-purple-700",
   ADMINISTRATION: "bg-orange-100 text-orange-700",
@@ -164,7 +164,7 @@ export default function SuppliersPage() {
         {/* Toolbar */}
         <div className="flex items-center gap-3">
           <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Rechercher un fournisseur..."
               value={search}
@@ -185,14 +185,14 @@ export default function SuppliersPage() {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="h-12 bg-gray-100 animate-pulse rounded"
+                    className="h-12 bg-muted/50 animate-pulse rounded"
                   />
                 ))}
               </div>
             ) : suppliers.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">
-                <Truck className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p className="text-base font-medium text-gray-500">
+              <div className="text-center py-12 text-muted-foreground">
+                <Truck className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
+                <p className="text-base font-medium text-muted-foreground">
                   Aucun fournisseur trouvé
                 </p>
                 <Button
@@ -234,23 +234,23 @@ export default function SuppliersPage() {
                       <TableCell>
                         <div className="space-y-0.5">
                           {supplier.email && (
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
                               <Mail className="w-3 h-3" />
                               {supplier.email}
                             </div>
                           )}
                           {supplier.phone && (
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
                               <Phone className="w-3 h-3" />
                               {supplier.phone}
                             </div>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm text-gray-500">
+                      <TableCell className="text-sm text-muted-foreground">
                         {supplier.city || "—"}
                       </TableCell>
-                      <TableCell className="text-sm font-mono text-gray-500">
+                      <TableCell className="text-sm font-mono text-muted-foreground">
                         {supplier.taxId || "—"}
                       </TableCell>
                       <TableCell className="text-center">

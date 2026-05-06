@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,8 +30,29 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Client, ClientType } from "@/types";
-import { Plus, Search, Edit, Trash2, Users, Phone, Mail } from "lucide-react";
-import { Loader2 } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Users,
+  Phone,
+  Mail,
+  Loader2,
+  ShoppingCart,
+  FileText,
+  Link2,
+  MoreHorizontal,
+  TrendingUp,
+  Building2,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const typeLabels: Record<ClientType, string> = {
   PARTICULIER: "Particulier",
@@ -40,17 +62,18 @@ const typeLabels: Record<ClientType, string> = {
 };
 
 const typeBadgeColors: Record<ClientType, string> = {
-  PARTICULIER: "bg-gray-100 text-gray-700",
-  ENTREPRISE: "bg-blue-100 text-blue-700",
-  ONG: "bg-purple-100 text-purple-700",
-  ADMINISTRATION: "bg-orange-100 text-orange-700",
+  PARTICULIER: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+  ENTREPRISE: "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+  ONG: "bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+  ADMINISTRATION: "bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
 };
 
 interface ClientWithCount extends Client {
-  _count?: { invoices: number };
+  _count?: { invoices: number; orders?: number };
 }
 
 export default function ClientsPage() {
+  const router = useRouter();
   const [clients, setClients] = useState<ClientWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -58,7 +81,6 @@ export default function ClientsPage() {
   const [editClient, setEditClient] = useState<ClientWithCount | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Form state
   const [formName, setFormName] = useState("");
   const [formEmail, setFormEmail] = useState("");
   const [formPhone, setFormPhone] = useState("");
@@ -88,27 +110,18 @@ export default function ClientsPage() {
 
   function openAddForm() {
     setEditClient(null);
-    setFormName("");
-    setFormEmail("");
-    setFormPhone("");
-    setFormAddress("");
-    setFormCity("");
-    setFormTaxId("");
-    setFormType("ENTREPRISE");
-    setFormNotes("");
+    setFormName(""); setFormEmail(""); setFormPhone("");
+    setFormAddress(""); setFormCity(""); setFormTaxId("");
+    setFormType("ENTREPRISE"); setFormNotes("");
     setShowForm(true);
   }
 
   function openEditForm(client: ClientWithCount) {
     setEditClient(client);
-    setFormName(client.name);
-    setFormEmail(client.email || "");
-    setFormPhone(client.phone || "");
-    setFormAddress(client.address || "");
-    setFormCity(client.city || "");
-    setFormTaxId(client.taxId || "");
-    setFormType(client.type);
-    setFormNotes(client.notes || "");
+    setFormName(client.name); setFormEmail(client.email || "");
+    setFormPhone(client.phone || ""); setFormAddress(client.address || "");
+    setFormCity(client.city || ""); setFormTaxId(client.taxId || "");
+    setFormType(client.type); setFormNotes(client.notes || "");
     setShowForm(true);
   }
 
@@ -117,33 +130,18 @@ export default function ClientsPage() {
     setSubmitting(true);
     try {
       const body = {
-        id: editClient?.id,
-        name: formName,
-        email: formEmail,
-        phone: formPhone,
-        address: formAddress,
-        city: formCity,
-        taxId: formTaxId,
-        type: formType,
-        notes: formNotes,
+        id: editClient?.id, name: formName, email: formEmail,
+        phone: formPhone, address: formAddress, city: formCity,
+        taxId: formTaxId, type: formType, notes: formNotes,
       };
-
       const response = await fetch("/api/clients", {
         method: editClient ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-
-      if (response.ok) {
-        setShowForm(false);
-        fetchClients();
-      } else {
-        const err = await response.json();
-        alert(err.error || "Erreur");
-      }
-    } finally {
-      setSubmitting(false);
-    }
+      if (response.ok) { setShowForm(false); fetchClients(); }
+      else { const err = await response.json(); alert(err.error || "Erreur"); }
+    } finally { setSubmitting(false); }
   }
 
   async function handleDelete(id: string) {
@@ -152,14 +150,57 @@ export default function ClientsPage() {
     fetchClients();
   }
 
+  // KPI stats
+  const totalClients = clients.length;
+  const entreprises = clients.filter(c => c.type === "ENTREPRISE").length;
+  const totalInvoices = clients.reduce((s, c) => s + (c._count?.invoices || 0), 0);
+
   return (
-    <div>
+    <div className="flex flex-col gap-6">
       <Header title="Clients" subtitle="Gérez votre portefeuille clients" />
-      <div className="p-6 space-y-6">
+
+      <div className="px-4 sm:px-6 space-y-6">
+        {/* KPI cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card className="border-border bg-card shadow-sm">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center flex-shrink-0">
+                <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">{totalClients}</p>
+                <p className="text-xs text-muted-foreground">Clients au total</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-border bg-card shadow-sm">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center flex-shrink-0">
+                <Building2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">{entreprises}</p>
+                <p className="text-xs text-muted-foreground">Entreprises</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-border bg-card shadow-sm">
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">{totalInvoices}</p>
+                <p className="text-xs text-muted-foreground">Factures émises</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Toolbar */}
         <div className="flex items-center gap-3">
           <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Rechercher un client..."
               value={search}
@@ -173,55 +214,57 @@ export default function ClientsPage() {
           </Button>
         </div>
 
-        <Card>
+        {/* Table */}
+        <Card className="border-border bg-card shadow-sm overflow-hidden">
           <CardContent className="p-0">
             {loading ? (
               <div className="space-y-2 p-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="h-12 bg-gray-100 animate-pulse rounded"
-                  />
+                  <div key={i} className="h-12 bg-muted/50 animate-pulse rounded-lg" />
                 ))}
               </div>
             ) : clients.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">
-                <Users className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p className="text-base font-medium text-gray-500">
-                  Aucun client trouvé
+              <div className="text-center py-16">
+                <div className="w-14 h-14 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-7 h-7 text-muted-foreground/50" />
+                </div>
+                <p className="text-base font-medium text-foreground mb-1">Aucun client trouvé</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {search ? "Essayez un autre terme de recherche." : "Ajoutez votre premier client pour commencer."}
                 </p>
-                <Button
-                  onClick={openAddForm}
-                  variant="outline"
-                  size="sm"
-                  className="mt-3"
-                >
-                  Ajouter votre premier client
-                </Button>
+                {!search && (
+                  <Button onClick={openAddForm} variant="outline" size="sm">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Ajouter un client
+                  </Button>
+                )}
               </div>
             ) : (
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Nom</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Ville</TableHead>
-                    <TableHead>NIU</TableHead>
-                    <TableHead className="text-center">Factures</TableHead>
-                    <TableHead className="w-20"></TableHead>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Nom</TableHead>
+                    <TableHead className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Type</TableHead>
+                    <TableHead className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Contact</TableHead>
+                    <TableHead className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Ville</TableHead>
+                    <TableHead className="text-muted-foreground text-xs font-medium uppercase tracking-wide">NIU</TableHead>
+                    <TableHead className="text-center text-muted-foreground text-xs font-medium uppercase tracking-wide">Factures</TableHead>
+                    <TableHead className="w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {clients.map((client) => (
-                    <TableRow key={client.id}>
-                      <TableCell className="font-medium">
-                        {client.name}
+                    <TableRow key={client.id} className="border-border hover:bg-muted/40 transition-colors group">
+                      <TableCell>
+                        <p className="font-medium text-foreground">{client.name}</p>
+                        {client.notes && (
+                          <p className="text-xs text-muted-foreground truncate max-w-[180px]">{client.notes}</p>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Badge
                           variant="outline"
-                          className={`text-xs ${typeBadgeColors[client.type]}`}
+                          className={`text-xs border-0 font-medium ${typeBadgeColors[client.type]}`}
                         >
                           {typeLabels[client.type]}
                         </Badge>
@@ -229,49 +272,75 @@ export default function ClientsPage() {
                       <TableCell>
                         <div className="space-y-0.5">
                           {client.email && (
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                              <Mail className="w-3 h-3" />
-                              {client.email}
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <Mail className="w-3 h-3 flex-shrink-0" />
+                              <span className="truncate max-w-[160px]">{client.email}</span>
                             </div>
                           )}
                           {client.phone && (
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                              <Phone className="w-3 h-3" />
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <Phone className="w-3 h-3 flex-shrink-0" />
                               {client.phone}
                             </div>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm text-gray-500">
+                      <TableCell className="text-sm text-muted-foreground">
                         {client.city || "—"}
                       </TableCell>
-                      <TableCell className="text-sm font-mono text-gray-500">
+                      <TableCell className="text-sm font-mono text-muted-foreground">
                         {client.taxId || "—"}
                       </TableCell>
                       <TableCell className="text-center">
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-semibold text-foreground">
                           {client._count?.invoices || 0}
                         </span>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => openEditForm(client)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-red-400 hover:text-red-600"
-                            onClick={() => handleDelete(client.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={() => openEditForm(client)}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Modifier
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => router.push(`/invoices/new?clientId=${client.id}`)}
+                            >
+                              <FileText className="w-4 h-4 mr-2" />
+                              Nouvelle facture
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => router.push(`/orders/new?clientId=${client.id}`)}
+                            >
+                              <ShoppingCart className="w-4 h-4 mr-2" />
+                              Nouvelle commande
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => router.push(`/payment-links/new?clientId=${client.id}`)}
+                            >
+                              <Link2 className="w-4 h-4 mr-2" />
+                              Lien de paiement
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => handleDelete(client.id)}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Supprimer
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -303,18 +372,11 @@ export default function ClientsPage() {
               </div>
               <div className="space-y-2">
                 <Label>Type</Label>
-                <Select
-                  value={formType}
-                  onValueChange={(v) => setFormType(v as ClientType)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                <Select value={formType} onValueChange={(v) => setFormType(v as ClientType)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {Object.entries(typeLabels).map(([k, v]) => (
-                      <SelectItem key={k} value={k}>
-                        {v}
-                      </SelectItem>
+                      <SelectItem key={k} value={k}>{v}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -370,17 +432,11 @@ export default function ClientsPage() {
               />
             </div>
             <div className="flex justify-end gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowForm(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
                 Annuler
               </Button>
               <Button type="submit" disabled={submitting}>
-                {submitting && (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                )}
+                {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Enregistrer
               </Button>
             </div>
