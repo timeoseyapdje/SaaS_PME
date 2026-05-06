@@ -23,9 +23,16 @@ import {
   LogOut,
   Menu,
   X,
+  Package,
+  Tag,
+  ShoppingCart,
+  Plus,
+  Link2,
+  Boxes,
 } from "lucide-react";
 import { useState } from "react";
 import { signOut, useSession } from "next-auth/react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface NavChild {
   name: string;
@@ -41,6 +48,24 @@ interface NavItem {
 
 const navigation: NavItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  {
+    name: "Produits",
+    icon: Package,
+    children: [
+      { name: "Catalogue", href: "/products" },
+      { name: "Catégories", href: "/products/categories" },
+      { name: "Inventaire", href: "/products/inventory" },
+    ],
+  },
+  {
+    name: "Ventes",
+    icon: ShoppingCart,
+    children: [
+      { name: "Commandes", href: "/orders" },
+      { name: "Nouvelle commande", href: "/orders/new" },
+      { name: "Liens de paiement", href: "/payment-links" },
+    ],
+  },
   {
     name: "Facturation",
     icon: FileText,
@@ -74,7 +99,6 @@ const navigation: NavItem[] = [
   { name: "Paramètres", href: "/settings", icon: Settings },
 ];
 
-// Navigation dédiée super admin (remplace la navigation standard)
 const superAdminNavigation: NavItem[] = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   {
@@ -106,6 +130,8 @@ export function Sidebar() {
     "Contacts",
     "Gestion",
     "Communication",
+    "Produits",
+    "Ventes",
   ]);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -124,13 +150,13 @@ export function Sidebar() {
             <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <p className="font-bold text-white text-lg tracking-tight leading-none">Nkap Control</p>
-            <p className="text-zinc-500 text-[11px] mt-1 font-medium tracking-wide">GESTION FINANCIERE</p>
+            <p className="font-bold text-foreground text-lg tracking-tight leading-none">Nkap Control</p>
+            <p className="text-muted-foreground text-[11px] mt-1 font-medium tracking-wide">GESTION FINANCIERE</p>
           </div>
         </div>
         <button
           onClick={() => setMobileOpen(false)}
-          className="lg:hidden p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors"
+          className="lg:hidden p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -153,18 +179,18 @@ export function Sidebar() {
                   className={cn(
                     "flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
                     isActive
-                      ? "text-white"
-                      : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
                   <div className="flex items-center gap-3">
-                    <item.icon className={cn("w-5 h-5 transition-colors", isActive ? "text-emerald-400" : "text-zinc-500 group-hover:text-zinc-400")} />
+                    <item.icon className={cn("w-5 h-5 transition-colors", isActive ? "text-emerald-500" : "text-muted-foreground group-hover:text-foreground")} />
                     {item.name}
                   </div>
                   {isOpen ? (
-                    <ChevronDown className="w-4 h-4 text-zinc-600 transition-transform" />
+                    <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform" />
                   ) : (
-                    <ChevronRight className="w-4 h-4 text-zinc-600 transition-transform" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground transition-transform" />
                   )}
                 </button>
                 {isOpen && (
@@ -172,7 +198,7 @@ export function Sidebar() {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="ml-[22px] mt-1 space-y-1 border-l border-zinc-800/80 pl-4 py-1"
+                    className="ml-[22px] mt-1 space-y-1 border-l border-border pl-4 py-1"
                   >
                     {item.children.map((child) => {
                       const isChildActive = pathname === child.href || pathname.startsWith(child.href + "/");
@@ -193,8 +219,8 @@ export function Sidebar() {
                             className={cn(
                               "block px-3 py-2 rounded-lg text-sm transition-all duration-200",
                               isChildActive
-                                ? "bg-emerald-500/10 text-emerald-400 font-medium"
-                                : "text-zinc-400 hover:bg-zinc-900/50 hover:text-zinc-200"
+                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
                             )}
                           >
                             {child.name}
@@ -228,11 +254,11 @@ export function Sidebar() {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all relative z-10",
                   isActive
-                    ? "text-emerald-400"
-                    : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <item.icon className={cn("w-5 h-5", isActive ? "text-emerald-400" : "text-zinc-500")} />
+                <item.icon className={cn("w-5 h-5", isActive ? "text-emerald-500" : "text-muted-foreground")} />
                 {item.name}
               </div>
             </Link>
@@ -242,22 +268,28 @@ export function Sidebar() {
 
       {/* Footer */}
       <div className="px-4 py-4 lg:px-6 lg:py-6 mt-auto space-y-3">
+        {/* Theme toggle */}
+        <div className="flex items-center justify-between px-1">
+          <span className="text-xs text-muted-foreground font-medium">Apparence</span>
+          <ThemeToggle />
+        </div>
+
         {/* Logout button */}
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all group cursor-pointer"
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-500/10 hover:text-red-600 transition-all group cursor-pointer"
         >
-          <LogOut className="w-5 h-5 text-red-500 group-hover:text-red-400" />
+          <LogOut className="w-5 h-5 text-red-500 group-hover:text-red-600" />
           Déconnexion
         </button>
 
-        <div className="flex items-center gap-3 bg-zinc-900/50 p-3 rounded-xl border border-zinc-800/50">
-          <div className="bg-zinc-800 p-2 rounded-lg">
-            <Landmark className="w-4 h-4 text-emerald-400" />
+        <div className="flex items-center gap-3 bg-muted/50 p-3 rounded-xl border border-border">
+          <div className="bg-muted p-2 rounded-lg">
+            <Landmark className="w-4 h-4 text-emerald-500" />
           </div>
           <div>
-            <p className="text-xs font-medium text-zinc-300">Cameroun</p>
-            <p className="text-[10px] text-zinc-500">Norme OHADA</p>
+            <p className="text-xs font-medium text-foreground">Cameroun</p>
+            <p className="text-[10px] text-muted-foreground">Norme OHADA</p>
           </div>
         </div>
       </div>
@@ -269,7 +301,7 @@ export function Sidebar() {
       {/* Mobile hamburger button */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 w-10 h-10 rounded-xl bg-zinc-900/90 backdrop-blur-xl border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-800 transition-colors shadow-lg"
+        className="lg:hidden fixed top-4 left-4 z-50 w-10 h-10 rounded-xl bg-card/90 backdrop-blur-xl border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-lg"
       >
         <Menu className="w-5 h-5" />
       </button>
@@ -277,7 +309,7 @@ export function Sidebar() {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -285,7 +317,7 @@ export function Sidebar() {
       {/* Mobile sidebar */}
       <div
         className={cn(
-          "lg:hidden fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-zinc-950/95 backdrop-blur-2xl border-r border-white/5 text-zinc-300 transition-transform duration-300 ease-in-out shadow-2xl",
+          "lg:hidden fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-background/95 backdrop-blur-2xl border-r border-border text-foreground transition-transform duration-300 ease-in-out shadow-2xl",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -293,7 +325,7 @@ export function Sidebar() {
       </div>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex flex-col w-64 bg-zinc-950/60 backdrop-blur-2xl border border-white/5 text-zinc-300 h-[calc(100vh-32px)] fixed left-4 top-4 rounded-2xl z-30 transition-all shadow-2xl overflow-hidden">
+      <div className="hidden lg:flex flex-col w-64 bg-card/80 backdrop-blur-2xl border border-border text-foreground h-[calc(100vh-32px)] fixed left-4 top-4 rounded-2xl z-30 transition-all shadow-lg overflow-hidden">
         {sidebarContent}
       </div>
     </>

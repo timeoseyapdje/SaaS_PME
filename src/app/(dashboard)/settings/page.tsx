@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,11 +10,65 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Save, Building2, Shield, Landmark, User, Palette, Pencil, Check } from "lucide-react";
+import { Loader2, Save, Building2, Shield, Landmark, User, Palette, Pencil, Check, Sun, Moon, Monitor } from "lucide-react";
 import { BankAccount } from "@/types";
 import { formatCurrency } from "@/lib/currency";
 import { DEMO_EMAIL } from "@/lib/demo";
 import { AlertTriangle } from "lucide-react";
+
+function AppearanceSection() {
+  const { theme, setTheme } = useTheme();
+
+  const options = [
+    { value: "light", label: "Clair", icon: Sun, desc: "Fond blanc, interface lumineuse" },
+    { value: "dark", label: "Sombre", icon: Moon, desc: "Fond sombre, moins de fatigue visuelle" },
+    { value: "system", label: "Système", icon: Monitor, desc: "Suit les préférences de votre appareil" },
+  ] as const;
+
+  return (
+    <Card className="mt-4">
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <Sun className="w-4 h-4" />
+          Apparence
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground mb-4">
+          Choisissez le thème de l&apos;interface. Par défaut, il suit les préférences de votre système.
+        </p>
+        <div className="grid grid-cols-3 gap-3">
+          {options.map(({ value, label, icon: Icon, desc }) => (
+            <button
+              key={value}
+              onClick={() => setTheme(value)}
+              className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center ${
+                theme === value
+                  ? "border-emerald-500 bg-emerald-500/5"
+                  : "border-border hover:border-emerald-500/40 hover:bg-muted/50"
+              }`}
+            >
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                theme === value ? "bg-emerald-500/10" : "bg-muted"
+              }`}>
+                <Icon className={`w-5 h-5 ${theme === value ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`} />
+              </div>
+              <div>
+                <p className={`text-sm font-medium ${theme === value ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"}`}>{label}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{desc}</p>
+              </div>
+              {theme === value && (
+                <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                  <Check className="w-3 h-3 text-white" />
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -442,11 +497,14 @@ export default function SettingsPage() {
 
           {/* Personnalisation tab */}
           <TabsContent value="customization">
+            {/* Apparence — accessible à tous les plans */}
+            <AppearanceSection />
+
             <Card className="mt-4">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <Palette className="w-4 h-4" />
-                  Personnalisation
+                  Personnalisation des documents
                 </CardTitle>
               </CardHeader>
               <CardContent>

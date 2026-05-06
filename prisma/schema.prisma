@@ -110,6 +110,10 @@ model Company {
   bankAccounts  BankAccount[]
   taxDeclarations TaxDeclaration[]
   subscription  Subscription?
+  categories    Category[]
+  products      Product[]
+  orders        Order[]
+  paymentLinks  PaymentLink[]
 
   @@map("companies")
 }
@@ -135,6 +139,8 @@ model Client {
   updatedAt   DateTime @updatedAt
 
   invoices    Invoice[]
+  orders      Order[]
+  paymentLinks PaymentLink[]
 
   @@map("clients")
 }
@@ -495,4 +501,181 @@ model CurrencyRate {
 
   @@unique([fromCode, toCode, date])
   @@map("currency_rates")
+}
+
+// ============================================================
+// PRODUCTS & INVENTORY
+// ============================================================
+
+model Category {
+  id          String     @id @default(cuid())
+  companyId   String
+  company     Company    @relation(fields: [companyId], references: [id])
+  name        String
+  description String?
+  slug        String
+  parentId    String?
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+  products    Product[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([companyId, slug])
+  @@map("categories")
+}
+
+model Product {
+  id                String          @id @default(cuid())
+  companyId         String
+  company           Company         @relation(fields: [companyId], references: [id])
+  name              String
+  description       String?         @db.Text
+  sku               String?
+  barcode           String?
+  price             Float
+  costPrice         Float?
+  currency          String          @default("XAF")
+  categoryId        String?
+  category          Category?       @relation(fields: [categoryId], references: [id])
+  images            String[]
+  unit              String          @default("piece")
+  isActive          Boolean         @default(true)
+  trackStock        Boolean         @default(true)
+  stock             Int             @default(0)
+  lowStockThreshold Int             @default(5)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  orderItems        OrderItem[]
+  stockMovements    StockMovement[]
+
+  @@map("products")
+}
+
+model StockMovement {
+  id        String            @id @default(cuid())
+  productId String
+  product   Product           @relation(fields: [productId], references: [id])
+  type      StockMovementType
+  quantity  Int
+  reason    String?
+  orderId   String?
+  createdAt DateTime          @default(now())
+
+  @@map("stock_movements")
+}
+
+enum StockMovementType {
+  IN
+  OUT
+  ADJUSTMENT
+  RETURN
+}
+
+// ============================================================
+// ORDERS & SALES
+// ============================================================
+
+model Order {
+  id            String         @id @default(cuid())
+  companyId     String
+  company       Company        @relation(fields: [companyId], references: [id])
+  clientId      String?
+  client        Client?        @relation(fields: [clientId], references: [id])
+  number        String
+  status        OrderStatus    @default(PENDING)
+  currency      String         @default("XAF")
+  subtotal      Float          @default(0)
+  tvaRate       Float          @default(0.1925)
+  tvaAmount     Float          @default(0)
+  total         Float          @default(0)
+  applyTVA      Boolean        @default(true)
+  paymentMethod PaymentMethod?
+  paymentStatus PaymentStatus  @default(PENDING)
+  notes         String?
+  paidAt        DateTime?
+  deliveredAt   DateTime?
+  cancelledAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  items         OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  description String
+  quantity    Float    @default(1)
+  unitPrice   Float
+  total       Float
+
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+// ============================================================
+// PAYMENT LINKS
+// ============================================================
+
+model PaymentLink {
+  id            String               @id @default(cuid())
+  companyId     String
+  company       Company              @relation(fields: [companyId], references: [id])
+  title         String
+  description   String?
+  amount        Float
+  currency      String               @default("XAF")
+  slug          String               @unique
+  status        PaymentLinkStatus    @default(ACTIVE)
+  expiresAt     DateTime?
+  maxUses       Int?
+  currentUses   Int                  @default(0)
+  clientId      String?
+  client        Client?              @relation(fields: [clientId], references: [id])
+  invoiceId     String?
+  orderId       String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  transactions  PaymentLinkTransaction[]
+
+  @@map("payment_links")
+}
+
+model PaymentLinkTransaction {
+  id            String        @id @default(cuid())
+  paymentLinkId String
+  paymentLink   PaymentLink   @relation(fields: [paymentLinkId], references: [id])
+  amount        Float
+  paymentMethod PaymentMethod
+  phoneNumber   String?
+  payerName     String?
+  status        PaymentStatus @default(PENDING)
+  transactionRef String?
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+
+  @@map("payment_link_transactions")
+}
+
+enum PaymentLinkStatus {
+  ACTIVE
+  EXPIRED
+  DISABLED
 }
