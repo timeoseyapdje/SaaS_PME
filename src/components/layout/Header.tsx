@@ -206,7 +206,7 @@ export function Header({ title, subtitle }: HeaderProps) {
   };
 
   return (
-    <header className="h-14 lg:h-16 bg-zinc-950/60 backdrop-blur-xl border border-white/5 rounded-2xl flex items-center justify-between px-3 sm:px-4 lg:px-6 mb-4 lg:mb-6 sticky top-0 lg:top-4 z-20 transition-all shadow-xl">
+    <header className="h-14 lg:h-16 bg-card/80 backdrop-blur-xl border border-border rounded-2xl flex items-center justify-between px-3 sm:px-4 lg:px-6 mb-4 lg:mb-6 sticky top-0 lg:top-4 z-20 transition-all shadow-sm">
       <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-transparent opacity-50 rounded-2xl pointer-events-none" />
       <div className="flex flex-col justify-center relative z-10">
         <h1 className="text-base sm:text-lg lg:text-xl font-semibold text-foreground tracking-tight truncate">{title}</h1>
@@ -234,9 +234,9 @@ export function Header({ title, subtitle }: HeaderProps) {
               {/* Backdrop */}
               <div className="fixed inset-0 z-30" onClick={() => setShowNotifs(false)} />
               {/* Panel */}
-              <div className="absolute right-0 top-12 w-80 sm:w-96 bg-zinc-900 border border-zinc-800/60 rounded-xl shadow-2xl z-40 overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800/50">
-                  <h3 className="text-sm font-semibold text-white">Notifications</h3>
+              <div className="absolute right-0 top-12 w-80 sm:w-96 bg-card border border-border rounded-xl shadow-lg z-40 overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                  <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
                   <div className="flex items-center gap-2">
                     {unreadCount > 0 && (
                       <button
@@ -253,32 +253,32 @@ export function Header({ title, subtitle }: HeaderProps) {
                 </div>
                 <div className="max-h-80 overflow-y-auto">
                   {notifications.length === 0 ? (
-                    <div className="text-center py-8 text-sm text-zinc-600">
+                    <div className="text-center py-8 text-sm text-muted-foreground">
                       Aucune notification
                     </div>
                   ) : (
                     notifications.map((notif) => (
                       <div
                         key={notif.id}
-                        className={`flex items-start gap-3 px-4 py-3 border-b border-zinc-800/30 last:border-0 hover:bg-zinc-800/30 transition-colors ${
-                          !notif.read ? "bg-zinc-800/20" : ""
+                        className={`flex items-start gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-muted/40 transition-colors ${
+                          !notif.read ? "bg-muted/20" : ""
                         }`}
                       >
                         <div className="mt-0.5 shrink-0">{notifIcon(notif.type)}</div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
-                            <p className={`text-xs font-semibold ${!notif.read ? "text-white" : "text-zinc-400"}`}>
+                            <p className={`text-xs font-semibold ${!notif.read ? "text-foreground" : "text-muted-foreground"}`}>
                               {notif.title}
                             </p>
                             <button
                               onClick={() => dismissNotif(notif.id)}
-                              className="text-zinc-600 hover:text-zinc-400 shrink-0"
+                              className="text-muted-foreground hover:text-foreground shrink-0"
                             >
                               <X className="w-3 h-3" />
                             </button>
                           </div>
-                          <p className="text-[11px] text-zinc-500 mt-0.5 leading-relaxed">{notif.message}</p>
-                          <p className="text-[10px] text-zinc-600 mt-1">{notif.time}</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{notif.message}</p>
+                          <p className="text-[10px] text-muted-foreground/60 mt-1">{notif.time}</p>
                         </div>
                         {!notif.read && (
                           <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1.5" />

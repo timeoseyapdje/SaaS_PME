@@ -179,6 +179,8 @@ export type PaymentMethod =
   | "ORANGE_MONEY"
   | "CARTE_BANCAIRE";
 
+export type PaymentStatus = "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
+
 export interface Expense {
   id: string;
   companyId: string;
@@ -387,4 +389,145 @@ export interface PaginatedResponse<T> {
   page: number;
   limit: number;
   totalPages: number;
+}
+
+// ============================================================
+// PRODUCTS & INVENTORY
+// ============================================================
+
+export interface Category {
+  id: string;
+  companyId: string;
+  name: string;
+  description?: string;
+  slug: string;
+  parentId?: string;
+  parent?: Category;
+  children?: Category[];
+  products?: Product[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type StockMovementType = "IN" | "OUT" | "ADJUSTMENT" | "RETURN";
+
+export interface StockMovement {
+  id: string;
+  productId: string;
+  type: StockMovementType;
+  quantity: number;
+  reason?: string;
+  orderId?: string;
+  createdAt: Date;
+}
+
+export interface Product {
+  id: string;
+  companyId: string;
+  name: string;
+  description?: string;
+  sku?: string;
+  barcode?: string;
+  price: number;
+  costPrice?: number;
+  currency: string;
+  categoryId?: string;
+  category?: Category;
+  images: string[];
+  unit: string;
+  isActive: boolean;
+  trackStock: boolean;
+  stock: number;
+  lowStockThreshold: number;
+  createdAt: Date;
+  updatedAt: Date;
+  stockMovements?: StockMovement[];
+}
+
+// ============================================================
+// ORDERS & SALES
+// ============================================================
+
+export type OrderStatus =
+  | "PENDING"
+  | "CONFIRMED"
+  | "PROCESSING"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED"
+  | "RETURNED";
+
+export interface OrderItem {
+  id?: string;
+  orderId?: string;
+  productId?: string;
+  product?: Product;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+export interface Order {
+  id: string;
+  companyId: string;
+  clientId?: string;
+  client?: Client;
+  number: string;
+  status: OrderStatus;
+  currency: string;
+  subtotal: number;
+  tvaRate: number;
+  tvaAmount: number;
+  total: number;
+  applyTVA: boolean;
+  paymentMethod?: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  notes?: string;
+  paidAt?: Date;
+  deliveredAt?: Date;
+  cancelledAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  items: OrderItem[];
+}
+
+// ============================================================
+// PAYMENT LINKS
+// ============================================================
+
+export type PaymentLinkStatus = "ACTIVE" | "EXPIRED" | "DISABLED";
+
+export interface PaymentLinkTransaction {
+  id: string;
+  paymentLinkId: string;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  phoneNumber?: string;
+  payerName?: string;
+  status: PaymentStatus;
+  transactionRef?: string;
+  paidAt?: Date;
+  createdAt: Date;
+}
+
+export interface PaymentLink {
+  id: string;
+  companyId: string;
+  title: string;
+  description?: string;
+  amount: number;
+  currency: string;
+  slug: string;
+  status: PaymentLinkStatus;
+  expiresAt?: Date;
+  maxUses?: number;
+  currentUses: number;
+  clientId?: string;
+  client?: Client;
+  invoiceId?: string;
+  orderId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  transactions?: PaymentLinkTransaction[];
 }
