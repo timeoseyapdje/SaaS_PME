@@ -28,7 +28,7 @@ function formatMessage(text: string) {
       }
       if (part.startsWith("*") && part.endsWith("*")) {
         return (
-          <em key={j} className="italic text-zinc-400">
+          <em key={j} className="italic text-muted-foreground">
             {part.slice(1, -1)}
           </em>
         );
@@ -52,16 +52,8 @@ function TypingIndicator() {
         <motion.div
           key={i}
           className="w-2 h-2 rounded-full bg-emerald-400"
-          animate={{
-            y: [0, -6, 0],
-            opacity: [0.4, 1, 0.4],
-          }}
-          transition={{
-            duration: 0.8,
-            repeat: Infinity,
-            delay: i * 0.15,
-            ease: "easeInOut",
-          }}
+          animate={{ y: [0, -6, 0], opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
         />
       ))}
     </div>
@@ -81,28 +73,20 @@ export function AIChatbot() {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
-  // Auto-scroll to bottom
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, isLoading, scrollToBottom]);
+  useEffect(() => { scrollToBottom(); }, [messages, isLoading, scrollToBottom]);
 
-  // Focus input when opening
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 300);
-    }
+    if (isOpen) setTimeout(() => inputRef.current?.focus(), 300);
   }, [isOpen]);
 
-  // Detect scroll position
   const handleScroll = () => {
     const container = messagesContainerRef.current;
     if (!container) return;
-    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
-    setShowScrollBtn(!isNearBottom);
+    setShowScrollBtn(container.scrollHeight - container.scrollTop - container.clientHeight > 100);
   };
 
   const handleSend = () => {
@@ -112,14 +96,7 @@ export function AIChatbot() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const handleSuggestion = (suggestion: string) => {
-    sendMessage(suggestion);
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
   const showSuggestions = messages.length <= 1;
@@ -139,18 +116,10 @@ export function AIChatbot() {
             className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-lg shadow-emerald-500/30 flex items-center justify-center group cursor-pointer"
           >
             <Sparkles className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-            {/* Pulse ring */}
             <motion.div
               className="absolute inset-0 rounded-full border-2 border-emerald-400"
-              animate={{
-                scale: [1, 1.4],
-                opacity: [0.6, 0],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeOut",
-              }}
+              animate={{ scale: [1, 1.4], opacity: [0.6, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
             />
           </motion.button>
         )}
@@ -164,34 +133,30 @@ export function AIChatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[420px] h-[100dvh] sm:h-[600px] sm:max-h-[85vh] flex flex-col sm:rounded-2xl overflow-hidden border-0 sm:border border-white/10 bg-zinc-950/95 sm:bg-zinc-950/80 backdrop-blur-2xl shadow-2xl shadow-emerald-500/10"
+            className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[420px] h-[100dvh] sm:h-[600px] sm:max-h-[85vh] flex flex-col sm:rounded-2xl overflow-hidden border-0 sm:border border-border bg-card/98 backdrop-blur-2xl shadow-2xl shadow-black/10"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-emerald-900/40 to-zinc-950/50 backdrop-blur-md border-b border-white/5">
+            <div className="flex items-center justify-between px-5 py-4 bg-muted/60 backdrop-blur-md border-b border-border">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white leading-none">
-                    Nkap AI
-                  </h3>
-                  <p className="text-[10px] text-emerald-400/80 mt-0.5">
-                    Assistant financier intelligent
-                  </p>
+                  <h3 className="text-sm font-bold text-foreground leading-none">Nkap AI</h3>
+                  <p className="text-[10px] text-emerald-500 mt-0.5">Assistant financier intelligent</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
                 <button
                   onClick={clearChat}
-                  className="p-2 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 rounded-lg transition-colors"
+                  className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                   title="Nouvelle conversation"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 rounded-lg transition-colors"
+                  className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -203,10 +168,6 @@ export function AIChatbot() {
               ref={messagesContainerRef}
               onScroll={handleScroll}
               className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scroll-smooth"
-              style={{
-                scrollbarWidth: "thin",
-                scrollbarColor: "#27272a transparent",
-              }}
             >
               {messages.map((message, index) => (
                 <motion.div
@@ -214,35 +175,25 @@ export function AIChatbot() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index === messages.length - 1 ? 0.1 : 0 }}
-                  className={`flex gap-2.5 ${
-                    message.role === "user" ? "flex-row-reverse" : "flex-row"
-                  }`}
+                  className={`flex gap-2.5 ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}
                 >
                   {/* Avatar */}
-                  <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
-                      message.role === "user"
-                        ? "bg-zinc-800 text-zinc-300"
-                        : "bg-emerald-500/20 text-emerald-400"
-                    }`}
-                  >
-                    {message.role === "user" ? (
-                      <User className="w-3.5 h-3.5" />
-                    ) : (
-                      <Bot className="w-3.5 h-3.5" />
-                    )}
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
+                    message.role === "user"
+                      ? "bg-muted text-muted-foreground"
+                      : "bg-emerald-500/15 text-emerald-500"
+                  }`}>
+                    {message.role === "user" ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
                   </div>
 
-                  {/* Message bubble */}
-                  <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed backdrop-blur-md ${
-                      message.role === "user"
-                        ? "bg-zinc-800 text-zinc-100 rounded-br-md shadow-md"
-                        : message.isError
-                        ? "bg-rose-500/10 text-rose-300 border border-rose-500/20 rounded-bl-md"
-                        : "bg-zinc-900/60 text-zinc-300 border border-white/5 rounded-bl-md shadow-inner"
-                    }`}
-                  >
+                  {/* Bubble */}
+                  <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed ${
+                    message.role === "user"
+                      ? "bg-emerald-500 text-white rounded-br-md shadow-md"
+                      : message.isError
+                      ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-bl-md"
+                      : "bg-muted text-foreground border border-border rounded-bl-md"
+                  }`}>
                     {formatMessage(message.content)}
                   </div>
                 </motion.div>
@@ -250,15 +201,11 @@ export function AIChatbot() {
 
               {/* Typing indicator */}
               {isLoading && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex gap-2.5"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0">
-                    <Bot className="w-3.5 h-3.5 text-emerald-400" />
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
+                    <Bot className="w-3.5 h-3.5 text-emerald-500" />
                   </div>
-                  <div className="bg-zinc-900/60 border border-white/5 rounded-2xl rounded-bl-md px-4 py-2.5 backdrop-blur-md shadow-inner">
+                  <div className="bg-muted border border-border rounded-2xl rounded-bl-md px-4 py-2.5">
                     <TypingIndicator />
                   </div>
                 </motion.div>
@@ -267,7 +214,7 @@ export function AIChatbot() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Scroll to bottom button */}
+            {/* Scroll to bottom */}
             <AnimatePresence>
               {showScrollBtn && (
                 <motion.button
@@ -275,7 +222,7 @@ export function AIChatbot() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   onClick={scrollToBottom}
-                  className="absolute bottom-[120px] left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 flex items-center justify-center shadow-lg hover:bg-zinc-700 transition-colors"
+                  className="absolute bottom-[120px] left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-card border border-border text-muted-foreground flex items-center justify-center shadow-lg hover:bg-muted transition-colors"
                 >
                   <ChevronDown className="w-4 h-4" />
                 </motion.button>
@@ -298,8 +245,8 @@ export function AIChatbot() {
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 + i * 0.08 }}
-                        onClick={() => handleSuggestion(suggestion)}
-                        className="text-[11px] px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 hover:border-emerald-500/30 transition-all cursor-pointer"
+                        onClick={() => sendMessage(suggestion)}
+                        className="text-[11px] px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all cursor-pointer"
                       >
                         {suggestion}
                       </motion.button>
@@ -310,11 +257,11 @@ export function AIChatbot() {
             </AnimatePresence>
 
             {/* Input area */}
-            <div className="px-4 py-3 border-t border-white/5 bg-zinc-950/50 backdrop-blur-md">
+            <div className="px-4 py-3 border-t border-border bg-muted/40 backdrop-blur-md">
               {isDemo ? (
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-zinc-900/50 border border-amber-500/20">
-                  <Lock className="w-4 h-4 text-amber-400 shrink-0" />
-                  <p className="text-xs text-amber-300/80">
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                  <Lock className="w-4 h-4 text-amber-500 shrink-0" />
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
                     Nkap AI n&apos;est pas disponible en mode démo. Créez votre compte pour utiliser l&apos;assistant.
                   </p>
                 </div>
@@ -329,7 +276,7 @@ export function AIChatbot() {
                       onKeyDown={handleKeyDown}
                       placeholder="Posez une question..."
                       disabled={isLoading}
-                      className="flex-1 bg-zinc-900/50 border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 disabled:opacity-50 transition-all shadow-inner"
+                      className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500/50 disabled:opacity-50 transition-all"
                     />
                     <motion.button
                       whileHover={{ scale: 1.05 }}
@@ -341,7 +288,7 @@ export function AIChatbot() {
                       <Send className="w-4 h-4" />
                     </motion.button>
                   </div>
-                  <p className="text-[9px] text-zinc-500 text-center mt-2">
+                  <p className="text-[9px] text-muted-foreground text-center mt-2">
                     Nkap AI analyse vos données en temps réel • Propulsé par Claude
                   </p>
                 </>

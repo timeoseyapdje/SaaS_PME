@@ -18,11 +18,15 @@ import { AlertTriangle } from "lucide-react";
 
 function AppearanceSection() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Avoid hydration mismatch: theme is undefined on SSR
+  useEffect(() => setMounted(true), []);
 
   const options = [
     { value: "light", label: "Clair", icon: Sun, desc: "Fond blanc, interface lumineuse" },
-    { value: "dark", label: "Sombre", icon: Moon, desc: "Fond sombre, moins de fatigue visuelle" },
-    { value: "system", label: "Système", icon: Monitor, desc: "Suit les préférences de votre appareil" },
+    { value: "dark", label: "Sombre", icon: Moon, desc: "Fond sombre, moins de fatigue" },
+    { value: "system", label: "Système", icon: Monitor, desc: "Suit votre appareil" },
   ] as const;
 
   return (
@@ -37,34 +41,39 @@ function AppearanceSection() {
         <p className="text-sm text-muted-foreground mb-4">
           Choisissez le thème de l&apos;interface. Par défaut, il suit les préférences de votre système.
         </p>
-        <div className="grid grid-cols-3 gap-3">
-          {options.map(({ value, label, icon: Icon, desc }) => (
-            <button
-              key={value}
-              onClick={() => setTheme(value)}
-              className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center ${
-                theme === value
-                  ? "border-emerald-500 bg-emerald-500/5"
-                  : "border-border hover:border-emerald-500/40 hover:bg-muted/50"
-              }`}
-            >
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                theme === value ? "bg-emerald-500/10" : "bg-muted"
-              }`}>
-                <Icon className={`w-5 h-5 ${theme === value ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`} />
-              </div>
-              <div>
-                <p className={`text-sm font-medium ${theme === value ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"}`}>{label}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{desc}</p>
-              </div>
-              {theme === value && (
-                <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
-                  <Check className="w-3 h-3 text-white" />
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
+        {!mounted ? (
+          <div className="grid grid-cols-3 gap-3">
+            {[1, 2, 3].map((i) => <div key={i} className="h-[120px] rounded-xl bg-muted/50 animate-pulse" />)}
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-3">
+            {options.map(({ value, label, icon: Icon, desc }) => {
+              const active = theme === value;
+              return (
+                <button
+                  key={value}
+                  onClick={() => setTheme(value)}
+                  className={`flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 transition-all text-center ${
+                    active
+                      ? "border-emerald-500 bg-emerald-500/5"
+                      : "border-border hover:border-emerald-500/40 hover:bg-muted/50"
+                  }`}
+                >
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${active ? "bg-emerald-500/10" : "bg-muted"}`}>
+                    <Icon className={`w-5 h-5 ${active ? "text-emerald-500" : "text-muted-foreground"}`} />
+                  </div>
+                  <div>
+                    <p className={`text-sm font-semibold ${active ? "text-emerald-500" : "text-foreground"}`}>{label}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">{desc}</p>
+                  </div>
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${active ? "bg-emerald-500" : "bg-muted border border-border"}`}>
+                    {active && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -257,9 +266,9 @@ export default function SettingsPage() {
   };
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <Header title="Paramètres" subtitle="Configuration de votre espace" />
-      <div className="p-6">
+      <div>
         {isDemo && (
           <div className="flex items-center gap-3 p-4 mb-6 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
             <AlertTriangle className="w-5 h-5 shrink-0" />
@@ -401,23 +410,19 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <p className="text-sm font-semibold text-blue-700 mb-2">
+                  <div className="p-4 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                    <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">
                       TVA - Taxe sur la Valeur Ajoutée
                     </p>
-                    <p className="text-2xl font-bold text-blue-700">19,25%</p>
-                    <p className="text-xs text-blue-600 mt-1">
-                      Taux légal en vigueur au Cameroun
-                    </p>
+                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">19,25%</p>
+                    <p className="text-xs text-blue-500 mt-1">Taux légal en vigueur au Cameroun</p>
                   </div>
-                  <div className="p-4 bg-orange-50 rounded-lg">
-                    <p className="text-sm font-semibold text-orange-700 mb-2">
+                  <div className="p-4 bg-orange-500/10 rounded-xl border border-orange-500/20">
+                    <p className="text-sm font-semibold text-orange-600 dark:text-orange-400 mb-2">
                       IS - Impôt sur les Sociétés
                     </p>
-                    <p className="text-2xl font-bold text-orange-700">33%</p>
-                    <p className="text-xs text-orange-600 mt-1">
-                      Taux appliqué sur le bénéfice net
-                    </p>
+                    <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">33%</p>
+                    <p className="text-xs text-orange-500 mt-1">Taux appliqué sur le bénéfice net</p>
                   </div>
                 </div>
                 <Separator />
@@ -442,10 +447,8 @@ export default function SettingsPage() {
                     </div>
                   </div>
                 </div>
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-                  <strong>Note:</strong> Les taux fiscaux sont ceux en vigueur
-                  au Cameroun conformément au Code Général des Impôts. Consultez
-                  la DGI pour toute mise à jour.
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-sm text-amber-700 dark:text-amber-400">
+                  <strong>Note :</strong> Les taux fiscaux sont ceux en vigueur au Cameroun conformément au Code Général des Impôts. Consultez la DGI pour toute mise à jour.
                 </div>
               </CardContent>
             </Card>
@@ -679,12 +682,12 @@ export default function SettingsPage() {
                 </CardHeader>
                 <CardContent>
                   {profileError && (
-                    <div className="text-sm text-red-600 bg-red-50 p-3 rounded mb-4">
+                    <div className="text-sm text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl mb-4">
                       {profileError}
                     </div>
                   )}
                   {profileSuccess && (
-                    <div className="text-sm text-green-600 bg-green-50 p-3 rounded mb-4 flex items-center gap-2">
+                    <div className="text-sm text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl mb-4 flex items-center gap-2">
                       <Check className="w-4 h-4" />
                       Profil mis à jour avec succès !
                     </div>
@@ -774,12 +777,12 @@ export default function SettingsPage() {
                     className="space-y-4 max-w-sm"
                   >
                     {passwordError && (
-                      <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
+                      <div className="text-sm text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl">
                         {passwordError}
                       </div>
                     )}
                     {passwordSuccess && (
-                      <div className="text-sm text-green-600 bg-green-50 p-3 rounded">
+                      <div className="text-sm text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl">
                         Mot de passe modifié avec succès !
                       </div>
                     )}
