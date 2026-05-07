@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
+  X,
   BarChart3,
   FileText,
   Users,
@@ -14,24 +15,9 @@ import {
   Link2,
   CheckCircle2,
   ChevronRight,
-  Zap,
-  Shield,
-  Brain,
 } from "lucide-react";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.15 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
-};
-
+/* ─── Données des étapes ─── */
 const steps = [
   {
     number: "01",
@@ -40,14 +26,45 @@ const steps = [
     bg: "bg-emerald-500/10",
     border: "border-emerald-500/20",
     title: "Créez votre compte & configurez votre entreprise",
-    description:
-      "Inscrivez-vous gratuitement, renseignez les informations de votre entreprise (nom, logo, adresse, numéro de contribuable) et choisissez votre devise (FCFA par défaut).",
-    steps: [
-      "Rendez-vous sur nkapcontrol.cm et cliquez sur « Commencer gratuitement »",
-      "Renseignez votre email et choisissez un mot de passe sécurisé",
-      "Dans Paramètres → Entreprise, complétez votre profil (logo, adresse, RCCM)",
-      "Votre tableau de bord est prêt !",
+    description: "Renseignez le nom, le logo, le RCCM et le NIU de votre entreprise. Tout est prêt en 2 minutes.",
+    actions: [
+      "Renseignez le nom commercial et la raison sociale",
+      "Ajoutez votre numéro RCCM et NIU pour la conformité fiscale",
+      "Choisissez votre devise (FCFA par défaut)",
+      "Votre tableau de bord est immédiatement opérationnel",
     ],
+    screen: (
+      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-5 h-5 rounded bg-white/10" />
+          <div className="h-2 w-28 bg-zinc-700 rounded" />
+        </div>
+        <div className="flex gap-2 flex-1">
+          <div className="flex flex-col gap-1.5 w-24 flex-shrink-0">
+            <div className="h-6 bg-emerald-500/20 border border-emerald-500/30 rounded" />
+            <div className="h-6 bg-zinc-800/60 rounded w-4/5" />
+            <div className="h-6 bg-zinc-800/60 rounded" />
+          </div>
+          <div className="flex-1 space-y-2">
+            <div className="h-8 bg-zinc-900 border border-zinc-700/40 rounded-lg p-2 flex items-center gap-2">
+              <div className="h-2 w-16 bg-zinc-600 rounded" />
+              <div className="ml-auto h-5 w-14 bg-emerald-600/40 rounded" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {["RCCM", "NIU", "Ville", "Tél"].map((l) => (
+                <div key={l} className="h-9 bg-zinc-900 border border-zinc-700/30 rounded-lg p-2">
+                  <div className="h-1.5 w-8 bg-zinc-600 rounded mb-1.5" />
+                  <div className="h-2 w-12 bg-zinc-700 rounded" />
+                </div>
+              ))}
+            </div>
+            <div className="h-7 bg-emerald-600/30 border border-emerald-500/30 rounded-lg flex items-center justify-center">
+              <div className="h-2 w-16 bg-emerald-400/60 rounded" />
+            </div>
+          </div>
+        </div>
+      </div>
+    ),
   },
   {
     number: "02",
@@ -56,14 +73,43 @@ const steps = [
     bg: "bg-blue-500/10",
     border: "border-blue-500/20",
     title: "Ajoutez vos clients & fournisseurs",
-    description:
-      "Centralisez tous vos contacts professionnels. Chaque client a sa fiche avec l'historique des factures et transactions.",
-    steps: [
-      "Allez dans Clients → Nouveau client",
-      "Renseignez le nom, l'email, le téléphone et l'adresse",
+    description: "Chaque client a sa fiche avec l'historique complet des factures, commandes et transactions.",
+    actions: [
+      "Renseignez nom, email, téléphone et adresse",
       "Choisissez le type : Particulier ou Entreprise",
-      "Retrouvez l'historique complet de chaque client en un clic",
+      "Consultez l'historique complet de chaque contact",
+      "Lancez une facture ou une commande depuis la fiche client",
     ],
+    screen: (
+      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+        <div className="flex items-center justify-between mb-1">
+          <div className="h-2.5 w-16 bg-white/70 rounded font-bold" />
+          <div className="h-6 w-20 bg-emerald-600/40 border border-emerald-500/30 rounded-lg" />
+        </div>
+        <div className="flex gap-2 mb-1">
+          {["Tous", "Entreprise", "Particulier"].map((t, i) => (
+            <div key={t} className={`h-5 px-2 rounded-full text-[8px] flex items-center ${i === 0 ? "bg-emerald-600/40 border border-emerald-500/30" : "bg-zinc-800 border border-zinc-700/30"}`}>
+              <div className="h-1 w-5 bg-zinc-500 rounded" />
+            </div>
+          ))}
+        </div>
+        {[
+          { color: "bg-blue-500/60", w: "w-20" },
+          { color: "bg-emerald-500/60", w: "w-16" },
+          { color: "bg-amber-500/60", w: "w-24" },
+          { color: "bg-purple-500/60", w: "w-14" },
+        ].map((row, i) => (
+          <div key={i} className="flex items-center gap-2 h-8 bg-zinc-900/70 border border-zinc-700/30 rounded-lg px-2">
+            <div className="w-5 h-5 rounded-full bg-zinc-700 flex-shrink-0" />
+            <div className="flex-1">
+              <div className="h-1.5 w-16 bg-zinc-600 rounded mb-1" />
+              <div className="h-1 w-10 bg-zinc-700 rounded" />
+            </div>
+            <div className={`h-4 ${row.w} ${row.color} rounded-full`} />
+          </div>
+        ))}
+      </div>
+    ),
   },
   {
     number: "03",
@@ -71,15 +117,39 @@ const steps = [
     color: "text-amber-400",
     bg: "bg-amber-500/10",
     border: "border-amber-500/20",
-    title: "Gérez votre catalogue produits",
-    description:
-      "Créez vos produits et services, organisez-les par catégories, et suivez vos stocks en temps réel avec des alertes automatiques.",
-    steps: [
-      "Dans Produits → Catalogue, cliquez sur « Nouveau produit »",
-      "Renseignez le nom, le prix, le coût et le stock initial",
+    title: "Gérez votre catalogue & vos stocks",
+    description: "Créez vos produits, définissez les prix et suivez les stocks en temps réel avec alertes automatiques.",
+    actions: [
+      "Créez des produits avec SKU, prix et coût",
+      "Organisez par catégories hiérarchiques",
       "Définissez un seuil d'alerte stock bas",
-      "Organisez vos produits par catégories pour retrouver facilement",
+      "L'inventaire se met à jour automatiquement à chaque commande",
     ],
+    screen: (
+      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+        <div className="flex items-center justify-between mb-1">
+          <div className="h-2.5 w-20 bg-white/70 rounded" />
+          <div className="h-6 w-20 bg-amber-600/40 border border-amber-500/30 rounded-lg" />
+        </div>
+        <div className="grid grid-cols-2 gap-2 flex-1">
+          {[
+            { name: "Produit A", stock: 45, color: "bg-emerald-500/60" },
+            { name: "Produit B", stock: 3, color: "bg-rose-500/60" },
+            { name: "Produit C", stock: 12, color: "bg-amber-500/60" },
+            { name: "Produit D", stock: 28, color: "bg-emerald-500/60" },
+          ].map((p, i) => (
+            <div key={i} className="bg-zinc-900/70 border border-zinc-700/30 rounded-xl p-2 flex flex-col gap-1">
+              <div className="h-8 bg-zinc-800/60 rounded-lg mb-1" />
+              <div className="h-1.5 w-14 bg-zinc-600 rounded" />
+              <div className="flex items-center justify-between mt-1">
+                <div className="h-2 w-10 bg-zinc-700 rounded" />
+                <div className={`h-3.5 w-9 ${p.color} rounded-full`} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
   },
   {
     number: "04",
@@ -87,16 +157,44 @@ const steps = [
     color: "text-purple-400",
     bg: "bg-purple-500/10",
     border: "border-purple-500/20",
-    title: "Traitez vos commandes",
-    description:
-      "Créez des commandes pour vos clients, suivez leur avancement (En attente → Confirmé → Livré) et déduisez automatiquement les stocks.",
-    steps: [
-      "Dans Ventes → Commandes, cliquez sur « Nouvelle commande »",
+    title: "Créez & suivez vos commandes",
+    description: "Sélectionnez client + produits, la TVA se calcule automatiquement. Déduisez le stock en un clic.",
+    actions: [
       "Sélectionnez le client et ajoutez les produits",
-      "La TVA (19,25%) est calculée automatiquement",
-      "Passez au statut « Confirmé » pour déduire le stock",
-      "Convertissez en facture en un clic depuis la commande",
+      "TVA 19,25% calculée automatiquement",
+      "Passez à « Confirmé » pour déduire le stock",
+      "Convertissez en facture en un seul clic",
     ],
+    screen: (
+      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="h-2.5 w-20 bg-white/70 rounded" />
+          <div className="ml-auto flex gap-1">
+            {["Pending", "Confirmed", "Delivered"].map((s, i) => (
+              <div key={s} className={`h-4 px-1.5 rounded-full text-[7px] ${i === 1 ? "bg-emerald-600/50 border border-emerald-500/40" : "bg-zinc-800 border border-zinc-700/30"}`}>
+                <div className="h-1 w-5 bg-zinc-500 rounded mt-1.5" />
+              </div>
+            ))}
+          </div>
+        </div>
+        {[
+          { status: "bg-emerald-500/60", label: "Livré" },
+          { status: "bg-amber-500/60", label: "En cours" },
+          { status: "bg-blue-500/60", label: "Confirmé" },
+          { status: "bg-zinc-500/60", label: "Brouillon" },
+        ].map((o, i) => (
+          <div key={i} className="flex items-center gap-2 h-8 bg-zinc-900/70 border border-zinc-700/30 rounded-lg px-2">
+            <div className="h-1.5 w-12 bg-zinc-600 rounded" />
+            <div className="flex-1 h-1.5 bg-zinc-700/50 rounded" />
+            <div className={`h-4 w-12 ${o.status} rounded-full`} />
+          </div>
+        ))}
+        <div className="mt-auto h-6 bg-purple-600/20 border border-purple-500/30 rounded-lg flex items-center px-2 gap-1">
+          <div className="h-1.5 w-24 bg-purple-400/40 rounded" />
+          <ArrowRight className="w-2.5 h-2.5 text-purple-400 ml-auto" />
+        </div>
+      </div>
+    ),
   },
   {
     number: "05",
@@ -105,15 +203,54 @@ const steps = [
     bg: "bg-rose-500/10",
     border: "border-rose-500/20",
     title: "Créez & envoyez vos factures",
-    description:
-      "Générez des factures conformes avec numérotation automatique, calcul TVA OHADA intégré et export PDF professionnel.",
-    steps: [
-      "Dans Factures, cliquez sur « Nouvelle facture »",
-      "Sélectionnez le client et ajoutez vos lignes (produits ou services)",
-      "La TVA camerounaise (19,25%) est calculée automatiquement",
-      "Exportez en PDF ou envoyez directement par email",
-      "Suivez les statuts : Brouillon, Envoyée, Payée, En retard",
+    description: "Numérotation automatique, TVA OHADA intégrée, export PDF professionnel, envoi direct par email.",
+    actions: [
+      "Numérotation auto : FAC-2026-00001",
+      "Lignes produits/services avec TVA 19,25%",
+      "Export PDF avec logo entreprise",
+      "Statuts : Brouillon → Envoyée → Payée → En retard",
     ],
+    screen: (
+      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+        <div className="flex items-center justify-between mb-1">
+          <div>
+            <div className="h-2.5 w-24 bg-white/70 rounded mb-1" />
+            <div className="h-1.5 w-16 bg-zinc-600 rounded" />
+          </div>
+          <div className="h-5 w-14 bg-rose-500/30 border border-rose-500/30 rounded-full" />
+        </div>
+        <div className="flex-1 bg-zinc-900/60 border border-zinc-700/30 rounded-xl p-2 flex flex-col gap-1.5">
+          <div className="flex justify-between text-[8px] text-zinc-500 pb-1 border-b border-zinc-800">
+            <span>Description</span><span>Qté</span><span>Total</span>
+          </div>
+          {["Service conseil", "Formation", "Maintenance"].map((item, i) => (
+            <div key={i} className="flex items-center gap-1 h-5">
+              <div className="flex-1 h-1.5 bg-zinc-700 rounded" />
+              <div className="h-1.5 w-4 bg-zinc-700 rounded" />
+              <div className="h-1.5 w-10 bg-zinc-600 rounded" />
+            </div>
+          ))}
+          <div className="mt-auto pt-1.5 border-t border-zinc-800 space-y-1">
+            <div className="flex justify-between">
+              <div className="h-1.5 w-10 bg-zinc-700 rounded" />
+              <div className="h-1.5 w-12 bg-zinc-600 rounded" />
+            </div>
+            <div className="flex justify-between">
+              <div className="h-1.5 w-8 bg-zinc-700 rounded" />
+              <div className="h-1.5 w-10 bg-amber-500/50 rounded" />
+            </div>
+            <div className="flex justify-between">
+              <div className="h-2 w-10 bg-zinc-600 rounded" />
+              <div className="h-2 w-14 bg-emerald-500/60 rounded" />
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-1.5">
+          <div className="flex-1 h-6 bg-zinc-800 border border-zinc-700/40 rounded-lg" />
+          <div className="flex-1 h-6 bg-rose-600/30 border border-rose-500/30 rounded-lg" />
+        </div>
+      </div>
+    ),
   },
   {
     number: "06",
@@ -121,16 +258,43 @@ const steps = [
     color: "text-cyan-400",
     bg: "bg-cyan-500/10",
     border: "border-cyan-500/20",
-    title: "Créez des liens de paiement",
-    description:
-      "Générez un lien de paiement unique pour chaque facture ou commande. Partagez-le et recevez votre paiement Mobile Money en quelques secondes.",
-    steps: [
-      "Dans Ventes → Liens de paiement, cliquez sur « Nouveau lien »",
-      "Définissez le montant, le titre et une date d'expiration (optionnel)",
-      "Copiez le lien et envoyez-le à votre client par WhatsApp, SMS ou email",
-      "Le client paie via MTN Money ou Orange Money depuis sa page de paiement",
+    title: "Générez des liens de paiement Mobile Money",
+    description: "Créez un lien de paiement et partagez-le par WhatsApp. Votre client paie via MTN ou Orange Money.",
+    actions: [
+      "Définissez le montant et une date d'expiration",
+      "Copiez et partagez le lien par WhatsApp, SMS ou email",
+      "Le client paie via MTN Money ou Orange Money",
       "Vous êtes notifié dès que le paiement est confirmé",
     ],
+    screen: (
+      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+        <div className="h-2.5 w-20 bg-white/70 rounded mb-1" />
+        <div className="flex-1 bg-zinc-900/60 border border-zinc-700/30 rounded-xl p-2.5 flex flex-col gap-2">
+          <div className="space-y-1.5">
+            <div className="h-1.5 w-10 bg-zinc-600 rounded" />
+            <div className="h-6 bg-zinc-800 border border-zinc-700/40 rounded-lg" />
+          </div>
+          <div className="space-y-1.5">
+            <div className="h-1.5 w-12 bg-zinc-600 rounded" />
+            <div className="h-6 bg-zinc-800 border border-zinc-700/40 rounded-lg" />
+          </div>
+          <div className="flex gap-1.5">
+            <div className="flex-1 h-10 bg-amber-500/15 border border-amber-500/30 rounded-lg flex flex-col items-center justify-center gap-1">
+              <div className="w-4 h-4 rounded-full bg-amber-500/40" />
+              <div className="h-1 w-8 bg-amber-400/40 rounded" />
+            </div>
+            <div className="flex-1 h-10 bg-orange-500/15 border border-orange-500/30 rounded-lg flex flex-col items-center justify-center gap-1">
+              <div className="w-4 h-4 rounded-full bg-orange-500/40" />
+              <div className="h-1 w-8 bg-orange-400/40 rounded" />
+            </div>
+          </div>
+          <div className="mt-auto h-6 bg-cyan-600/30 border border-cyan-500/30 rounded-lg flex items-center justify-center gap-1">
+            <Link2 className="w-2.5 h-2.5 text-cyan-400" />
+            <div className="h-1.5 w-14 bg-cyan-400/50 rounded" />
+          </div>
+        </div>
+      </div>
+    ),
   },
   {
     number: "07",
@@ -138,15 +302,43 @@ const steps = [
     color: "text-teal-400",
     bg: "bg-teal-500/10",
     border: "border-teal-500/20",
-    title: "Suivez votre trésorerie",
-    description:
-      "Gérez vos comptes bancaires, Mobile Money et caisse depuis une interface unifiée. Enregistrez toutes les transactions en temps réel.",
-    steps: [
-      "Dans Trésorerie, ajoutez vos comptes (Banque, MTN Money, Orange Money, Caisse)",
-      "Enregistrez chaque entrée et sortie d'argent",
-      "Consultez le solde en temps réel de chaque compte",
-      "Visualisez l'évolution de votre trésorerie sur le graphique",
+    title: "Suivez votre trésorerie multi-comptes",
+    description: "Banque, Caisse, MTN Money, Orange Money — un seul tableau de bord pour tous vos flux.",
+    actions: [
+      "Ajoutez vos comptes : Banque, Caisse, Mobile Money",
+      "Enregistrez chaque entrée et sortie",
+      "Consultez les soldes en temps réel",
+      "Visualisez l'évolution de votre trésorerie",
     ],
+    screen: (
+      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+        <div className="h-2.5 w-16 bg-white/70 rounded mb-1" />
+        <div className="grid grid-cols-2 gap-1.5 flex-shrink-0">
+          {[
+            { name: "Banque", color: "bg-blue-500/60" },
+            { name: "Caisse", color: "bg-emerald-500/60" },
+            { name: "MTN", color: "bg-amber-500/60" },
+            { name: "Orange", color: "bg-orange-500/60" },
+          ].map((a) => (
+            <div key={a.name} className="h-10 bg-zinc-900/70 border border-zinc-700/30 rounded-xl p-1.5 flex flex-col gap-1">
+              <div className={`h-1.5 w-8 ${a.color} rounded`} />
+              <div className="h-2 w-12 bg-zinc-600 rounded" />
+            </div>
+          ))}
+        </div>
+        <div className="flex-1 bg-zinc-900/60 border border-zinc-700/30 rounded-xl p-2 flex flex-col">
+          <div className="h-1.5 w-16 bg-zinc-600 rounded mb-2" />
+          <div className="flex-1 flex items-end gap-1">
+            {[40, 60, 35, 75, 55, 80].map((h, i) => (
+              <div key={i} className="flex-1 flex flex-col gap-0.5 items-center justify-end h-full">
+                <div className="w-full bg-teal-500/40 rounded-t" style={{ height: `${h}%` }} />
+                <div className="w-full bg-rose-500/20 rounded-t" style={{ height: `${h * 0.4}%` }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    ),
   },
   {
     number: "08",
@@ -154,238 +346,209 @@ const steps = [
     color: "text-emerald-400",
     bg: "bg-emerald-500/10",
     border: "border-emerald-500/20",
-    title: "Analysez vos performances",
-    description:
-      "Votre tableau de bord centralise tous vos KPIs : chiffre d'affaires, dépenses, résultat net, factures impayées et alertes stock.",
-    steps: [
-      "Le tableau de bord s'actualise automatiquement en temps réel",
-      "Consultez les graphiques Revenus vs Dépenses sur 6 mois",
-      "Identifiez les factures en retard grâce aux alertes",
-      "Exportez vos rapports TVA et IS pour votre comptable",
+    title: "Analysez vos performances en temps réel",
+    description: "Votre tableau de bord centralise tout : CA, dépenses, résultat net, alertes et tendances.",
+    actions: [
+      "KPIs actualisés automatiquement",
+      "Graphique revenus vs dépenses sur 6 mois",
+      "Alertes factures en retard et stock faible",
+      "Export rapports TVA et IS pour votre comptable",
     ],
-  },
-];
-
-const highlights = [
-  {
-    icon: Zap,
-    title: "Prise en main rapide",
-    desc: "Votre première facture en moins de 5 minutes",
-    color: "text-amber-400",
-    bg: "bg-amber-500/10",
-  },
-  {
-    icon: Shield,
-    title: "Conforme OHADA",
-    desc: "TVA 19,25%, IS et rapports fiscaux intégrés",
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/10",
-  },
-  {
-    icon: Brain,
-    title: "Nkap AI inclus",
-    desc: "Assistant IA pour analyser vos finances",
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
-  },
-  {
-    icon: Landmark,
-    title: "Mobile Money natif",
-    desc: "MTN Money & Orange Money intégrés",
-    color: "text-cyan-400",
-    bg: "bg-cyan-500/10",
-  },
-];
-
-export default function OnboardingPage() {
-  return (
-    <div className="min-h-screen bg-zinc-950 text-white overflow-x-hidden">
-      {/* Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-dot-pattern opacity-20 [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-emerald-500/8 blur-[120px] rounded-full" />
-      </div>
-
-      {/* Navbar — same as landing */}
-      <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[92%] sm:w-[95%] max-w-7xl z-50 rounded-2xl border border-white/10 bg-zinc-950/60 backdrop-blur-xl shadow-2xl shadow-black/50">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-transparent to-amber-500/5 opacity-50 rounded-2xl pointer-events-none" />
-        <div className="relative px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20 bg-white overflow-hidden p-0.5">
-              <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
+    screen: (
+      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+        <div className="h-2.5 w-24 bg-white/70 rounded mb-1" />
+        <div className="flex gap-1.5 flex-shrink-0">
+          {[
+            { color: "bg-emerald-500/50", border: "border-emerald-500/25" },
+            { color: "bg-rose-500/50", border: "border-rose-500/25" },
+            { color: "bg-amber-500/50", border: "border-amber-500/25" },
+            { color: "bg-blue-500/50", border: "border-blue-500/25" },
+          ].map((k, i) => (
+            <div key={i} className={`flex-1 h-12 bg-zinc-900/70 border ${k.border} rounded-xl p-1.5`}>
+              <div className="h-1.5 w-8 bg-zinc-600 rounded mb-1.5" />
+              <div className={`h-2.5 w-10 ${k.color} rounded`} />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">Nkap Control</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
-            <Link href="/" className="hover:text-white transition-colors">Accueil</Link>
-            <Link href="/#features" className="hover:text-white transition-colors">Fonctionnalites</Link>
-            <Link href="/#pricing" className="hover:text-white transition-colors">Tarifs</Link>
-            <Link href="/#testimonials" className="hover:text-white transition-colors">References</Link>
-            <Link href="/help" className="hover:text-white transition-colors">Aide</Link>
-          </nav>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors hidden sm:block">
-              Se connecter
-            </Link>
-            <Button asChild className="bg-white text-zinc-950 hover:bg-zinc-200 rounded-full px-6 shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all">
-              <Link href="/register">Commencer</Link>
-            </Button>
+          ))}
+        </div>
+        <div className="flex-1 bg-zinc-900/60 border border-zinc-700/30 rounded-xl p-2 flex flex-col">
+          <div className="h-1.5 w-20 bg-zinc-600 rounded mb-2" />
+          <div className="flex-1 flex items-end gap-1 px-0.5">
+            {[30, 50, 40, 70, 55, 80, 65].map((h, i) => (
+              <div key={i} className="flex-1 flex flex-col gap-0.5 items-center justify-end h-full">
+                <div className="w-full bg-emerald-500/50 rounded-t" style={{ height: `${h}%` }} />
+                <div className="w-full bg-rose-500/25 rounded-t" style={{ height: `${h * 0.45}%` }} />
+              </div>
+            ))}
           </div>
         </div>
-      </header>
+      </div>
+    ),
+  },
+];
 
-      {/* Hero */}
-      <section className="relative z-10 pt-44 pb-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <motion.div variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col items-center">
-          <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-sm font-medium mb-8 shadow-xl">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-            Guide de démarrage
-          </motion.div>
-          <motion.h1 variants={itemVariants} className="text-4xl md:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-            Maîtrisez Nkap Control{" "}
-            <span className="text-gradient animate-shimmer">en 8 étapes.</span>
-          </motion.h1>
-          <motion.p variants={itemVariants} className="text-lg text-zinc-400 mb-10 max-w-2xl leading-relaxed">
-            De la création de compte à la génération de vos premiers rapports fiscaux — suivez ce guide pas à pas pour tirer le meilleur de votre outil de gestion.
-          </motion.p>
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center gap-4">
-            <Button asChild size="lg" className="h-12 px-8 text-base font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-xl shadow-emerald-500/20 group">
-              <Link href="/register">
-                Créer mon compte gratuitement
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" size="lg" className="h-12 px-8 text-base font-semibold rounded-full text-zinc-300 hover:text-white hover:bg-zinc-800">
-              <Link href="/login">J&apos;ai déjà un compte</Link>
-            </Button>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* Highlights row */}
-      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {highlights.map((h, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-              className="p-4 rounded-2xl border border-zinc-800/60 bg-zinc-900/50 backdrop-blur-sm flex flex-col gap-2"
-            >
-              <div className={`w-9 h-9 rounded-xl ${h.bg} flex items-center justify-center`}>
-                <h.icon className={`w-4.5 h-4.5 ${h.color}`} />
-              </div>
-              <p className="text-sm font-semibold text-white">{h.title}</p>
-              <p className="text-xs text-zinc-500 leading-relaxed">{h.desc}</p>
-            </motion.div>
-          ))}
+/* ─── Composant device frame ─── */
+function ScreenFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative w-full max-w-[280px] mx-auto">
+      {/* Glow */}
+      <div className="absolute -inset-2 bg-gradient-to-b from-emerald-500/20 to-transparent rounded-2xl blur-xl opacity-60" />
+      {/* Browser chrome */}
+      <div className="relative rounded-xl border border-zinc-700/60 bg-zinc-900 shadow-2xl overflow-hidden">
+        {/* Title bar */}
+        <div className="h-7 bg-zinc-900 border-b border-zinc-800/60 flex items-center px-2.5 gap-1.5 flex-shrink-0">
+          <div className="w-2 h-2 rounded-full bg-red-500/70" />
+          <div className="w-2 h-2 rounded-full bg-amber-500/70" />
+          <div className="w-2 h-2 rounded-full bg-green-500/70" />
+          <div className="h-3.5 flex-1 mx-2 bg-zinc-800 border border-zinc-700/40 rounded flex items-center justify-center">
+            <span className="text-[7px] text-zinc-600">nkapcontrol.cm</span>
+          </div>
         </div>
-      </section>
+        {/* Screen content */}
+        <div className="aspect-[4/3]">{children}</div>
+      </div>
+    </div>
+  );
+}
 
-      {/* Steps */}
-      <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+/* ─── Page principale ─── */
+export default function OnboardingPage() {
+  return (
+    <div className="min-h-[100svh] bg-zinc-950 text-white" style={{ overflowX: "hidden" }}>
+      {/* ─── Barre de skip en haut ─── */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-lg border-b border-zinc-800/60">
+        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-white overflow-hidden p-0.5">
+              <img src="/logo.jpeg" alt="Nkap Control" className="w-full h-full object-contain" />
+            </div>
+            <span className="font-bold text-sm text-white hidden sm:block">Nkap Control</span>
+          </Link>
+          <p className="text-xs sm:text-sm text-zinc-400 text-center hidden sm:block">
+            Suivez le guide ou connectez-vous directement à votre tableau de bord
+          </p>
+          <Link
+            href="/login"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-200 border border-zinc-700/50 transition-colors touch-manipulation flex-shrink-0"
+          >
+            <X className="w-3.5 h-3.5" />
+            Passer le guide
+          </Link>
+        </div>
+      </div>
+
+      {/* ─── Hero ─── */}
+      <section className="pt-28 pb-12 px-4 sm:px-6 max-w-4xl mx-auto text-center">
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-14"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Les 8 étapes clés</h2>
-          <p className="text-zinc-400 text-sm max-w-lg mx-auto">
-            Chaque étape est autonome. Commencez par celle qui vous correspond le mieux.
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-medium mb-6">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            Guide de démarrage — 8 étapes
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-4 leading-tight">
+            Bienvenue sur{" "}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-400">
+              Nkap Control
+            </span>
+          </h1>
+          <p className="text-base sm:text-lg text-zinc-400 max-w-xl mx-auto">
+            Suivez ces 8 étapes pour maîtriser la plateforme et tirer le meilleur de votre outil de gestion.
           </p>
         </motion.div>
-
-        <div className="space-y-6">
-          {steps.map((step, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: i * 0.05 }}
-              className={`relative rounded-2xl border ${step.border} bg-zinc-900/60 backdrop-blur-sm p-6 sm:p-8 hover:bg-zinc-900/80 transition-colors group`}
-            >
-              {/* Step number */}
-              <div className="flex items-start gap-5">
-                <div className={`w-12 h-12 rounded-2xl ${step.bg} flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform`}>
-                  <step.icon className={`w-5 h-5 ${step.color}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2 flex-wrap">
-                    <span className={`text-xs font-bold tracking-widest ${step.color} uppercase`}>
-                      Étape {step.number}
-                    </span>
-                  </div>
-                  <h3 className="text-base sm:text-lg font-bold text-white mb-2 leading-snug">{step.title}</h3>
-                  <p className="text-sm text-zinc-400 leading-relaxed mb-5">{step.description}</p>
-                  <ul className="space-y-2.5">
-                    {step.steps.map((s, j) => (
-                      <li key={j} className="flex items-start gap-3 text-sm text-zinc-300">
-                        <ChevronRight className={`w-4 h-4 mt-0.5 flex-shrink-0 ${step.color}`} />
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
       </section>
 
-      {/* CTA bottom */}
-      <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+      {/* ─── Étapes ─── */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-20 space-y-6 sm:space-y-8">
+        {steps.map((step, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.45, delay: 0.05 }}
+            className={`rounded-2xl border ${step.border} bg-zinc-900/60 overflow-hidden`}
+          >
+            <div className={`flex flex-col ${i % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"} gap-0`}>
+              {/* ── Texte ── */}
+              <div className="flex-1 p-5 sm:p-7 flex flex-col justify-center">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`w-10 h-10 rounded-xl ${step.bg} flex items-center justify-center flex-shrink-0`}>
+                    <step.icon className={`w-5 h-5 ${step.color}`} />
+                  </div>
+                  <span className={`text-xs font-bold tracking-widest uppercase ${step.color}`}>
+                    Étape {step.number}
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-white mb-2 leading-snug">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-zinc-400 leading-relaxed mb-4">{step.description}</p>
+                <ul className="space-y-2">
+                  {step.actions.map((action, j) => (
+                    <li key={j} className="flex items-start gap-2 text-sm text-zinc-300">
+                      <ChevronRight className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${step.color}`} />
+                      {action}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* ── Screen ── */}
+              <div className={`lg:w-72 xl:w-80 ${step.bg} flex items-center justify-center p-5 sm:p-6 border-t border-zinc-800/40 lg:border-t-0 ${i % 2 === 0 ? "lg:border-l" : "lg:border-r"} ${step.border}`}>
+                <ScreenFrame>{step.screen}</ScreenFrame>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </section>
+
+      {/* ─── CTA final ─── */}
+      <section className="px-4 sm:px-6 pb-20 max-w-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-600 to-teal-700 p-10 sm:p-14 text-center border border-white/10 shadow-2xl shadow-emerald-500/20"
+          className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-600 to-teal-700 p-8 sm:p-12 text-center border border-white/10 shadow-2xl"
         >
-          <div className="absolute inset-0 bg-dot-pattern opacity-10 pointer-events-none" />
           <div className="relative z-10">
-            <div className="flex justify-center mb-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 border border-white/20 text-white text-sm font-medium">
-                <CheckCircle2 className="w-4 h-4" />
-                Prêt à vous lancer ?
-              </div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 border border-white/20 text-white text-sm font-medium mb-5">
+              <CheckCircle2 className="w-4 h-4" />
+              Guide terminé — vous êtes prêt !
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
-              Commencez gratuitement dès aujourd&apos;hui
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+              Lancez-vous maintenant
             </h2>
-            <p className="text-emerald-100 text-base mb-8 max-w-xl mx-auto">
-              Aucune carte bancaire requise. Plan Starter gratuit à vie. Passez à Pro ou Max quand vous êtes prêt.
+            <p className="text-emerald-100 text-sm sm:text-base mb-7 max-w-md mx-auto">
+              Connectez-vous pour accéder à votre tableau de bord et commencer à facturer.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="h-12 px-8 text-base font-semibold bg-white text-emerald-700 hover:bg-emerald-50 rounded-full shadow-lg">
-                <Link href="/register">
-                  Créer un compte gratuit
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Button asChild size="lg" className="w-full sm:w-auto h-12 px-8 font-semibold bg-white text-emerald-700 hover:bg-emerald-50 active:bg-emerald-100 rounded-full shadow-lg touch-manipulation">
+                <Link href="/login">
+                  Aller au tableau de bord
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
-              <Button asChild variant="ghost" size="lg" className="h-12 px-8 text-base font-semibold rounded-full text-white hover:bg-white/20 border border-white/30">
-                <Link href="/login">Se connecter</Link>
+              <Button asChild variant="ghost" size="lg" className="w-full sm:w-auto h-12 px-8 font-semibold rounded-full text-white hover:bg-white/20 active:bg-white/30 border border-white/30 touch-manipulation">
+                <Link href="/">Retour à l&apos;accueil</Link>
               </Button>
             </div>
           </div>
         </motion.div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-zinc-800/50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+      {/* ─── Footer ─── */}
+      <footer className="border-t border-zinc-800/50 py-6 px-4">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-white overflow-hidden p-0.5">
-              <img src="/logo.jpeg" alt="Nkap Control" className="w-full h-full object-contain" />
+            <div className="w-6 h-6 rounded-lg bg-white overflow-hidden p-0.5">
+              <img src="/logo.jpeg" alt="" className="w-full h-full object-contain" />
             </div>
-            <span className="font-bold text-sm text-white">Nkap Control</span>
+            <span className="text-sm font-bold text-white">Nkap Control</span>
           </div>
-          <p className="text-xs text-zinc-500">
-            © {new Date().getFullYear()} Nkap Control — La gestion financière des PME africaines
-          </p>
-          <div className="flex items-center gap-5 text-xs text-zinc-500">
+          <p className="text-xs text-zinc-600">© {new Date().getFullYear()} Nkap Control</p>
+          <div className="flex gap-4 text-xs text-zinc-500">
             <Link href="/#features" className="hover:text-zinc-300 transition-colors">Fonctionnalités</Link>
             <Link href="/#pricing" className="hover:text-zinc-300 transition-colors">Tarifs</Link>
             <Link href="/help" className="hover:text-zinc-300 transition-colors">Aide</Link>
