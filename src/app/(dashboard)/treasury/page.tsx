@@ -147,109 +147,78 @@ export default function TreasuryPage() {
   }
 
   return (
-    <div>
+    <div className="flex flex-col gap-5">
       <Header
         title="Trésorerie"
         subtitle="Gérez vos comptes et soldes bancaires"
       />
-      <div className="p-6 space-y-6">
-        {/* Total treasury KPI */}
-        <Card className="bg-blue-600 text-white border-0">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-200 text-sm font-medium">
-                  Trésorerie totale
-                </p>
-                <p className="text-3xl font-bold mt-1">
-                  {formatCurrency(totalBalance)}
-                </p>
-                <p className="text-blue-200 text-sm mt-1">
-                  {accounts.length} compte{accounts.length > 1 ? "s" : ""}
-                </p>
-              </div>
-              <div className="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center">
-                <TrendingUp className="w-7 h-7 text-white" />
-              </div>
+
+      {/* Total + action row */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+        <Card className="flex-1 border-border bg-card shadow-sm">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center shrink-0">
+              <Landmark className="w-5 h-5 text-purple-500" />
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Trésorerie totale</p>
+              <p className="text-[22px] font-bold text-foreground leading-tight">{formatCurrency(totalBalance)}</p>
+              <p className="text-[10px] text-muted-foreground">{accounts.length} compte{accounts.length > 1 ? "s" : ""}</p>
             </div>
           </CardContent>
         </Card>
-
-        {/* Actions */}
-        <div className="flex justify-end">
-          <Button onClick={openAddForm}>
-            <Plus className="w-4 h-4 mr-2" />
-            Ajouter un compte
-          </Button>
-        </div>
-
-        {/* Accounts grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-36 bg-gray-100 animate-pulse rounded-lg"
-              />
-            ))}
-          </div>
-        ) : accounts.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center text-gray-400">
-              <Landmark className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>Aucun compte bancaire configuré</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {accounts.map((account) => (
-              <Card
-                key={account.id}
-                className="hover:shadow-md transition-shadow"
-              >
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between mb-4">
-                    <div
-                      className={`w-11 h-11 ${getAccountColor(
-                        account.type
-                      )} rounded-xl flex items-center justify-center text-white`}
-                    >
-                      {getAccountIcon(account.type)}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {account.isDefault && (
-                        <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium">
-                          Principal
-                        </span>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => openEditForm(account)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <p className="font-semibold text-gray-900">{account.name}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {accountTypeLabels[account.type]}
-                    {account.bankName && ` · ${account.bankName}`}
-                  </p>
-                  <p
-                    className={`text-2xl font-bold mt-3 ${
-                      account.balance < 0 ? "text-red-600" : "text-gray-900"
-                    }`}
-                  >
-                    {formatCurrency(account.balance, account.currency)}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+        <Button onClick={openAddForm} className="sm:shrink-0">
+          <Plus className="w-4 h-4 mr-2" />
+          Ajouter un compte
+        </Button>
       </div>
+
+      {/* Accounts grid */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-32 bg-muted/50 animate-pulse rounded-xl" />
+          ))}
+        </div>
+      ) : accounts.length === 0 ? (
+        <Card className="border-border">
+          <CardContent className="py-12 text-center">
+            <Landmark className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
+            <p className="text-sm text-muted-foreground">Aucun compte bancaire configuré</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {accounts.map((account) => (
+            <Card key={account.id} className="border-border bg-card shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`w-10 h-10 ${getAccountColor(account.type)} rounded-xl flex items-center justify-center text-white shrink-0`}>
+                    {getAccountIcon(account.type)}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {account.isDefault && (
+                      <span className="text-[10px] bg-purple-500/10 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-full font-semibold">
+                        Principal
+                      </span>
+                    )}
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditForm(account)}>
+                      <Edit className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+                <p className="font-semibold text-foreground text-sm">{account.name}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  {accountTypeLabels[account.type]}{account.bankName && ` · ${account.bankName}`}
+                </p>
+                <p className={`text-xl font-bold mt-3 ${account.balance < 0 ? "text-rose-500" : "text-foreground"}`}>
+                  {formatCurrency(account.balance, account.currency)}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Add/Edit account dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>

@@ -33,7 +33,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { motion } from "framer-motion";
 
 interface Revenue {
   id: string;
@@ -223,67 +222,40 @@ export default function ExpensesPage() {
   const totalRevenues = revenues.reduce((sum, r) => sum + r.amount, 0);
 
   return (
-    <div>
+    <div className="flex flex-col gap-5">
       <Header
         title="Dépenses & Recettes"
         subtitle="Gérez vos flux financiers hors facturation"
       />
-      <div className="p-6 space-y-6">
-        {/* Summary cards */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4"
-        >
-          <Card>
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
-                <TrendingDown className="w-5 h-5 text-rose-500" />
-              </div>
-              <div>
-                <p className="text-sm text-zinc-400">Total dépenses</p>
-                <p className="text-xl font-bold text-rose-600">
-                  {formatCurrency(totalExpenses)}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-emerald-500" />
-              </div>
-              <div>
-                <p className="text-sm text-zinc-400">Total recettes directes</p>
-                <p className="text-xl font-bold text-emerald-600">
-                  {formatCurrency(totalRevenues)}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <p className="text-sm text-zinc-400">Solde net</p>
-              <p
-                className={`text-xl font-bold ${
-                  totalRevenues - totalExpenses >= 0
-                    ? "text-emerald-600"
-                    : "text-rose-600"
-                }`}
-              >
-                {formatCurrency(totalRevenues - totalExpenses)}
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
 
-        <motion.div
-           initial={{ opacity: 0, y: 20 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ duration: 0.4, delay: 0.1 }}
-        >
-          <Tabs defaultValue="expenses">
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <Card className="h-[88px] border-border bg-card shadow-sm">
+          <CardContent className="p-3.5 h-full flex flex-col justify-between">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">DÉPENSES</p>
+            <p className="text-[22px] font-bold text-rose-500 leading-none">{formatCurrency(totalExpenses)}</p>
+            <p className="text-[10px] text-muted-foreground">{expenses.length} enregistrement{expenses.length > 1 ? "s" : ""}</p>
+          </CardContent>
+        </Card>
+        <Card className="h-[88px] border-border bg-card shadow-sm">
+          <CardContent className="p-3.5 h-full flex flex-col justify-between">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">RECETTES DIRECTES</p>
+            <p className="text-[22px] font-bold text-emerald-500 leading-none">{formatCurrency(totalRevenues)}</p>
+            <p className="text-[10px] text-muted-foreground">{revenues.length} enregistrement{revenues.length > 1 ? "s" : ""}</p>
+          </CardContent>
+        </Card>
+        <Card className="h-[88px] border-border bg-card shadow-sm">
+          <CardContent className="p-3.5 h-full flex flex-col justify-between">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">SOLDE NET</p>
+            <p className={`text-[22px] font-bold leading-none ${totalRevenues - totalExpenses >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+              {formatCurrency(totalRevenues - totalExpenses)}
+            </p>
+            <p className="text-[10px] text-muted-foreground">{totalRevenues - totalExpenses >= 0 ? "Positif" : "Déficitaire"}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+        <Tabs defaultValue="expenses">
             <TabsList>
               <TabsTrigger value="expenses">
                 Dépenses ({expenses.length})
@@ -430,8 +402,6 @@ export default function ExpensesPage() {
               </Card>
             </TabsContent>
           </Tabs>
-        </motion.div>
-      </div>
 
       {/* Expense form dialog */}
       <Dialog open={showExpenseForm} onOpenChange={setShowExpenseForm}>
