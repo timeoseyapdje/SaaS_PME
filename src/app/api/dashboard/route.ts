@@ -35,6 +35,9 @@ export async function GET() {
       allPaidInvoices,
       allRevenues,
       allExpenses,
+      lowStockProducts,
+      activeProductsCount,
+      pendingOrdersCount,
     ] = await Promise.all([
       prisma.invoice.aggregate({
         where: { companyId, status: "PAID", paidAt: { gte: startOfMonth } },
@@ -97,6 +100,17 @@ export async function GET() {
         where: { companyId, date: { gte: sixMonthsAgo } },
         select: { date: true, amount: true },
       }),
+      // Low stock candidates (stock <= 20, filter by threshold in JS)
+      prisma.product.findMany({
+        where: { companyId, isActive: true, trackStock: true, stock: { lte: 20 } },
+        select: { id: true, name: true, stock: true, lowStockThreshold: true },
+        orderBy: { stock: "asc" },
+        take: 20,
+      }).catch(() => [] as { id: string; name: string; stock: number; lowStockThreshold: number }[]),
+      // Active products count
+      prisma.product.count({ where: { companyId, isActive: true } }).catch(() => 0),
+      // Pending orders count
+      prisma.order.count({ where: { companyId, status: { in: ["PENDING", "CONFIRMED", "PROCESSING"] } } }).catch(() => 0),
     ]);
 
     const currentRevenue = (invoiceRevenue._sum.total || 0) + (revenues._sum.amount || 0);
@@ -131,6 +145,9 @@ export async function GET() {
       });
     }
 
+    // Filter low stock products: stock <= their individual threshold
+    const lowStock = lowStockProducts.filter((p) => p.stock <= p.lowStockThreshold);
+
     return NextResponse.json({
       kpis: {
         revenue: { current: currentRevenue, last: lastRevenue },
@@ -142,10 +159,14 @@ export async function GET() {
         treasury: totalTreasury,
         pendingInvoices: pendingAmount._sum.total || 0,
         pendingCount: invoiceCounts.find((c) => c.status === "SENT")?._count.status || 0,
+        activeProducts: activeProductsCount,
+        pendingOrders: pendingOrdersCount,
+        lowStockCount: lowStock.length,
       },
       chartData,
       recentInvoices,
       pendingInvoices,
+      lowStockProducts: lowStock.slice(0, 5),
     });
   } catch (error) {
     console.error("Dashboard error:", error);
