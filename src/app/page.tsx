@@ -15,7 +15,10 @@ import {
   Users,
   Star,
   Check,
+  Menu,
+  X,
 } from "lucide-react";
+import { useState } from "react";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -151,63 +154,111 @@ const testimonials = [
 ];
 
 export default function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-zinc-950 selection:bg-emerald-500/30 overflow-hidden relative">
-      {/* Background V2 */}
+      {/* Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-dot-pattern opacity-30 [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-500/10 blur-[120px] rounded-full" />
       </div>
 
       {/* Floating Navbar */}
-      <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[92%] sm:w-[95%] max-w-7xl z-50 rounded-2xl border border-white/10 bg-zinc-950/60 backdrop-blur-xl shadow-2xl shadow-black/50">
+      <header className="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 w-[94%] sm:w-[95%] max-w-7xl z-50 rounded-2xl border border-white/10 bg-zinc-950/70 backdrop-blur-xl shadow-2xl shadow-black/50">
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-transparent to-amber-500/5 opacity-50 rounded-2xl pointer-events-none" />
-        <div className="relative px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="relative px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+          {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20 bg-white overflow-hidden p-0.5">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20 bg-white overflow-hidden p-0.5">
               <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-foreground">Nkap Control</span>
+            <span className="text-lg sm:text-xl font-bold tracking-tight text-white">Nkap Control</span>
           </div>
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <Link href="/" className="hover:text-foreground transition-colors">Accueil</Link>
-            <Link href="#features" className="hover:text-foreground transition-colors">Fonctionnalites</Link>
-            <Link href="#pricing" className="hover:text-foreground transition-colors">Tarifs</Link>
-            <Link href="#testimonials" className="hover:text-foreground transition-colors">References</Link>
-            <Link href="/help" className="hover:text-foreground transition-colors">Aide</Link>
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-zinc-400">
+            <Link href="/" className="hover:text-white transition-colors">Accueil</Link>
+            <Link href="#features" className="hover:text-white transition-colors">Fonctionnalites</Link>
+            <Link href="#pricing" className="hover:text-white transition-colors">Tarifs</Link>
+            <Link href="#testimonials" className="hover:text-white transition-colors">References</Link>
+            <Link href="/help" className="hover:text-white transition-colors">Aide</Link>
           </nav>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors hidden sm:block">
+
+          {/* Desktop CTA */}
+          <div className="hidden md:flex items-center gap-4">
+            <Link href="/login" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors">
               Se connecter
             </Link>
-            <Button asChild className="bg-white text-zinc-950 hover:bg-zinc-200 rounded-full px-6 shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all">
+            <Button asChild className="bg-white text-zinc-950 hover:bg-zinc-200 rounded-full px-5 shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all text-sm">
               <Link href="/register">Commencer</Link>
             </Button>
           </div>
+
+          {/* Mobile: login + hamburger */}
+          <div className="flex md:hidden items-center gap-2">
+            <Link href="/login" className="text-xs font-medium text-zinc-300 hover:text-white transition-colors px-3 py-1.5 rounded-full border border-zinc-700 hover:border-zinc-500">
+              Connexion
+            </Link>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="w-9 h-9 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-300 hover:text-white transition-colors"
+              aria-label="Menu"
+            >
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile dropdown menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-zinc-800/60 px-4 py-4 space-y-1">
+            {[
+              { href: "/", label: "Accueil" },
+              { href: "#features", label: "Fonctionnalites" },
+              { href: "#pricing", label: "Tarifs" },
+              { href: "#testimonials", label: "References" },
+              { href: "/help", label: "Aide" },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/60 transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
+            <div className="pt-2 border-t border-zinc-800/40">
+              <Button asChild className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 font-semibold">
+                <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Commencer gratuitement</Link>
+              </Button>
+            </div>
+          </div>
+        )}
       </header>
 
-      <main className="relative z-10 pt-32 pb-16">
+      <main className="relative z-10 pt-24 sm:pt-32 pb-16">
         {/* Hero */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-16 pb-24">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-10 sm:pt-16 pb-16 sm:pb-24">
           <motion.div variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col items-center max-w-4xl mx-auto">
             <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-sm font-medium mb-8 shadow-xl">
               <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
               Conçu pour les PME camerounaises
             </motion.div>
 
-            <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+            <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-5 sm:mb-6 leading-tight">
               La gestion financière{" "}
               <span className="text-gradient animate-shimmer">
                 réinventée pour les PME.
               </span>
             </motion.h1>
 
-            <motion.p variants={itemVariants} className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl leading-relaxed">
+            <motion.p variants={itemVariants} className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 sm:mb-10 max-w-2xl leading-relaxed">
               Facturez, suivez votre tresorerie, gerez vos clients et produisez vos rapports fiscaux conformes OHADA. Le tout en FCFA, avec MTN Money et Orange Money integres.
             </motion.p>
 
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
               <Button asChild size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-xl shadow-emerald-500/20 group">
                 <Link href="/register">
                   Demarrer gratuitement
@@ -219,79 +270,272 @@ export default function LandingPage() {
               </Button>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="mt-10 flex items-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Plan gratuit disponible</div>
-              <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Paiement Mobile Money</div>
-              <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Conforme OHADA</div>
+            <motion.div variants={itemVariants} className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
+              <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" /> Plan gratuit disponible</div>
+              <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" /> Paiement Mobile Money</div>
+              <div className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" /> Conforme OHADA</div>
             </motion.div>
           </motion.div>
 
-          {/* Dashboard mockup V2 */}
+          {/* ─── Device mockup — adaptatif ─── */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="mt-20 relative mx-auto max-w-5xl group"
+            className="mt-16 sm:mt-20 relative mx-auto flex justify-center"
           >
-            {/* Glowing Aura behind mockup */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-amber-500 rounded-3xl blur-2xl opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
-
-            <div className="relative rounded-2xl border border-white/10 bg-zinc-950/80 backdrop-blur-2xl shadow-2xl p-2 sm:p-4 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent z-10 pointer-events-none" />
-              <div className="rounded-xl overflow-hidden border border-zinc-700/60 bg-zinc-950 shadow-inner relative aspect-[16/9] md:aspect-[21/9] flex flex-col">
-                {/* Browser bar */}
-                <div className="h-12 border-b border-zinc-700/60 flex items-center px-4 gap-4 bg-zinc-900">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <div className="w-3 h-3 rounded-full bg-amber-500" />
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                  </div>
-                  <div className="h-6 w-64 bg-zinc-800 border border-zinc-700/50 rounded-md mx-auto flex items-center justify-center">
-                    <span className="text-[10px] text-zinc-500">nkapcontrol.cm/dashboard</span>
+            {/* ══ MOBILE — Smartphone frame (< 640px) ══ */}
+            <div className="block sm:hidden relative group">
+              <div className="absolute -inset-3 bg-gradient-to-b from-emerald-500 to-amber-500 rounded-[48px] blur-2xl opacity-20 group-hover:opacity-35 transition duration-1000" />
+              {/* Phone body */}
+              <div className="relative w-[220px] h-[440px] rounded-[40px] border-[5px] border-zinc-700 bg-zinc-900 shadow-2xl overflow-hidden flex flex-col">
+                {/* Status bar */}
+                <div className="h-9 bg-zinc-900 flex items-center justify-between px-5 pt-1 flex-shrink-0">
+                  <span className="text-[9px] font-semibold text-zinc-400">9:41</span>
+                  {/* Dynamic island */}
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-4 bg-black rounded-full" />
+                  <div className="flex gap-1 items-center">
+                    <div className="w-2.5 h-1.5 rounded-sm bg-zinc-400" />
+                    <div className="w-1 h-1 rounded-full bg-zinc-400" />
                   </div>
                 </div>
-                {/* App content */}
-                <div className="flex-1 flex p-4 gap-4 bg-zinc-950">
-                  {/* Sidebar */}
-                  <div className="w-48 hidden md:flex flex-col gap-2">
-                    <div className="h-8 bg-emerald-500/20 border border-emerald-500/30 rounded-md w-full" />
-                    <div className="h-8 bg-zinc-800/80 rounded-md w-3/4" />
-                    <div className="h-8 bg-zinc-800/80 rounded-md w-5/6" />
-                    <div className="h-8 bg-zinc-800/80 rounded-md w-4/5" />
-                    <div className="h-8 bg-zinc-800/60 rounded-md w-3/5 mt-2" />
-                    <div className="h-8 bg-zinc-800/60 rounded-md w-4/6" />
+                {/* Screen */}
+                <div className="flex-1 bg-zinc-950 flex flex-col overflow-hidden">
+                  {/* App header */}
+                  <div className="h-8 bg-zinc-900 border-b border-zinc-800/60 flex items-center px-3 gap-2 flex-shrink-0">
+                    <div className="w-4 h-4 rounded bg-emerald-500/30" />
+                    <div className="h-2 w-20 bg-zinc-700 rounded" />
                   </div>
-                  {/* Main area */}
-                  <div className="flex-1 flex flex-col gap-4">
-                    {/* KPI cards */}
-                    <div className="flex gap-4">
-                      <div className="h-24 flex-1 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3">
-                        <div className="h-3 w-16 bg-emerald-500/40 rounded mb-2" />
-                        <div className="h-5 w-24 bg-emerald-500/30 rounded mb-1" />
-                        <div className="h-2 w-12 bg-emerald-500/20 rounded" />
+                  {/* KPI cards stacked */}
+                  <div className="p-2.5 flex flex-col gap-2 flex-shrink-0">
+                    <div className="flex gap-2">
+                      <div className="flex-1 h-14 bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2">
+                        <div className="h-1.5 w-8 bg-emerald-500/40 rounded mb-1.5" />
+                        <div className="h-3 w-12 bg-emerald-500/50 rounded mb-1" />
+                        <div className="h-1.5 w-6 bg-emerald-500/20 rounded" />
                       </div>
-                      <div className="h-24 flex-1 bg-rose-500/10 border border-rose-500/30 rounded-xl p-3">
-                        <div className="h-3 w-16 bg-rose-500/40 rounded mb-2" />
-                        <div className="h-5 w-24 bg-rose-500/30 rounded mb-1" />
-                        <div className="h-2 w-12 bg-rose-500/20 rounded" />
-                      </div>
-                      <div className="h-24 flex-1 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
-                        <div className="h-3 w-16 bg-amber-500/40 rounded mb-2" />
-                        <div className="h-5 w-24 bg-amber-500/30 rounded mb-1" />
-                        <div className="h-2 w-12 bg-amber-500/20 rounded" />
+                      <div className="flex-1 h-14 bg-rose-500/10 border border-rose-500/20 rounded-lg p-2">
+                        <div className="h-1.5 w-8 bg-rose-500/40 rounded mb-1.5" />
+                        <div className="h-3 w-12 bg-rose-500/50 rounded mb-1" />
+                        <div className="h-1.5 w-6 bg-rose-500/20 rounded" />
                       </div>
                     </div>
-                    {/* Chart area */}
-                    <div className="flex-1 bg-zinc-900/80 border border-zinc-700/50 rounded-xl p-3 flex flex-col">
-                      <div className="h-3 w-32 bg-zinc-700/60 rounded mb-3" />
-                      <div className="flex-1 flex items-end gap-2 px-2">
-                        <div className="w-full h-[30%] bg-emerald-500/30 rounded-t-sm" />
-                        <div className="w-full h-[50%] bg-emerald-500/40 rounded-t-sm" />
-                        <div className="w-full h-[40%] bg-emerald-500/30 rounded-t-sm" />
-                        <div className="w-full h-[70%] bg-emerald-500/50 rounded-t-sm" />
-                        <div className="w-full h-[55%] bg-emerald-500/40 rounded-t-sm" />
-                        <div className="w-full h-[80%] bg-emerald-500/60 rounded-t-sm" />
-                        <div className="w-full h-[65%] bg-emerald-500/50 rounded-t-sm" />
+                    <div className="flex gap-2">
+                      <div className="flex-1 h-14 bg-amber-500/10 border border-amber-500/20 rounded-lg p-2">
+                        <div className="h-1.5 w-8 bg-amber-500/40 rounded mb-1.5" />
+                        <div className="h-3 w-12 bg-amber-500/50 rounded mb-1" />
+                        <div className="h-1.5 w-6 bg-amber-500/20 rounded" />
+                      </div>
+                      <div className="flex-1 h-14 bg-blue-500/10 border border-blue-500/20 rounded-lg p-2">
+                        <div className="h-1.5 w-8 bg-blue-500/40 rounded mb-1.5" />
+                        <div className="h-3 w-12 bg-blue-500/50 rounded mb-1" />
+                        <div className="h-1.5 w-6 bg-blue-500/20 rounded" />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Chart */}
+                  <div className="mx-2.5 flex-1 bg-zinc-900/80 border border-zinc-700/40 rounded-xl p-2.5 flex flex-col min-h-0">
+                    <div className="h-2 w-16 bg-zinc-700/60 rounded mb-2 flex-shrink-0" />
+                    <div className="flex-1 flex items-end gap-1 px-1">
+                      {[30, 50, 40, 70, 55, 80, 65].map((h, i) => (
+                        <div key={i} className="flex-1 flex flex-col gap-0.5 items-center justify-end h-full">
+                          <div className="w-full bg-emerald-500/50 rounded-t-[2px]" style={{ height: `${h}%` }} />
+                          <div className="w-full bg-rose-500/30 rounded-t-[2px]" style={{ height: `${h * 0.45}%` }} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Invoice list */}
+                  <div className="mx-2.5 mt-2 mb-2.5 flex flex-col gap-1.5">
+                    {[
+                      { w: "w-16", color: "bg-emerald-500/60" },
+                      { w: "w-12", color: "bg-amber-500/60" },
+                    ].map((row, i) => (
+                      <div key={i} className="flex items-center gap-2 h-6 bg-zinc-900/60 border border-zinc-800/40 rounded-lg px-2">
+                        <div className={`h-1.5 flex-1 bg-zinc-700/50 rounded`} />
+                        <div className={`h-3 ${row.w} ${row.color} rounded-full`} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Home indicator */}
+                <div className="h-6 bg-zinc-900 flex items-center justify-center flex-shrink-0">
+                  <div className="w-24 h-1 bg-zinc-600 rounded-full" />
+                </div>
+              </div>
+            </div>
+
+            {/* ══ TABLET — iPad frame (640px – 1023px) ══ */}
+            <div className="hidden sm:block lg:hidden relative group">
+              <div className="absolute -inset-3 bg-gradient-to-r from-emerald-500 to-amber-500 rounded-[36px] blur-2xl opacity-20 group-hover:opacity-35 transition duration-1000" />
+              {/* Tablet body — landscape */}
+              <div className="relative w-[580px] h-[420px] rounded-[28px] border-[6px] border-zinc-700 bg-zinc-900 shadow-2xl overflow-hidden flex flex-col">
+                {/* Top bar: camera */}
+                <div className="h-6 bg-zinc-900 flex items-center justify-center flex-shrink-0">
+                  <div className="w-2 h-2 rounded-full bg-zinc-600 border border-zinc-500" />
+                </div>
+                {/* Screen */}
+                <div className="flex-1 bg-zinc-950 flex flex-col overflow-hidden">
+                  {/* App header */}
+                  <div className="h-9 bg-zinc-900 border-b border-zinc-800/60 flex items-center justify-between px-4 flex-shrink-0">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-md bg-emerald-500/30 border border-emerald-500/40" />
+                      <div className="h-2 w-28 bg-zinc-700 rounded" />
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="h-5 w-16 bg-zinc-800 rounded-md" />
+                      <div className="h-5 w-5 rounded-md bg-emerald-600/40" />
+                    </div>
+                  </div>
+                  {/* Body: sidebar + main */}
+                  <div className="flex-1 flex overflow-hidden p-3 gap-3">
+                    {/* Sidebar */}
+                    <div className="w-36 flex flex-col gap-1.5 flex-shrink-0">
+                      <div className="h-7 bg-emerald-500/20 border border-emerald-500/30 rounded-lg w-full" />
+                      <div className="h-7 bg-zinc-800/70 rounded-lg w-5/6" />
+                      <div className="h-7 bg-zinc-800/70 rounded-lg w-full" />
+                      <div className="h-7 bg-zinc-800/70 rounded-lg w-4/5" />
+                      <div className="h-px bg-zinc-800/50 my-1" />
+                      <div className="h-7 bg-zinc-800/50 rounded-lg w-3/4" />
+                      <div className="h-7 bg-zinc-800/50 rounded-lg w-full" />
+                      <div className="h-7 bg-zinc-800/50 rounded-lg w-4/6" />
+                    </div>
+                    {/* Main content */}
+                    <div className="flex-1 flex flex-col gap-3 min-w-0">
+                      {/* KPI row */}
+                      <div className="flex gap-2.5">
+                        {[
+                          { bg: "bg-emerald-500/10", border: "border-emerald-500/25", bar: "bg-emerald-500" },
+                          { bg: "bg-rose-500/10", border: "border-rose-500/25", bar: "bg-rose-500" },
+                          { bg: "bg-amber-500/10", border: "border-amber-500/25", bar: "bg-amber-500" },
+                          { bg: "bg-blue-500/10", border: "border-blue-500/25", bar: "bg-blue-500" },
+                        ].map((k, i) => (
+                          <div key={i} className={`flex-1 h-16 ${k.bg} border ${k.border} rounded-xl p-2.5`}>
+                            <div className="h-1.5 w-10 bg-zinc-700/60 rounded mb-2" />
+                            <div className={`h-3.5 w-14 ${k.bar}/40 rounded mb-1`} />
+                            <div className="h-1.5 w-8 bg-zinc-700/40 rounded" />
+                          </div>
+                        ))}
+                      </div>
+                      {/* Chart + list row */}
+                      <div className="flex-1 flex gap-2.5 min-h-0">
+                        {/* Chart */}
+                        <div className="flex-1 bg-zinc-900/80 border border-zinc-700/40 rounded-xl p-3 flex flex-col">
+                          <div className="h-2 w-24 bg-zinc-700/60 rounded mb-3" />
+                          <div className="flex-1 flex items-end gap-1.5 px-1">
+                            {[30, 50, 40, 70, 55, 80, 65].map((h, i) => (
+                              <div key={i} className="flex-1 flex flex-col gap-0.5 items-center justify-end h-full">
+                                <div className="w-full bg-emerald-500/50 rounded-t" style={{ height: `${h}%` }} />
+                                <div className="w-full bg-rose-500/30 rounded-t" style={{ height: `${h * 0.5}%` }} />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Invoice list */}
+                        <div className="w-44 flex-shrink-0 bg-zinc-900/60 border border-zinc-700/40 rounded-xl p-2.5 flex flex-col gap-1.5">
+                          <div className="h-2 w-20 bg-zinc-700/60 rounded mb-1" />
+                          {[
+                            "bg-emerald-500/60",
+                            "bg-amber-500/60",
+                            "bg-zinc-600/60",
+                            "bg-rose-500/60",
+                          ].map((color, i) => (
+                            <div key={i} className="flex items-center gap-1.5 h-7 bg-zinc-800/50 rounded-lg px-2">
+                              <div className="h-1.5 flex-1 bg-zinc-700/50 rounded" />
+                              <div className={`h-3.5 w-10 ${color} rounded-full`} />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Bottom bar */}
+                <div className="h-5 bg-zinc-900 flex items-center justify-center flex-shrink-0">
+                  <div className="w-20 h-1 bg-zinc-700 rounded-full" />
+                </div>
+              </div>
+            </div>
+
+            {/* ══ DESKTOP — Browser frame (≥ 1024px) ══ */}
+            <div className="hidden lg:block relative group max-w-5xl w-full">
+              <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-amber-500 rounded-3xl blur-2xl opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+              <div className="relative rounded-2xl border border-white/10 bg-zinc-950/80 backdrop-blur-2xl shadow-2xl p-3 xl:p-4 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent z-10 pointer-events-none rounded-2xl" />
+                <div className="rounded-xl overflow-hidden border border-zinc-700/60 bg-zinc-950 shadow-inner aspect-[21/9] flex flex-col">
+                  {/* Browser chrome */}
+                  <div className="h-10 border-b border-zinc-700/60 flex items-center px-4 gap-3 bg-zinc-900 flex-shrink-0">
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-500" />
+                      <div className="w-3 h-3 rounded-full bg-amber-500" />
+                      <div className="w-3 h-3 rounded-full bg-green-500" />
+                    </div>
+                    <div className="h-5 w-56 bg-zinc-800 border border-zinc-700/50 rounded-md mx-auto flex items-center justify-center">
+                      <span className="text-[9px] text-zinc-500">nkapcontrol.cm/dashboard</span>
+                    </div>
+                    <div className="flex gap-1.5 ml-auto">
+                      <div className="w-4 h-4 rounded bg-zinc-800" />
+                      <div className="w-4 h-4 rounded bg-zinc-800" />
+                    </div>
+                  </div>
+                  {/* App layout */}
+                  <div className="flex-1 flex overflow-hidden p-3 gap-3">
+                    {/* Sidebar */}
+                    <div className="w-44 flex flex-col gap-1.5 flex-shrink-0">
+                      <div className="h-7 bg-emerald-500/20 border border-emerald-500/30 rounded-lg" />
+                      <div className="h-7 bg-zinc-800/70 rounded-lg w-3/4" />
+                      <div className="h-7 bg-zinc-800/70 rounded-lg w-5/6" />
+                      <div className="h-7 bg-zinc-800/70 rounded-lg w-4/5" />
+                      <div className="h-px bg-zinc-800 my-1" />
+                      <div className="h-7 bg-zinc-800/50 rounded-lg w-3/5" />
+                      <div className="h-7 bg-zinc-800/50 rounded-lg w-4/6" />
+                      <div className="h-7 bg-zinc-800/50 rounded-lg w-full" />
+                    </div>
+                    {/* Main */}
+                    <div className="flex-1 flex flex-col gap-3 min-w-0">
+                      {/* KPI row */}
+                      <div className="flex gap-3">
+                        {[
+                          { bg: "bg-emerald-500/10", border: "border-emerald-500/30", val: "bg-emerald-500" },
+                          { bg: "bg-rose-500/10", border: "border-rose-500/30", val: "bg-rose-500" },
+                          { bg: "bg-amber-500/10", border: "border-amber-500/30", val: "bg-amber-500" },
+                          { bg: "bg-blue-500/10", border: "border-blue-500/30", val: "bg-blue-500" },
+                        ].map((k, i) => (
+                          <div key={i} className={`flex-1 ${k.bg} border ${k.border} rounded-xl p-3`}>
+                            <div className="h-2 w-12 bg-zinc-700/60 rounded mb-2" />
+                            <div className={`h-4 w-16 ${k.val}/40 rounded mb-1`} />
+                            <div className="h-1.5 w-10 bg-zinc-700/40 rounded" />
+                          </div>
+                        ))}
+                      </div>
+                      {/* Chart + list */}
+                      <div className="flex-1 flex gap-3 min-h-0">
+                        <div className="flex-1 bg-zinc-900/80 border border-zinc-700/50 rounded-xl p-3 flex flex-col">
+                          <div className="h-2.5 w-28 bg-zinc-700/60 rounded mb-3" />
+                          <div className="flex-1 flex items-end gap-2 px-1">
+                            {[30, 50, 40, 70, 55, 80, 65].map((h, i) => (
+                              <div key={i} className="flex-1 flex flex-col gap-0.5 items-center justify-end h-full">
+                                <div className="w-full bg-emerald-500/50 rounded-t" style={{ height: `${h}%` }} />
+                                <div className="w-full bg-rose-500/30 rounded-t" style={{ height: `${h * 0.5}%` }} />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="w-52 flex-shrink-0 bg-zinc-900/60 border border-zinc-700/40 rounded-xl p-3 flex flex-col gap-2">
+                          <div className="h-2.5 w-24 bg-zinc-700/60 rounded mb-0.5" />
+                          {[
+                            "bg-emerald-500/60",
+                            "bg-amber-500/60",
+                            "bg-zinc-500/50",
+                            "bg-rose-500/60",
+                            "bg-emerald-500/40",
+                          ].map((color, i) => (
+                            <div key={i} className="flex items-center gap-2 h-7 bg-zinc-800/50 rounded-lg px-2.5">
+                              <div className="h-1.5 flex-1 bg-zinc-700/50 rounded" />
+                              <div className={`h-4 w-12 ${color} rounded-full`} />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -302,12 +546,12 @@ export default function LandingPage() {
         </section>
 
         {/* Features */}
-        <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground mb-4">Tout ce dont votre PME a besoin</h2>
-            <p className="text-lg text-muted-foreground">Des outils puissants, adaptes au contexte camerounais et a la norme OHADA.</p>
+        <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mb-3 sm:mb-4">Tout ce dont votre PME a besoin</h2>
+            <p className="text-base sm:text-lg text-muted-foreground">Des outils puissants, adaptes au contexte camerounais et a la norme OHADA.</p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
             {features.map((feature, idx) => (
               <motion.div
                 key={idx}
@@ -328,12 +572,12 @@ export default function LandingPage() {
         </section>
 
         {/* Pricing */}
-        <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground mb-4">Des tarifs simples et transparents</h2>
-            <p className="text-lg text-muted-foreground">Choisissez le plan adapte a la taille de votre entreprise. Payez par Mobile Money ou virement bancaire.</p>
+        <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mb-3 sm:mb-4">Des tarifs simples et transparents</h2>
+            <p className="text-base sm:text-lg text-muted-foreground">Choisissez le plan adapte a la taille de votre entreprise. Payez par Mobile Money ou virement bancaire.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-8 max-w-5xl mx-auto">
             {plans.map((plan, idx) => (
               <motion.div
                 key={idx}
@@ -382,12 +626,12 @@ export default function LandingPage() {
         </section>
 
         {/* Testimonials */}
-        <section id="testimonials" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground mb-4">Ce que disent nos utilisateurs</h2>
-            <p className="text-lg text-muted-foreground">Des entrepreneurs camerounais qui ont transforme leur gestion financiere.</p>
+        <section id="testimonials" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mb-3 sm:mb-4">Ce que disent nos utilisateurs</h2>
+            <p className="text-base sm:text-lg text-muted-foreground">Des entrepreneurs camerounais qui ont transforme leur gestion financiere.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-8">
             {testimonials.map((t, idx) => (
               <motion.div
                 key={idx}
@@ -413,11 +657,11 @@ export default function LandingPage() {
         </section>
 
         {/* CTA */}
-        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-600 to-amber-700 p-10 sm:p-16 text-center border border-white/10 shadow-2xl shadow-emerald-500/20">
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-600 to-amber-700 p-8 sm:p-16 text-center border border-white/10 shadow-2xl shadow-emerald-500/20">
             <div className="relative z-10 max-w-2xl mx-auto">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">Pret a propulser votre PME ?</h2>
-              <p className="text-emerald-100 text-lg mb-10">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6">Pret a propulser votre PME ?</h2>
+              <p className="text-emerald-100 text-sm sm:text-lg mb-7 sm:mb-10">
                 Rejoignez des centaines d&apos;entreprises camerounaises qui font confiance a Nkap Control pour leur gestion quotidienne.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -436,7 +680,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-border/40 bg-background/50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 mb-8">
             <div className="md:col-span-1">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md bg-white overflow-hidden p-0.5">
