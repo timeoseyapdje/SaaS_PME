@@ -15,7 +15,7 @@ export default function TermsPage() {
           Conditions Générales d&apos;Utilisation
         </h1>
         <p className="text-sm text-zinc-500 mb-10">
-          Dernière mise à jour : 29 mars 2026
+          Dernière mise à jour : 7 mai 2026
         </p>
 
         <div className="space-y-8 text-sm leading-relaxed">
@@ -40,7 +40,7 @@ export default function TermsPage() {
               <li><strong className="text-white">Utilisateur</strong> : toute personne physique ou morale créant un compte sur la Plateforme</li>
               <li><strong className="text-white">Entreprise</strong> : l&apos;entité commerciale associée au compte Utilisateur</li>
               <li><strong className="text-white">Abonnement</strong> : le plan souscrit par l&apos;Utilisateur (Starter, Pro ou Max)</li>
-              <li><strong className="text-white">Contenu</strong> : toute donnée saisie par l&apos;Utilisateur (factures, dépenses, clients, etc.)</li>
+              <li><strong className="text-white">Contenu</strong> : toute donnée saisie par l&apos;Utilisateur (factures, dépenses, clients, produits, commandes, liens de paiement, etc.)</li>
             </ul>
           </section>
 
@@ -68,12 +68,12 @@ export default function TermsPage() {
                 <p className="text-xs text-zinc-500 mt-1">1 utilisateur, 20 factures/mois, tableau de bord basique, gestion clients, export PDF</p>
               </div>
               <div className="p-3 rounded-lg bg-zinc-900/50 border border-emerald-500/20">
-                <p className="font-semibold text-emerald-400">Pro — 5 000 XAF/mois</p>
-                <p className="text-xs text-zinc-500 mt-1">5 utilisateurs, factures illimitées, trésorerie multi-comptes, rapports fiscaux, Nkap AI (10 msg/jour), support prioritaire</p>
+                <p className="font-semibold text-emerald-400">Pro — 3 000 XAF/mois</p>
+                <p className="text-xs text-zinc-500 mt-1">5 utilisateurs, factures illimitées, catalogue produits, commandes, liens de paiement, trésorerie multi-comptes, rapports fiscaux, Nkap AI (10 msg/jour), support prioritaire</p>
               </div>
               <div className="p-3 rounded-lg bg-zinc-900/50 border border-amber-500/20">
-                <p className="font-semibold text-amber-400">Max — 15 000 XAF/mois</p>
-                <p className="text-xs text-zinc-500 mt-1">Utilisateurs illimités, Nkap AI illimité, personnalisation avancée, API, support 24/7</p>
+                <p className="font-semibold text-amber-400">Max — 10 000 XAF/mois</p>
+                <p className="text-xs text-zinc-500 mt-1">Utilisateurs illimités, tout le plan Pro, Nkap AI illimité, personnalisation avancée (logo, couleurs, modèles), API, formation équipe dédiée, support téléphonique 24/7</p>
               </div>
             </div>
             <p className="mt-3">

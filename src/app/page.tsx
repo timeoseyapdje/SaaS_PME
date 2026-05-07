@@ -170,9 +170,10 @@ export default function LandingPage() {
             <span className="text-xl font-bold tracking-tight text-foreground">Nkap Control</span>
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
+            <Link href="/" className="hover:text-foreground transition-colors">Accueil</Link>
             <Link href="#features" className="hover:text-foreground transition-colors">Fonctionnalites</Link>
             <Link href="#pricing" className="hover:text-foreground transition-colors">Tarifs</Link>
-            <Link href="#testimonials" className="hover:text-foreground transition-colors">Temoignages</Link>
+            <Link href="#testimonials" className="hover:text-foreground transition-colors">References</Link>
             <Link href="/help" className="hover:text-foreground transition-colors">Aide</Link>
           </nav>
           <div className="flex items-center gap-4">

@@ -15,7 +15,7 @@ export default function PrivacyPage() {
           Politique de Confidentialité
         </h1>
         <p className="text-sm text-zinc-500 mb-10">
-          Dernière mise à jour : 29 mars 2026
+          Dernière mise à jour : 7 mai 2026
         </p>
 
         <div className="space-y-8 text-sm leading-relaxed">
@@ -51,12 +51,16 @@ export default function PrivacyPage() {
               <li>Site web</li>
             </ul>
 
-            <h3 className="text-sm font-semibold text-white mt-4 mb-2">2.3 Données financières</h3>
+            <h3 className="text-sm font-semibold text-white mt-4 mb-2">2.3 Données financières et commerciales</h3>
             <ul className="list-disc pl-5 space-y-1">
               <li>Factures émises et reçues</li>
               <li>Dépenses et revenus</li>
               <li>Soldes des comptes bancaires et mobile money</li>
               <li>Informations sur les clients et fournisseurs</li>
+              <li>Catalogue produits et catégories (prix, coûts, stocks)</li>
+              <li>Commandes et leur statut (En attente, Confirmé, Livré, etc.)</li>
+              <li>Historique des mouvements de stock</li>
+              <li>Liens de paiement générés et transactions associées</li>
             </ul>
 
             <h3 className="text-sm font-semibold text-white mt-4 mb-2">2.4 Données de paiement</h3>
