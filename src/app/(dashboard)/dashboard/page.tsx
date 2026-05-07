@@ -13,6 +13,9 @@ import {
   FileText,
   Landmark,
   AlertTriangle,
+  Package,
+  ShoppingCart,
+  ArrowRight,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InvoiceStatusBadge } from "@/components/invoices/InvoiceStatusBadge";
@@ -29,6 +32,9 @@ interface DashboardData {
     treasury: number;
     pendingInvoices: number;
     pendingCount: number;
+    activeProducts: number;
+    pendingOrders: number;
+    lowStockCount: number;
   };
   chartData: Array<{ month: string; revenus: number; depenses: number }>;
   recentInvoices: Array<{
@@ -48,6 +54,12 @@ interface DashboardData {
     total: number;
     currency: string;
     client?: { name: string } | null;
+  }>;
+  lowStockProducts: Array<{
+    id: string;
+    name: string;
+    stock: number;
+    lowStockThreshold: number;
   }>;
 }
 
@@ -130,8 +142,8 @@ export default function DashboardPage() {
           animate="show"
           className="space-y-8"
         >
-          {/* KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* KPI Cards — 6 indicateurs */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
             <motion.div variants={itemVariants}>
               <KPICard
                 title="Revenus du mois"
@@ -176,7 +188,69 @@ export default function DashboardPage() {
                 description="Solde de tous les comptes"
               />
             </motion.div>
+            <motion.div variants={itemVariants}>
+              <KPICard
+                title="Produits actifs"
+                value={data?.kpis.activeProducts || 0}
+                icon={Package}
+                iconColor="text-amber-500"
+                iconBg="bg-amber-500/10"
+                loading={loading}
+                currency=""
+                description={data?.kpis.lowStockCount ? `${data.kpis.lowStockCount} en stock faible` : "Stocks OK"}
+              />
+            </motion.div>
+            <motion.div variants={itemVariants}>
+              <KPICard
+                title="Commandes en cours"
+                value={data?.kpis.pendingOrders || 0}
+                icon={ShoppingCart}
+                iconColor="text-cyan-500"
+                iconBg="bg-cyan-500/10"
+                loading={loading}
+                currency=""
+                description="En attente / Confirmées"
+              />
+            </motion.div>
           </div>
+
+          {/* Alerte stock faible */}
+          {!loading && (data?.lowStockProducts?.length ?? 0) > 0 && (
+            <motion.div variants={itemVariants}>
+              <Card className="border-amber-500/30 bg-amber-500/5 shadow-sm">
+                <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                  <CardTitle className="text-[14px] font-semibold flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                    <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center">
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                    </div>
+                    Stock faible — {data!.kpis.lowStockCount} produit{data!.kpis.lowStockCount > 1 ? "s" : ""} à réapprovisionner
+                  </CardTitle>
+                  <Link href="/products/inventory">
+                    <button className="text-xs text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1 hover:underline">
+                      Voir l&apos;inventaire <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </Link>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="flex flex-wrap gap-2">
+                    {data!.lowStockProducts.map((p) => (
+                      <Link key={p.id} href={`/products/${p.id}`}>
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors hover:opacity-80 ${
+                          p.stock === 0
+                            ? "bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400"
+                            : "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300"
+                        }`}>
+                          <Package className="w-3 h-3" />
+                          {p.name}
+                          <span className="font-bold">{p.stock === 0 ? "Rupture" : `${p.stock} restant${p.stock > 1 ? "s" : ""}`}</span>
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
           {/* Charts & Pending Invoices */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
