@@ -8,8 +8,8 @@ const stripe = process.env.STRIPE_SECRET_KEY
   : null;
 
 const PLAN_PRICES: Record<string, number> = {
-  PRO: 5000,
-  MAX: 15000,
+  PRO: 3000,
+  MAX: 10000,
 };
 
 // POST - Créer une session de paiement Stripe

@@ -51,7 +51,7 @@ const plans = [
   {
     id: "PRO",
     name: "Pro",
-    price: 5000,
+    price: 3000,
     icon: Crown,
     color: "text-emerald-400",
     borderColor: "border-emerald-500/50",
@@ -70,7 +70,7 @@ const plans = [
   {
     id: "MAX",
     name: "Max",
-    price: 15000,
+    price: 10000,
     icon: Rocket,
     color: "text-amber-400",
     borderColor: "border-amber-500/50",
