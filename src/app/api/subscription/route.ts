@@ -60,8 +60,8 @@ export async function POST(request: Request) {
   }
 
   const planPrices: Record<string, number> = {
-    PRO: 5000,
-    MAX: 15000,
+    PRO: 3000,
+    MAX: 10000,
   };
 
   let finalAmount = planPrices[plan];

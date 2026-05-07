@@ -93,7 +93,7 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "5 000",
+    price: "3 000",
     period: "FCFA/mois",
     description: "Pour les PME en croissance",
     features: [
@@ -111,7 +111,7 @@ const plans = [
   },
   {
     name: "Max",
-    price: "15 000",
+    price: "10 000",
     period: "FCFA/mois",
     description: "Pour les PME ambitieuses",
     features: [
