@@ -157,11 +157,12 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-zinc-950 selection:bg-emerald-500/30 overflow-hidden relative">
-      {/* Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-dot-pattern opacity-30 [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-500/10 blur-[120px] rounded-full" />
+    <div className="min-h-[100svh] bg-zinc-950 selection:bg-emerald-500/30 relative" style={{ overflowX: "hidden" }}>
+      {/* Background — absolute (pas fixed) pour éviter les bugs iOS GPU */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 bg-dot-pattern opacity-20 [-webkit-mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)] [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]" />
+        {/* Réduit de blur-[120px] à blur-3xl pour iOS GPU */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-emerald-500/8 blur-3xl rounded-full" />
       </div>
 
       {/* Floating Navbar */}
@@ -202,7 +203,7 @@ export default function LandingPage() {
             </Link>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="w-9 h-9 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-300 hover:text-white transition-colors"
+              className="w-11 h-11 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-300 hover:text-white active:bg-zinc-700 transition-colors touch-manipulation"
               aria-label="Menu"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -238,7 +239,7 @@ export default function LandingPage() {
         )}
       </header>
 
-      <main className="relative z-10 pt-24 sm:pt-32 pb-16">
+      <main className="relative z-10 pt-24 sm:pt-32 pb-16 pb-safe">
         {/* Hero */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-10 sm:pt-16 pb-16 sm:pb-24">
           <motion.div variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col items-center max-w-4xl mx-auto">
@@ -259,13 +260,13 @@ export default function LandingPage() {
             </motion.p>
 
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto">
-              <Button asChild size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-xl shadow-emerald-500/20 group">
+              <Button asChild size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-8 text-sm sm:text-base font-semibold bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-full shadow-xl shadow-emerald-500/20 group touch-manipulation">
                 <Link href="/register">
                   Demarrer gratuitement
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-semibold rounded-full border-zinc-600 bg-zinc-900/80 text-white hover:bg-zinc-800 backdrop-blur-sm">
+              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-8 text-sm sm:text-base font-semibold rounded-full border-zinc-600 bg-zinc-900/80 text-white hover:bg-zinc-800 active:bg-zinc-700 touch-manipulation">
                 <Link href="/onboarding">Voir le tutoriel</Link>
               </Button>
             </motion.div>
@@ -678,7 +679,7 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border/40 bg-background/50 py-12">
+      <footer className="border-t border-zinc-800/40 bg-zinc-950 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 mb-8">
             <div className="md:col-span-1">
