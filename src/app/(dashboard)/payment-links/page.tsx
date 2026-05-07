@@ -14,7 +14,7 @@ import { fr } from "date-fns/locale";
 
 const STATUS_BADGE: Record<string, string> = {
   ACTIVE: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-  EXPIRED: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+  EXPIRED: "bg-muted text-muted-foreground",
   DISABLED: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
 };
 const STATUS_LABEL: Record<string, string> = { ACTIVE: "Actif", EXPIRED: "Expiré", DISABLED: "Désactivé" };

@@ -62,10 +62,10 @@ const typeLabels: Record<ClientType, string> = {
 };
 
 const typeBadgeColors: Record<ClientType, string> = {
-  PARTICULIER: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
-  ENTREPRISE: "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-  ONG: "bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-  ADMINISTRATION: "bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
+  PARTICULIER: "bg-muted text-muted-foreground border border-border",
+  ENTREPRISE: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20",
+  ONG: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20",
+  ADMINISTRATION: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20",
 };
 
 interface ClientWithCount extends Client {

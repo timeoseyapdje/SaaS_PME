@@ -80,7 +80,7 @@ export default function InvoiceDetailPage() {
       <div>
         <Header title="Facture introuvable" />
         <div className="p-6 text-center">
-          <p className="text-gray-500">Cette facture n&apos;existe pas.</p>
+          <p className="text-muted-foreground">Cette facture n&apos;existe pas.</p>
           <Link href="/invoices">
             <Button variant="outline" className="mt-4">
               Retour aux factures
@@ -97,7 +97,7 @@ export default function InvoiceDetailPage() {
         title={`Facture ${invoice.number}`}
         subtitle={invoice.client?.name}
       />
-      <div className="p-6 space-y-6">
+      <div className="flex flex-col gap-5">
         {/* Action bar */}
         <div className="flex items-center justify-between">
           <Link href="/invoices">
@@ -156,7 +156,7 @@ export default function InvoiceDetailPage() {
             {(invoice.status === "SENT" || invoice.status === "OVERDUE") && (
               <Button
                 size="sm"
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-emerald-600 hover:bg-emerald-700"
                 onClick={() => updateStatus("PAID")}
                 disabled={updating}
               >
@@ -187,8 +187,8 @@ export default function InvoiceDetailPage() {
           <CardHeader className="pb-4">
             <div className="flex items-start justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">FACTURE</h2>
-                <p className="text-lg font-mono text-blue-600 mt-1">
+                <h2 className="text-2xl font-bold text-foreground">FACTURE</h2>
+                <p className="text-lg font-mono text-blue-600 dark:text-blue-400 mt-1">
                   {invoice.number}
                 </p>
               </div>
@@ -199,29 +199,29 @@ export default function InvoiceDetailPage() {
             {/* Client & Dates */}
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                   Facturé à
                 </p>
-                <p className="font-semibold text-gray-900">
+                <p className="font-semibold text-foreground">
                   {invoice.client?.name}
                 </p>
                 {invoice.client?.email && (
-                  <p className="text-sm text-gray-500">{invoice.client.email}</p>
+                  <p className="text-sm text-muted-foreground">{invoice.client.email}</p>
                 )}
               </div>
               <div className="text-right">
                 <div className="space-y-1">
                   <div className="flex justify-end gap-4 text-sm">
-                    <span className="text-gray-500">Date d&apos;émission:</span>
+                    <span className="text-muted-foreground">Date d&apos;émission:</span>
                     <span className="font-medium">
                       {formatDate(invoice.issueDate)}
                     </span>
                   </div>
                   <div className="flex justify-end gap-4 text-sm">
-                    <span className="text-gray-500">Date d&apos;échéance:</span>
+                    <span className="text-muted-foreground">Date d&apos;échéance:</span>
                     <span
                       className={`font-medium ${
-                        invoice.status === "OVERDUE" ? "text-red-600" : ""
+                        invoice.status === "OVERDUE" ? "text-rose-600" : ""
                       }`}
                     >
                       {formatDate(invoice.dueDate)}
@@ -229,8 +229,8 @@ export default function InvoiceDetailPage() {
                   </div>
                   {invoice.paidAt && (
                     <div className="flex justify-end gap-4 text-sm">
-                      <span className="text-gray-500">Date de paiement:</span>
-                      <span className="font-medium text-green-600">
+                      <span className="text-muted-foreground">Date de paiement:</span>
+                      <span className="font-medium text-emerald-600 dark:text-emerald-400">
                         {formatDate(invoice.paidAt)}
                       </span>
                     </div>
@@ -246,23 +246,23 @@ export default function InvoiceDetailPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left pb-2 font-medium text-gray-500">
+                    <th className="text-left pb-2 font-medium text-muted-foreground">
                       Description
                     </th>
-                    <th className="text-center pb-2 font-medium text-gray-500 w-20">
+                    <th className="text-center pb-2 font-medium text-muted-foreground w-20">
                       Qté
                     </th>
-                    <th className="text-right pb-2 font-medium text-gray-500 w-32">
+                    <th className="text-right pb-2 font-medium text-muted-foreground w-32">
                       P.U. HT
                     </th>
-                    <th className="text-right pb-2 font-medium text-gray-500 w-32">
+                    <th className="text-right pb-2 font-medium text-muted-foreground w-32">
                       Total HT
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {invoice.items.map((item, index) => (
-                    <tr key={item.id || index} className="border-b border-gray-50">
+                    <tr key={item.id || index} className="border-b border-border/50">
                       <td className="py-3">{item.description}</td>
                       <td className="py-3 text-center">{item.quantity}</td>
                       <td className="py-3 text-right">
@@ -281,12 +281,12 @@ export default function InvoiceDetailPage() {
             <div className="flex justify-end">
               <div className="w-64 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Sous-total HT</span>
+                  <span className="text-muted-foreground">Sous-total HT</span>
                   <span>{formatCurrency(invoice.subtotal, invoice.currency)}</span>
                 </div>
                 {invoice.applyTVA && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">
+                    <span className="text-muted-foreground">
                       TVA (19,25%)
                     </span>
                     <span>
@@ -297,7 +297,7 @@ export default function InvoiceDetailPage() {
                 <Separator />
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total TTC</span>
-                  <span className="text-blue-700">
+                  <span className="text-blue-600 dark:text-blue-400">
                     {formatCurrency(invoice.total, invoice.currency)}
                   </span>
                 </div>
@@ -309,18 +309,18 @@ export default function InvoiceDetailPage() {
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                 {invoice.notes && (
                   <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
                       Notes
                     </p>
-                    <p className="text-sm text-gray-600">{invoice.notes}</p>
+                    <p className="text-sm text-muted-foreground">{invoice.notes}</p>
                   </div>
                 )}
                 {invoice.terms && (
                   <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
                       Conditions de paiement
                     </p>
-                    <p className="text-sm text-gray-600">{invoice.terms}</p>
+                    <p className="text-sm text-muted-foreground">{invoice.terms}</p>
                   </div>
                 )}
               </div>

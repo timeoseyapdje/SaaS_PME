@@ -202,7 +202,7 @@ export function Header({ title, subtitle }: HeaderProps) {
       case "expense": return <TrendingDown className="w-4 h-4 text-rose-400" />;
       case "alert": return <AlertTriangle className="w-4 h-4 text-red-400" />;
       case "success": return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
-      default: return <Bell className="w-4 h-4 text-zinc-400" />;
+      default: return <Bell className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -251,7 +251,7 @@ export function Header({ title, subtitle }: HeaderProps) {
                         Tout marquer lu
                       </button>
                     )}
-                    <button onClick={() => setShowNotifs(false)} className="text-zinc-500 hover:text-zinc-300">
+                    <button onClick={() => setShowNotifs(false)} className="text-muted-foreground hover:text-foreground">
                       <X className="w-4 h-4" />
                     </button>
                   </div>

@@ -83,11 +83,11 @@ export default function ReportsPage() {
   return (
     <div>
       <Header title="Rapports financiers" subtitle="Analyse de votre activité" />
-      <div className="p-6 space-y-6">
+      <div className="flex flex-col gap-5">
         {/* Year selector + Export */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-700">Exercice:</span>
+            <span className="text-sm font-medium text-foreground">Exercice:</span>
             <Select value={year} onValueChange={setYear}>
               <SelectTrigger className="w-32">
                 <SelectValue />
@@ -157,49 +157,39 @@ export default function ReportsPage() {
           {/* Compte de Résultat */}
           <TabsContent value="resultat">
             {loading ? (
-              <div className="h-64 bg-gray-100 animate-pulse rounded-lg mt-4" />
+              <div className="h-64 bg-muted/50 animate-pulse rounded-lg mt-4" />
             ) : resultatData ? (
               <div className="space-y-6 mt-4">
                 {/* Summary cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card className="border-green-200 bg-green-50">
+                  <Card className="border-emerald-500/20 bg-emerald-500/10">
                     <CardContent className="p-4">
-                      <p className="text-sm text-green-700">Total Revenus</p>
-                      <p className="text-2xl font-bold text-green-700">
+                      <p className="text-sm text-emerald-600 dark:text-emerald-400">Total Revenus</p>
+                      <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                         {formatCurrency(
                           (resultatData.totalRevenue as number) || 0
                         )}
                       </p>
                     </CardContent>
                   </Card>
-                  <Card className="border-red-200 bg-red-50">
+                  <Card className="border-rose-500/20 bg-rose-500/10">
                     <CardContent className="p-4">
-                      <p className="text-sm text-red-700">Total Dépenses</p>
-                      <p className="text-2xl font-bold text-red-700">
+                      <p className="text-sm text-rose-600 dark:text-rose-400">Total Dépenses</p>
+                      <p className="text-2xl font-bold text-rose-600 dark:text-rose-400">
                         {formatCurrency(
                           (resultatData.totalExpenses as number) || 0
                         )}
                       </p>
                     </CardContent>
                   </Card>
-                  <Card
-                    className={`border-${
-                      (resultatData.netProfit as number) >= 0
-                        ? "blue"
-                        : "orange"
-                    }-200 bg-${
-                      (resultatData.netProfit as number) >= 0
-                        ? "blue"
-                        : "orange"
-                    }-50`}
-                  >
+                  <Card className={(resultatData.netProfit as number) >= 0 ? "border-blue-500/20 bg-blue-500/10" : "border-amber-500/20 bg-amber-500/10"}>
                     <CardContent className="p-4">
-                      <p className="text-sm text-gray-700">Résultat net</p>
+                      <p className="text-sm text-muted-foreground">Résultat net</p>
                       <p
                         className={`text-2xl font-bold ${
                           (resultatData.netProfit as number) >= 0
-                            ? "text-blue-700"
-                            : "text-orange-700"
+                            ? "text-blue-600 dark:text-blue-400"
+                            : "text-amber-600 dark:text-amber-400"
                         }`}
                       >
                         {formatCurrency(
@@ -291,7 +281,7 @@ export default function ReportsPage() {
                             return (
                               <div key={cat}>
                                 <div className="flex justify-between text-sm mb-1">
-                                  <span className="text-gray-700">
+                                  <span className="text-foreground">
                                     {categoryLabels[cat] || cat}
                                   </span>
                                   <span className="font-medium">
@@ -299,9 +289,9 @@ export default function ReportsPage() {
                                     %)
                                   </span>
                                 </div>
-                                <div className="w-full bg-gray-100 rounded-full h-2">
+                                <div className="w-full bg-muted rounded-full h-2">
                                   <div
-                                    className="bg-red-400 h-2 rounded-full"
+                                    className="bg-rose-400 h-2 rounded-full"
                                     style={{ width: `${pct}%` }}
                                   />
                                 </div>
@@ -319,18 +309,18 @@ export default function ReportsPage() {
           {/* Bilan */}
           <TabsContent value="bilan">
             {loading ? (
-              <div className="h-64 bg-gray-100 animate-pulse rounded-lg mt-4" />
+              <div className="h-64 bg-muted/50 animate-pulse rounded-lg mt-4" />
             ) : bilanData ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base text-blue-700">
+                    <CardTitle className="text-base text-blue-600 dark:text-blue-400">
                       Actif
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Trésorerie</span>
+                      <span className="text-muted-foreground">Trésorerie</span>
                       <span className="font-medium">
                         {formatCurrency(
                           ((bilanData.assets as Record<string, number>)
@@ -339,7 +329,7 @@ export default function ReportsPage() {
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Créances clients</span>
+                      <span className="text-muted-foreground">Créances clients</span>
                       <span className="font-medium">
                         {formatCurrency(
                           ((bilanData.assets as Record<string, number>)
@@ -350,7 +340,7 @@ export default function ReportsPage() {
                     <Separator />
                     <div className="flex justify-between font-bold">
                       <span>Total Actif</span>
-                      <span className="text-blue-700">
+                      <span className="text-blue-600 dark:text-blue-400">
                         {formatCurrency(
                           ((bilanData.assets as Record<string, number>)
                             ?.total as number) || 0
@@ -361,13 +351,13 @@ export default function ReportsPage() {
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base text-red-700">
+                    <CardTitle className="text-base text-rose-600 dark:text-rose-400">
                       Passif
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">
+                      <span className="text-muted-foreground">
                         Dettes fournisseurs
                       </span>
                       <span className="font-medium">
@@ -378,15 +368,15 @@ export default function ReportsPage() {
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Capitaux propres</span>
-                      <span className="font-medium text-green-600">
+                      <span className="text-muted-foreground">Capitaux propres</span>
+                      <span className="font-medium text-emerald-600 dark:text-emerald-400">
                         {formatCurrency((bilanData.equity as number) || 0)}
                       </span>
                     </div>
                     <Separator />
                     <div className="flex justify-between font-bold">
                       <span>Total Passif</span>
-                      <span className="text-red-700">
+                      <span className="text-rose-600 dark:text-rose-400">
                         {formatCurrency(
                           (((bilanData.liabilities as Record<string, number>)
                             ?.total as number) || 0) +
@@ -403,7 +393,7 @@ export default function ReportsPage() {
           {/* Fiscalité */}
           <TabsContent value="fiscalite">
             {loading ? (
-              <div className="h-64 bg-gray-100 animate-pulse rounded-lg mt-4" />
+              <div className="h-64 bg-muted/50 animate-pulse rounded-lg mt-4" />
             ) : fiscaliteData ? (
               <div className="space-y-6 mt-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -416,8 +406,8 @@ export default function ReportsPage() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">TVA collectée</span>
-                        <span className="font-medium text-blue-600">
+                        <span className="text-muted-foreground">TVA collectée</span>
+                        <span className="font-medium text-blue-600 dark:text-blue-400">
                           {formatCurrency(
                             ((fiscaliteData.tva as Record<string, number>)
                               ?.collectee as number) || 0
@@ -425,8 +415,8 @@ export default function ReportsPage() {
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">TVA déductible</span>
-                        <span className="font-medium text-green-600">
+                        <span className="text-muted-foreground">TVA déductible</span>
+                        <span className="font-medium text-emerald-600 dark:text-emerald-400">
                           {formatCurrency(
                             ((fiscaliteData.tva as Record<string, number>)
                               ?.deductible as number) || 0
@@ -440,8 +430,8 @@ export default function ReportsPage() {
                           className={
                             ((fiscaliteData.tva as Record<string, number>)
                               ?.nette as number) > 0
-                              ? "text-red-600"
-                              : "text-green-600"
+                              ? "text-rose-600 dark:text-rose-400"
+                              : "text-emerald-600 dark:text-emerald-400"
                           }
                         >
                           {formatCurrency(
@@ -450,7 +440,7 @@ export default function ReportsPage() {
                           )}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-400 mt-2">
+                      <p className="text-xs text-muted-foreground mt-2">
                         Prochaine échéance:{" "}
                         {new Date(
                           fiscaliteData.prochainEcheanceTVA as string
@@ -469,7 +459,7 @@ export default function ReportsPage() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Base imposable</span>
+                        <span className="text-muted-foreground">Base imposable</span>
                         <span className="font-medium">
                           {formatCurrency(
                             ((fiscaliteData.is as Record<string, number>)
@@ -478,7 +468,7 @@ export default function ReportsPage() {
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Taux IS</span>
+                        <span className="text-muted-foreground">Taux IS</span>
                         <span className="font-medium">
                           {(fiscaliteData.is as Record<string, number>)?.taux}%
                         </span>
@@ -486,14 +476,14 @@ export default function ReportsPage() {
                       <Separator />
                       <div className="flex justify-between font-bold">
                         <span>IS estimé</span>
-                        <span className="text-orange-600">
+                        <span className="text-amber-600 dark:text-amber-400">
                           {formatCurrency(
                             ((fiscaliteData.is as Record<string, number>)
                               ?.estimee as number) || 0
                           )}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-400 mt-2">
+                      <p className="text-xs text-muted-foreground mt-2">
                         Déclaration avant le 31 mars de l&apos;année suivante
                       </p>
                     </CardContent>

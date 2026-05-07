@@ -40,7 +40,7 @@ export function InvoiceTable({
     return (
       <div className="space-y-2">
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="h-14 bg-gray-100 animate-pulse rounded" />
+          <div key={i} className="h-14 bg-muted/50 animate-pulse rounded-lg" />
         ))}
       </div>
     );
@@ -48,9 +48,9 @@ export function InvoiceTable({
 
   if (invoices.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-400">
-        <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-        <p className="text-base font-medium text-gray-500">
+      <div className="text-center py-12 text-muted-foreground">
+        <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
+        <p className="text-base font-medium text-foreground">
           Aucune facture trouvée
         </p>
         <p className="text-sm mt-1">
@@ -92,10 +92,10 @@ export function InvoiceTable({
             <TableCell className="text-sm">
               {invoice.client?.name || "—"}
             </TableCell>
-            <TableCell className="text-sm text-gray-500">
+            <TableCell className="text-sm text-muted-foreground">
               {formatDate(invoice.issueDate)}
             </TableCell>
-            <TableCell className="text-sm text-gray-500">
+            <TableCell className="text-sm text-muted-foreground">
               {formatDate(invoice.dueDate)}
             </TableCell>
             <TableCell className="text-right text-sm font-semibold">
