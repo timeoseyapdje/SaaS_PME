@@ -22,7 +22,7 @@ export function KPICard({
   currency = "XAF",
   icon: Icon,
   iconColor = "text-emerald-600",
-  iconBg = "bg-emerald-50 dark:bg-emerald-500/10",
+  iconBg = "bg-emerald-500/10",
   loading,
   description,
 }: KPICardProps) {
@@ -34,69 +34,90 @@ export function KPICard({
   if (loading) {
     return (
       <Card className="border-border bg-card shadow-sm">
-        <CardContent className="p-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-muted rounded w-1/2" />
-            <div className="h-8 bg-muted rounded w-3/4" />
+        <CardContent className="p-4">
+          <div className="animate-pulse space-y-3">
             <div className="h-3 bg-muted rounded w-2/3" />
+            <div className="h-7 bg-muted rounded w-1/2" />
+            <div className="h-2.5 bg-muted rounded w-3/4" />
           </div>
         </CardContent>
       </Card>
     );
   }
 
+  const trendPositive = trend !== undefined && trend > 0;
+  const trendNegative = trend !== undefined && trend < 0;
+
   return (
-    <Card className="group relative overflow-hidden border-border bg-card shadow-sm hover:shadow-md hover:border-emerald-500/40 transition-all duration-300 hover:-translate-y-0.5">
-      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/0 to-transparent group-hover:via-emerald-500/60 transition-colors duration-500" />
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1.5 flex-1 min-w-0">
-            <p className="text-sm font-medium text-muted-foreground tracking-tight">{title}</p>
-            <p className="text-2xl font-bold text-foreground tracking-tight whitespace-nowrap">
-              {formatCompact(value, currency)}
-            </p>
-            {description && (
-              <p className="text-xs text-muted-foreground/80">{description}</p>
-            )}
-          </div>
+    <Card className="group relative overflow-hidden border-border bg-card shadow-sm hover:shadow-md hover:border-border/80 transition-all duration-200 h-full">
+      {/* Top accent bar on hover */}
+      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/0 to-transparent group-hover:via-emerald-500/50 transition-colors duration-300" />
+
+      <CardContent className="p-4 flex flex-col gap-3 h-full">
+        {/* Row: title + icon */}
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground leading-tight flex-1 min-w-0">
+            {title}
+          </p>
           <div
             className={cn(
-              "w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ml-4 group-hover:scale-105 transition-transform duration-300",
+              "w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0",
               iconBg
             )}
           >
-            <Icon className={cn("w-6 h-6", iconColor)} />
+            <Icon className={cn("w-4 h-4", iconColor)} />
           </div>
         </div>
-        {trend !== undefined && (
-          <div className="mt-4 flex items-center gap-2">
-            <div className={cn(
-              "flex items-center justify-center w-5 h-5 rounded-full",
-              trend > 0 ? "bg-emerald-500/10" : trend < 0 ? "bg-rose-500/10" : "bg-muted"
-            )}>
-              {trend > 0 ? (
-                <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-              ) : trend < 0 ? (
-                <TrendingDown className="w-3.5 h-3.5 text-rose-500" />
-              ) : (
-                <Minus className="w-3.5 h-3.5 text-muted-foreground" />
-              )}
+
+        {/* Value */}
+        <p className="text-[22px] font-bold text-foreground tracking-tight leading-none">
+          {formatCompact(value, currency)}
+        </p>
+
+        {/* Bottom: trend OR description */}
+        <div className="mt-auto">
+          {trend !== undefined ? (
+            <div className="flex items-center gap-1.5">
+              <div
+                className={cn(
+                  "flex items-center justify-center w-4 h-4 rounded-full",
+                  trendPositive
+                    ? "bg-emerald-500/10"
+                    : trendNegative
+                    ? "bg-rose-500/10"
+                    : "bg-muted"
+                )}
+              >
+                {trendPositive ? (
+                  <TrendingUp className="w-2.5 h-2.5 text-emerald-500" />
+                ) : trendNegative ? (
+                  <TrendingDown className="w-2.5 h-2.5 text-rose-500" />
+                ) : (
+                  <Minus className="w-2.5 h-2.5 text-muted-foreground" />
+                )}
+              </div>
+              <span
+                className={cn(
+                  "text-[11px] font-semibold",
+                  trendPositive
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : trendNegative
+                    ? "text-rose-600 dark:text-rose-400"
+                    : "text-muted-foreground"
+                )}
+              >
+                {trendPositive ? "+" : ""}
+                {trend.toFixed(1)}%
+              </span>
+              <span className="text-[11px] text-muted-foreground">vs mois dernier</span>
             </div>
-            <span
-              className={cn(
-                "text-xs font-semibold tracking-wide",
-                trend > 0
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : trend < 0
-                  ? "text-rose-600 dark:text-rose-400"
-                  : "text-muted-foreground"
-              )}
-            >
-              {trend > 0 ? "+" : ""}
-              {trend.toFixed(1)}% <span className="font-normal text-muted-foreground">vs mois dernier</span>
-            </span>
-          </div>
-        )}
+          ) : description ? (
+            <p className="text-[11px] text-muted-foreground leading-tight">{description}</p>
+          ) : (
+            /* placeholder to keep consistent height */
+            <div className="h-4" />
+          )}
+        </div>
       </CardContent>
     </Card>
   );

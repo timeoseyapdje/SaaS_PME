@@ -143,8 +143,8 @@ export default function DashboardPage() {
           className="space-y-8"
         >
           {/* KPI Cards — 6 indicateurs */}
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-            <motion.div variants={itemVariants}>
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 items-stretch">
+            <motion.div variants={itemVariants} className="h-full">
               <KPICard
                 title="Revenus du mois"
                 value={data?.kpis.revenue.current || 0}
@@ -155,7 +155,7 @@ export default function DashboardPage() {
                 loading={loading}
               />
             </motion.div>
-            <motion.div variants={itemVariants}>
+            <motion.div variants={itemVariants} className="h-full">
               <KPICard
                 title="Depenses du mois"
                 value={data?.kpis.expenses.current || 0}
@@ -166,7 +166,7 @@ export default function DashboardPage() {
                 loading={loading}
               />
             </motion.div>
-            <motion.div variants={itemVariants}>
+            <motion.div variants={itemVariants} className="h-full">
               <KPICard
                 title="Resultat net"
                 value={data?.kpis.result.current || 0}
@@ -177,7 +177,7 @@ export default function DashboardPage() {
                 loading={loading}
               />
             </motion.div>
-            <motion.div variants={itemVariants}>
+            <motion.div variants={itemVariants} className="h-full">
               <KPICard
                 title="Tresorerie totale"
                 value={data?.kpis.treasury || 0}
@@ -188,7 +188,7 @@ export default function DashboardPage() {
                 description="Solde de tous les comptes"
               />
             </motion.div>
-            <motion.div variants={itemVariants}>
+            <motion.div variants={itemVariants} className="h-full">
               <KPICard
                 title="Produits actifs"
                 value={data?.kpis.activeProducts || 0}
@@ -200,7 +200,7 @@ export default function DashboardPage() {
                 description={data?.kpis.lowStockCount ? `${data.kpis.lowStockCount} en stock faible` : "Stocks OK"}
               />
             </motion.div>
-            <motion.div variants={itemVariants}>
+            <motion.div variants={itemVariants} className="h-full">
               <KPICard
                 title="Commandes en cours"
                 value={data?.kpis.pendingOrders || 0}
