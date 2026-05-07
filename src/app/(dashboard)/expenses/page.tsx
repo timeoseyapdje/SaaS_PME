@@ -341,13 +341,13 @@ export default function ExpensesPage() {
                       {[1, 2, 3].map((i) => (
                         <div
                           key={i}
-                          className="h-12 bg-zinc-800/50 animate-pulse rounded"
+                          className="h-12 bg-muted/50 animate-pulse rounded-lg"
                         />
                       ))}
                     </div>
                   ) : revenues.length === 0 ? (
-                    <div className="text-center py-12 text-zinc-500">
-                      <TrendingUp className="w-12 h-12 mx-auto mb-3 text-zinc-600" />
+                    <div className="text-center py-12 text-muted-foreground">
+                      <TrendingUp className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
                       <p className="text-sm">Aucune recette enregistrée</p>
                     </div>
                   ) : (
@@ -365,7 +365,7 @@ export default function ExpensesPage() {
                       <TableBody>
                         {revenues.map((rev) => (
                           <TableRow key={rev.id}>
-                            <TableCell className="text-sm text-zinc-400">
+                            <TableCell className="text-sm text-muted-foreground">
                               {formatDate(rev.date)}
                             </TableCell>
                             <TableCell className="text-sm">
@@ -376,7 +376,7 @@ export default function ExpensesPage() {
                                 {REVENUE_CATEGORIES[rev.category] || rev.category}
                               </Badge>
                             </TableCell>
-                            <TableCell className="text-sm text-zinc-400">
+                            <TableCell className="text-sm text-muted-foreground">
                               {PAYMENT_METHOD_LABELS[rev.paymentMethod] ||
                                 rev.paymentMethod}
                             </TableCell>

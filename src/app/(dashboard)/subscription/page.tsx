@@ -38,8 +38,8 @@ const plans = [
     name: "Starter",
     price: 0,
     icon: Zap,
-    color: "text-zinc-400",
-    borderColor: "border-zinc-700/50",
+    color: "text-muted-foreground",
+    borderColor: "border-border",
     features: [
       "1 utilisateur",
       "20 factures/mois",
@@ -188,7 +188,7 @@ export default function SubscriptionPage() {
   const statusLabels: Record<string, { label: string; color: string }> = {
     ACTIVE: { label: "Actif", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
     EXPIRED: { label: "Expiré", color: "text-rose-400 bg-rose-500/10 border-rose-500/20" },
-    CANCELLED: { label: "Annulé", color: "text-zinc-400 bg-zinc-500/10 border-zinc-500/20" },
+    CANCELLED: { label: "Annulé", color: "text-muted-foreground bg-muted border-border" },
     SUSPENDED: { label: "Suspendu", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
   };
 
@@ -196,7 +196,7 @@ export default function SubscriptionPage() {
     PENDING: { label: "En attente", color: "text-amber-400" },
     COMPLETED: { label: "Payé", color: "text-emerald-400" },
     FAILED: { label: "Échoué", color: "text-rose-400" },
-    REFUNDED: { label: "Remboursé", color: "text-zinc-400" },
+    REFUNDED: { label: "Remboursé", color: "text-muted-foreground" },
   };
 
   if (loading) {
@@ -225,33 +225,33 @@ export default function SubscriptionPage() {
 
         {/* Abonnement actuel */}
         {subscription && (
-          <Card className="border-zinc-800/50 bg-zinc-900/50">
+          <Card className="border-border bg-card">
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-emerald-400" />
+                <CreditCard className="w-4 h-4 text-emerald-500" />
                 Abonnement actuel
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap items-center gap-6">
                 <div>
-                  <p className="text-xs text-zinc-500">Plan</p>
-                  <p className="text-lg font-bold text-white">{subscription.plan}</p>
+                  <p className="text-xs text-muted-foreground">Plan</p>
+                  <p className="text-lg font-bold text-foreground">{subscription.plan}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">Statut</p>
+                  <p className="text-xs text-muted-foreground">Statut</p>
                   <span className={`text-xs font-medium px-2 py-1 rounded-full border ${statusLabels[subscription.status]?.color || ""}`}>
                     {statusLabels[subscription.status]?.label || subscription.status}
                   </span>
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500">Montant</p>
-                  <p className="text-sm font-bold text-white">{subscription.amount.toLocaleString()} XAF/mois</p>
+                  <p className="text-xs text-muted-foreground">Montant</p>
+                  <p className="text-sm font-bold text-foreground">{subscription.amount.toLocaleString()} XAF/mois</p>
                 </div>
                 {subscription.endDate && (
                   <div>
-                    <p className="text-xs text-zinc-500">Expire le</p>
-                    <p className="text-sm text-zinc-300">{new Date(subscription.endDate).toLocaleDateString("fr-FR")}</p>
+                    <p className="text-xs text-muted-foreground">Expire le</p>
+                    <p className="text-sm text-muted-foreground">{new Date(subscription.endDate).toLocaleDateString("fr-FR")}</p>
                   </div>
                 )}
                 {subscription.status === "ACTIVE" && subscription.plan !== "STARTER" && (
@@ -294,7 +294,7 @@ export default function SubscriptionPage() {
 
         {/* Plans */}
         <div>
-          <h2 className="text-lg font-semibold text-white mb-4">Choisir un plan</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">Choisir un plan</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {plans.map((plan, idx) => {
               const isCurrent = plan.id === currentPlan;
@@ -310,10 +310,10 @@ export default function SubscriptionPage() {
                   }}
                   className={`relative rounded-xl border p-5 cursor-pointer transition-all ${
                     isSelected
-                      ? `${plan.borderColor} bg-zinc-800/50 ring-1 ring-emerald-500/30`
+                      ? `${plan.borderColor} bg-muted/50 ring-1 ring-emerald-500/30`
                       : isCurrent
                       ? "border-emerald-500/50 bg-emerald-500/5"
-                      : "border-zinc-800/50 bg-zinc-900/50 hover:border-zinc-700/50"
+                      : "border-border bg-card hover:border-border/80"
                   } ${plan.id === "STARTER" && !isCurrent ? "opacity-50 cursor-default" : ""}`}
                 >
                   {plan.popular && (
@@ -328,17 +328,17 @@ export default function SubscriptionPage() {
                   )}
                   <div className="flex items-center gap-3 mb-4">
                     <plan.icon className={`w-5 h-5 ${plan.color}`} />
-                    <h3 className="text-base font-bold text-white">{plan.name}</h3>
+                    <h3 className="text-base font-bold text-foreground">{plan.name}</h3>
                   </div>
                   <div className="mb-4">
-                    <span className="text-2xl font-extrabold text-white">
+                    <span className="text-2xl font-extrabold text-foreground">
                       {plan.price === 0 ? "Gratuit" : `${plan.price.toLocaleString()}`}
                     </span>
-                    {plan.price > 0 && <span className="text-xs text-zinc-500 ml-1">XAF/mois</span>}
+                    {plan.price > 0 && <span className="text-xs text-muted-foreground ml-1">XAF/mois</span>}
                   </div>
                   <ul className="space-y-2">
                     {plan.features.map((f, i) => (
-                      <li key={i} className="flex items-start gap-2 text-xs text-zinc-400">
+                      <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
                         <Check className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" />
                         {f}
                       </li>
@@ -356,22 +356,22 @@ export default function SubscriptionPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Card className="border-zinc-800/50 bg-zinc-900/50">
+            <Card className="border-border bg-card">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Smartphone className="w-4 h-4 text-emerald-400" />
+                  <Smartphone className="w-4 h-4 text-emerald-500" />
                   Paiement - Plan {selectedPlan}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {error && (
-                  <div className="flex items-center gap-2 p-3 rounded-lg bg-rose-500/10 text-rose-400 text-sm border border-rose-500/20">
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 text-sm border border-rose-500/20">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     {error}
                   </div>
                 )}
                 {success && (
-                  <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 text-emerald-400 text-sm border border-emerald-500/20">
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-sm border border-emerald-500/20">
                     <CheckCircle2 className="w-4 h-4 shrink-0" />
                     Paiement effectué avec succès ! Votre abonnement est actif.
                   </div>
@@ -379,9 +379,9 @@ export default function SubscriptionPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-zinc-400">Mode de paiement *</Label>
+                    <Label className="text-muted-foreground">Mode de paiement *</Label>
                     <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                      <SelectTrigger className="bg-zinc-800/50 border-zinc-700/50">
+                      <SelectTrigger className="bg-background border-border">
                         <SelectValue placeholder="Choisir un mode de paiement" />
                       </SelectTrigger>
                       <SelectContent>
@@ -395,18 +395,18 @@ export default function SubscriptionPage() {
 
                   {(paymentMethod === "MTN_MONEY" || paymentMethod === "ORANGE_MONEY") && (
                     <div className="space-y-2">
-                      <Label className="text-zinc-400">Numéro de téléphone *</Label>
+                      <Label className="text-muted-foreground">Numéro de téléphone *</Label>
                       <Input
                         placeholder="+237 6xx xxx xxx"
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
-                        className="bg-zinc-800/50 border-zinc-700/50"
+                        className="bg-background border-border"
                       />
                     </div>
                   )}
 
                   <div className="space-y-2">
-                    <Label className="text-zinc-400 flex items-center gap-1">
+                    <Label className="text-muted-foreground flex items-center gap-1">
                       <Tag className="w-3 h-3" />
                       Code promo (optionnel)
                     </Label>
@@ -414,17 +414,17 @@ export default function SubscriptionPage() {
                       placeholder="Entrer un code promo"
                       value={promoCode}
                       onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                      className="bg-zinc-800/50 border-zinc-700/50"
+                      className="bg-background border-border"
                     />
                   </div>
                 </div>
 
-                <Separator className="bg-zinc-800/50" />
+                <Separator className="bg-border" />
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-zinc-400">Total à payer</p>
-                    <p className="text-2xl font-bold text-white">
+                    <p className="text-sm text-muted-foreground">Total à payer</p>
+                    <p className="text-2xl font-bold text-foreground">
                       {(plans.find((p) => p.id === selectedPlan)?.price || 0).toLocaleString()} XAF
                     </p>
                     {promoCode && <p className="text-xs text-emerald-400">Code promo appliqué au moment du paiement</p>}
@@ -449,33 +449,33 @@ export default function SubscriptionPage() {
 
         {/* Historique des paiements */}
         {subscription?.payments && subscription.payments.length > 0 && (
-          <Card className="border-zinc-800/50 bg-zinc-900/50">
+          <Card className="border-border bg-card">
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <Clock className="w-4 h-4 text-zinc-500" />
+                <Clock className="w-4 h-4 text-muted-foreground" />
                 Historique des paiements
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 {subscription.payments.map((payment) => (
-                  <div key={payment.id} className="flex items-center justify-between py-2.5 border-b border-zinc-800/30 last:border-0">
+                  <div key={payment.id} className="flex items-center justify-between py-2.5 border-b border-border/50 last:border-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-zinc-800/80 flex items-center justify-center">
-                        <CreditCard className="w-4 h-4 text-zinc-500" />
+                      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                        <CreditCard className="w-4 h-4 text-muted-foreground" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-zinc-200">
+                        <p className="text-sm font-medium text-foreground">
                           {payment.amount.toLocaleString()} {payment.currency}
                         </p>
-                        <p className="text-xs text-zinc-500">{payment.paymentMethod.replace("_", " ")}</p>
+                        <p className="text-xs text-muted-foreground">{payment.paymentMethod.replace("_", " ")}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className={`text-xs font-medium ${paymentStatusLabels[payment.status]?.color || ""}`}>
                         {paymentStatusLabels[payment.status]?.label || payment.status}
                       </p>
-                      <p className="text-[10px] text-zinc-600">
+                      <p className="text-[10px] text-muted-foreground">
                         {new Date(payment.createdAt).toLocaleDateString("fr-FR")}
                       </p>
                     </div>

@@ -40,10 +40,10 @@ const typeLabels: Record<ClientType, string> = {
 };
 
 const typeBadgeColors: Record<ClientType, string> = {
-  PARTICULIER: "bg-muted/50 text-gray-700",
-  ENTREPRISE: "bg-blue-100 text-blue-700",
-  ONG: "bg-purple-100 text-purple-700",
-  ADMINISTRATION: "bg-orange-100 text-orange-700",
+  PARTICULIER: "bg-muted text-muted-foreground",
+  ENTREPRISE: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+  ONG: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+  ADMINISTRATION: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
 };
 
 interface SupplierWithCount extends Supplier {

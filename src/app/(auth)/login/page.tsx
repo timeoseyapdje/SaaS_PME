@@ -117,7 +117,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
       {/* Background decorations V2 */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-dot-pattern opacity-30 [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]" />
@@ -141,7 +141,7 @@ export default function LoginPage() {
           <p className="text-muted-foreground mt-2 text-[15px]">Gestion financière pour PME camerounaises</p>
         </div>
 
-        <Card className="shadow-2xl shadow-emerald-500/5 border-white/5 bg-zinc-950/60 backdrop-blur-2xl">
+        <Card className="shadow-2xl shadow-emerald-500/5 border-border bg-card/80 backdrop-blur-2xl">
           <CardHeader className="space-y-1.5 pb-6">
             <CardTitle className="text-2xl font-bold tracking-tight">Connexion</CardTitle>
             <CardDescription className="text-[15px]">

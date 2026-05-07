@@ -255,8 +255,8 @@ const helpCategories: HelpCategory[] = [
     title: "Parametres et securite",
     description: "Compte, mot de passe et preferences",
     icon: Settings,
-    color: "text-zinc-400",
-    bg: "bg-zinc-500/10",
+    color: "text-muted-foreground",
+    bg: "bg-muted",
     faqs: [
       {
         question: "Comment changer mon mot de passe ?",
@@ -290,23 +290,23 @@ function FAQAccordion({ faqs }: { faqs: FAQItem[] }) {
       {faqs.map((faq, idx) => (
         <div
           key={idx}
-          className="border border-zinc-800/50 rounded-xl overflow-hidden"
+          className="border border-border rounded-xl overflow-hidden"
         >
           <button
             onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-            className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-zinc-900/50 transition-colors"
+            className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-muted/50 transition-colors"
           >
-            <span className="text-sm font-medium text-zinc-200 pr-4">
+            <span className="text-sm font-medium text-foreground pr-4">
               {faq.question}
             </span>
             {openIndex === idx ? (
               <ChevronDown className="w-4 h-4 text-emerald-400 shrink-0" />
             ) : (
-              <ChevronRight className="w-4 h-4 text-zinc-500 shrink-0" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
             )}
           </button>
           {openIndex === idx && (
-            <div className="px-4 pb-4 text-sm text-zinc-400 leading-relaxed whitespace-pre-line">
+            <div className="px-4 pb-4 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
               {faq.answer}
             </div>
           )}
@@ -338,7 +338,7 @@ export default function HelpPage() {
     : null;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-300 selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-background text-foreground selection:bg-emerald-500/30">
       {/* Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-dot-pattern opacity-20 [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]" />
@@ -356,10 +356,10 @@ export default function HelpPage() {
 
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">
             Centre d&apos;aide
           </h1>
-          <p className="text-zinc-400 text-base sm:text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
             Trouvez des reponses a vos questions sur Nkap Control. Parcourez nos
             categories ou utilisez la recherche.
           </p>
@@ -368,7 +368,7 @@ export default function HelpPage() {
         {/* Search */}
         <div className="max-w-xl mx-auto mb-12">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
               type="text"
               value={searchQuery}
@@ -377,7 +377,7 @@ export default function HelpPage() {
                 setSelectedCategory(null);
               }}
               placeholder="Rechercher une question..."
-              className="w-full bg-zinc-900/60 border border-zinc-800/60 rounded-2xl pl-12 pr-4 py-3.5 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/30 transition-all shadow-inner"
+              className="w-full bg-muted/60 border border-border rounded-2xl pl-12 pr-4 py-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/30 transition-all"
             />
           </div>
         </div>
@@ -389,17 +389,17 @@ export default function HelpPage() {
               <button
                 key={cat.title}
                 onClick={() => setSelectedCategory(cat.title)}
-                className="p-5 rounded-2xl border border-zinc-800/50 bg-zinc-900/30 hover:bg-zinc-900/60 hover:border-zinc-700/50 transition-all text-left group cursor-pointer"
+                className="p-5 rounded-2xl border border-border bg-card hover:bg-muted/50 hover:border-border/80 transition-all text-left group cursor-pointer"
               >
                 <div
                   className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${cat.bg}`}
                 >
                   <cat.icon className={`w-5 h-5 ${cat.color}`} />
                 </div>
-                <h3 className="text-sm font-semibold text-white mb-1 group-hover:text-emerald-400 transition-colors">
+                <h3 className="text-sm font-semibold text-foreground mb-1 group-hover:text-emerald-500 transition-colors">
                   {cat.title}
                 </h3>
-                <p className="text-xs text-zinc-500">{cat.description}</p>
+                <p className="text-xs text-muted-foreground">{cat.description}</p>
                 <div className="flex items-center gap-1 mt-3 text-xs text-emerald-500">
                   {cat.faqs.length} question{cat.faqs.length > 1 ? "s" : ""}
                   <ArrowRight className="w-3 h-3" />
@@ -421,7 +421,7 @@ export default function HelpPage() {
 
             {searchQuery.trim() ? (
               <>
-                <p className="text-sm text-zinc-500 mb-6">
+                <p className="text-sm text-muted-foreground mb-6">
                   {filteredCategories.reduce((a, c) => a + c.faqs.length, 0)}{" "}
                   resultat(s) pour &ldquo;{searchQuery}&rdquo;
                 </p>
@@ -433,7 +433,7 @@ export default function HelpPage() {
                       >
                         <cat.icon className={`w-4 h-4 ${cat.color}`} />
                       </div>
-                      <h2 className="text-lg font-semibold text-white">
+                      <h2 className="text-lg font-semibold text-foreground">
                         {cat.title}
                       </h2>
                     </div>
@@ -442,8 +442,8 @@ export default function HelpPage() {
                 ))}
                 {filteredCategories.length === 0 && (
                   <div className="text-center py-16">
-                    <Search className="w-10 h-10 text-zinc-700 mx-auto mb-4" />
-                    <p className="text-zinc-500">
+                    <Search className="w-10 h-10 text-muted-foreground/50 mx-auto mb-4" />
+                    <p className="text-muted-foreground">
                       Aucun resultat trouve. Essayez avec d&apos;autres mots-cles.
                     </p>
                   </div>
@@ -461,10 +461,10 @@ export default function HelpPage() {
                       />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-white">
+                      <h2 className="text-xl font-bold text-foreground">
                         {activeCategory.title}
                       </h2>
-                      <p className="text-xs text-zinc-500">
+                      <p className="text-xs text-muted-foreground">
                         {activeCategory.description}
                       </p>
                     </div>
@@ -478,12 +478,12 @@ export default function HelpPage() {
 
         {/* Contact section */}
         <div className="mt-16 text-center">
-          <div className="inline-flex flex-col items-center p-8 rounded-2xl border border-zinc-800/50 bg-zinc-900/30">
+          <div className="inline-flex flex-col items-center p-8 rounded-2xl border border-border bg-card">
             <Mail className="w-8 h-8 text-emerald-400 mb-3" />
-            <h3 className="text-lg font-semibold text-white mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               Vous ne trouvez pas la reponse ?
             </h3>
-            <p className="text-sm text-zinc-400 mb-4 max-w-md">
+            <p className="text-sm text-muted-foreground mb-4 max-w-md">
               Notre equipe est la pour vous aider. Contactez-nous et nous vous
               repondrons dans les plus brefs delais.
             </p>
@@ -498,7 +498,7 @@ export default function HelpPage() {
         </div>
 
         {/* Footer */}
-        <div className="mt-12 pt-8 border-t border-zinc-800/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-600">
+        <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} Nkap Control. Tous droits reserves.</p>
           <div className="flex items-center gap-4">
             <Link href="/terms" className="text-emerald-400 hover:text-emerald-300">

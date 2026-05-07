@@ -189,7 +189,7 @@ export function InvoiceForm() {
         <CardContent>
           <div className="space-y-3">
             {/* Header row */}
-            <div className="grid grid-cols-12 gap-2 text-xs font-medium text-gray-500 px-1">
+            <div className="grid grid-cols-12 gap-2 text-xs font-medium text-muted-foreground px-1">
               <div className="col-span-5">Description</div>
               <div className="col-span-2">Quantité</div>
               <div className="col-span-3">Prix unitaire</div>
@@ -256,7 +256,7 @@ export function InvoiceForm() {
           {/* Totals */}
           <div className="flex flex-col items-end gap-2 max-w-xs ml-auto">
             <div className="flex justify-between w-full text-sm">
-              <span className="text-gray-500">Sous-total HT</span>
+              <span className="text-muted-foreground">Sous-total HT</span>
               <span className="font-medium">
                 {formatCurrency(subtotal, currency)}
               </span>

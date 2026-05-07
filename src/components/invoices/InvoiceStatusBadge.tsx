@@ -2,39 +2,33 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { InvoiceStatus } from "@/types";
 
-const statusConfig: Record<
-  InvoiceStatus,
-  { label: string; className: string }
-> = {
+const statusConfig: Record<InvoiceStatus, { label: string; className: string }> = {
   DRAFT: {
     label: "Brouillon",
-    className: "bg-gray-100 text-gray-700 border-gray-200",
+    className: "bg-muted text-muted-foreground border-border",
   },
   SENT: {
     label: "Envoyée",
-    className: "bg-blue-100 text-blue-700 border-blue-200",
+    className: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
   },
   PAID: {
     label: "Payée",
-    className: "bg-green-100 text-green-700 border-green-200",
+    className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
   },
   OVERDUE: {
     label: "En retard",
-    className: "bg-red-100 text-red-700 border-red-200",
+    className: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
   },
   CANCELLED: {
     label: "Annulée",
-    className: "bg-gray-100 text-gray-400 border-gray-200 line-through",
+    className: "bg-muted text-muted-foreground border-border line-through",
   },
 };
 
 export function InvoiceStatusBadge({ status }: { status: InvoiceStatus }) {
   const config = statusConfig[status] || statusConfig.DRAFT;
   return (
-    <Badge
-      variant="outline"
-      className={cn("font-medium text-xs", config.className)}
-    >
+    <Badge variant="outline" className={cn("font-medium text-xs", config.className)}>
       {config.label}
     </Badge>
   );
