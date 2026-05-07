@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { Bell, ChevronDown, LogOut, Settings, FileText, TrendingDown, AlertTriangle, CheckCircle2, X } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -212,7 +213,11 @@ export function Header({ title, subtitle }: HeaderProps) {
         <h1 className="text-base sm:text-lg lg:text-xl font-semibold text-foreground tracking-tight truncate">{title}</h1>
         {subtitle && <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>}
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Theme toggle */}
+        <div className="hidden sm:block">
+          <ThemeToggle />
+        </div>
         {/* Notifications */}
         <div className="relative">
           <Button
