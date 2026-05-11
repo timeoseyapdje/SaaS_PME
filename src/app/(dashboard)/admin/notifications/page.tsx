@@ -125,9 +125,9 @@ export default function AdminNotificationsPage() {
 
       <div className="space-y-6">
         {/* Destinataires */}
-        <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <Users className="w-4 h-4 text-zinc-500" />
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Users className="w-4 h-4 text-muted-foreground" />
             Destinataires
           </h2>
 
@@ -137,7 +137,7 @@ export default function AdminNotificationsPage() {
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 targetType === "all"
                   ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
-                  : "bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-white"
+                  : "bg-muted text-muted-foreground border border-border hover:text-foreground"
               }`}
             >
               <Users className="w-4 h-4" />
@@ -148,7 +148,7 @@ export default function AdminNotificationsPage() {
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 targetType === "specific"
                   ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
-                  : "bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-white"
+                  : "bg-muted text-muted-foreground border border-border hover:text-foreground"
               }`}
             >
               <User className="w-4 h-4" />
@@ -164,13 +164,13 @@ export default function AdminNotificationsPage() {
           {targetType === "specific" && (
             <div className="space-y-3">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Rechercher un utilisateur..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500/50"
+                  className="w-full bg-muted border border-border rounded-lg pl-10 pr-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50"
                 />
               </div>
               <div className="max-h-48 overflow-y-auto space-y-1 scrollbar-thin">
@@ -181,14 +181,14 @@ export default function AdminNotificationsPage() {
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all ${
                       selectedUserIds.includes(user.id)
                         ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                        : "text-zinc-400 hover:bg-zinc-800/50 border border-transparent"
+                        : "text-muted-foreground hover:bg-muted border border-transparent"
                     }`}
                   >
                     <div className="text-left">
                       <p className="font-medium">{user.name || "Sans nom"}</p>
-                      <p className="text-xs text-zinc-500">{user.email}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
                     </div>
-                    <span className="text-xs text-zinc-600">
+                    <span className="text-xs text-muted-foreground">
                       {user.company?.name || "—"}
                     </span>
                   </button>
@@ -199,15 +199,15 @@ export default function AdminNotificationsPage() {
         </div>
 
         {/* Contenu du message */}
-        <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <Mail className="w-4 h-4 text-zinc-500" />
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Mail className="w-4 h-4 text-muted-foreground" />
             Message
           </h2>
 
           <div className="space-y-4">
             <div>
-              <label className="text-xs text-zinc-500 font-medium uppercase mb-1.5 block">
+              <label className="text-xs text-muted-foreground font-medium uppercase mb-1.5 block">
                 Sujet *
               </label>
               <input
@@ -215,11 +215,11 @@ export default function AdminNotificationsPage() {
                 placeholder="Ex: Mise à jour importante, Nouvelle fonctionnalité..."
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500/50"
+                className="w-full bg-muted border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50"
               />
             </div>
             <div>
-              <label className="text-xs text-zinc-500 font-medium uppercase mb-1.5 block">
+              <label className="text-xs text-muted-foreground font-medium uppercase mb-1.5 block">
                 Message *
               </label>
               <textarea
@@ -227,7 +227,7 @@ export default function AdminNotificationsPage() {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={6}
-                className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-lg px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500/50 resize-none"
+                className="w-full bg-muted border border-border rounded-lg px-4 py-3 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 resize-none"
               />
             </div>
           </div>
@@ -235,7 +235,7 @@ export default function AdminNotificationsPage() {
 
         {/* Bouton envoyer */}
         <div className="flex items-center justify-between">
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-muted-foreground">
             {targetType === "all"
               ? `L'email sera envoyé à ${users.length} utilisateur(s)`
               : `${selectedUserIds.length} destinataire(s) sélectionné(s)`}

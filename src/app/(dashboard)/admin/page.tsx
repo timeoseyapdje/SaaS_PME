@@ -103,7 +103,7 @@ export default function AdminDashboardPage() {
   };
 
   const planLabels: Record<string, { label: string; color: string }> = {
-    STARTER: { label: "Starter", color: "text-zinc-400" },
+    STARTER: { label: "Starter", color: "text-muted-foreground" },
     PRO: { label: "Pro", color: "text-emerald-400" },
     MAX: { label: "Max", color: "text-amber-400" },
   };
@@ -125,7 +125,7 @@ export default function AdminDashboardPage() {
     PENDING: { label: "En attente", color: "text-amber-400 bg-amber-500/10" },
     COMPLETED: { label: "Payé", color: "text-emerald-400 bg-emerald-500/10" },
     FAILED: { label: "Échoué", color: "text-rose-400 bg-rose-500/10" },
-    REFUNDED: { label: "Remboursé", color: "text-zinc-400 bg-zinc-500/10" },
+    REFUNDED: { label: "Remboursé", color: "text-muted-foreground bg-muted" },
   };
 
   const kpis = [
@@ -198,10 +198,10 @@ export default function AdminDashboardPage() {
                   <kpi.icon className={`w-5 h-5 ${kpi.color}`} />
                 </div>
                 <div>
-                  <p className="text-xs text-zinc-500 font-medium">{kpi.label}</p>
+                  <p className="text-xs text-muted-foreground font-medium">{kpi.label}</p>
                   <p className={`text-xl font-bold ${kpi.color}`}>{kpi.value}</p>
                   {"subtitle" in kpi && kpi.subtitle && (
-                    <p className="text-[10px] text-zinc-600">{kpi.subtitle}</p>
+                    <p className="text-[10px] text-muted-foreground">{kpi.subtitle}</p>
                   )}
                 </div>
               </div>
@@ -228,7 +228,7 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Répartition par plan */}
         <div className="bg-card border border-border rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-white mb-4">Répartition par plan</h2>
+          <h2 className="text-sm font-semibold text-foreground mb-4">Répartition par plan</h2>
           {stats?.subscriptionsByPlan && stats.subscriptionsByPlan.length > 0 ? (
             <div className="space-y-3">
               {stats.subscriptionsByPlan.map((s) => {
@@ -239,11 +239,11 @@ export default function AdminDashboardPage() {
                   <div key={s.plan} className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <PlanIcon className="w-3.5 h-3.5 text-zinc-400" />
-                        <span className="text-sm text-zinc-300">{s.plan}</span>
+                        <PlanIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span className="text-sm text-foreground">{s.plan}</span>
                       </div>
-                      <span className="text-sm font-bold text-white">
-                        {s.count} <span className="text-zinc-500 font-normal text-xs">({percent}%)</span>
+                      <span className="text-sm font-bold text-foreground">
+                        {s.count} <span className="text-muted-foreground font-normal text-xs">({percent}%)</span>
                       </span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-1.5">
@@ -257,25 +257,25 @@ export default function AdminDashboardPage() {
               })}
             </div>
           ) : (
-            <p className="text-sm text-zinc-600">Aucun abonnement actif</p>
+            <p className="text-sm text-muted-foreground">Aucun abonnement actif</p>
           )}
 
-          <div className="mt-5 pt-4 border-t border-zinc-800/50 space-y-2">
+          <div className="mt-5 pt-4 border-t border-border space-y-2">
             <div className="flex justify-between text-xs">
-              <span className="text-zinc-500">Paiements reçus</span>
-              <span className="text-zinc-300 font-medium">{stats?.totalPayments || 0}</span>
+              <span className="text-muted-foreground">Paiements reçus</span>
+              <span className="text-foreground font-medium">{stats?.totalPayments || 0}</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-zinc-500">Paiements en attente</span>
+              <span className="text-muted-foreground">Paiements en attente</span>
               <span className="text-amber-400 font-medium">{stats?.pendingPayments || 0}</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-zinc-500">Codes promo utilisés</span>
-              <span className="text-zinc-300 font-medium">{stats?.totalPromoUsages || 0}</span>
+              <span className="text-muted-foreground">Codes promo utilisés</span>
+              <span className="text-foreground font-medium">{stats?.totalPromoUsages || 0}</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-zinc-500">Codes promo actifs</span>
-              <span className="text-zinc-300 font-medium">
+              <span className="text-muted-foreground">Codes promo actifs</span>
+              <span className="text-foreground font-medium">
                 {stats?.activePromoCodes || 0} / {stats?.totalPromoCodes || 0}
               </span>
             </div>
@@ -286,8 +286,8 @@ export default function AdminDashboardPage() {
         <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-zinc-500" />
-              <h2 className="text-sm font-semibold text-white">Derniers paiements</h2>
+              <CreditCard className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold text-foreground">Derniers paiements</h2>
             </div>
             {(stats?.pendingPayments || 0) > 0 && (
               <div className="flex items-center gap-1 text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded-full">
@@ -301,29 +301,29 @@ export default function AdminDashboardPage() {
               {stats.recentPayments.map((payment) => {
                 const statusInfo = paymentStatusLabels[payment.status] || {
                   label: payment.status,
-                  color: "text-zinc-400",
+                  color: "text-muted-foreground",
                 };
                 return (
                   <div
                     key={payment.id}
-                    className="flex items-center justify-between py-2.5 border-b border-zinc-800/30 last:border-0"
+                    className="flex items-center justify-between py-2.5 border-b border-border last:border-0"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
-                        <CreditCard className="w-4 h-4 text-zinc-500" />
+                        <CreditCard className="w-4 h-4 text-muted-foreground" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-zinc-200">
+                        <p className="text-sm font-medium text-foreground">
                           {payment.companyName}
                         </p>
-                        <p className="text-xs text-zinc-500">
+                        <p className="text-xs text-muted-foreground">
                           {paymentMethodLabels[payment.paymentMethod] || payment.paymentMethod} · Plan{" "}
                           {payment.plan}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-white">
+                      <p className="text-sm font-bold text-foreground">
                         {payment.amount.toLocaleString()} {payment.currency}
                       </p>
                       <div className="flex items-center gap-2 justify-end">
@@ -332,7 +332,7 @@ export default function AdminDashboardPage() {
                         >
                           {statusInfo.label}
                         </span>
-                        <span className="text-[10px] text-zinc-600">
+                        <span className="text-[10px] text-muted-foreground">
                           {new Date(payment.createdAt).toLocaleDateString("fr-FR")}
                         </span>
                       </div>
@@ -342,7 +342,7 @@ export default function AdminDashboardPage() {
               })}
             </div>
           ) : (
-            <p className="text-sm text-zinc-600">Aucun paiement enregistré</p>
+            <p className="text-sm text-muted-foreground">Aucun paiement enregistré</p>
           )}
         </div>
       </div>
@@ -351,7 +351,7 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Quick links */}
         <div className="bg-card border border-border rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-white mb-4">Accès rapide</h2>
+          <h2 className="text-sm font-semibold text-foreground mb-4">Accès rapide</h2>
           <div className="space-y-2">
             {[
               { label: "Gérer les utilisateurs", href: "/admin/users", icon: Users, desc: `${stats?.totalUsers || 0} utilisateurs` },
@@ -366,7 +366,7 @@ export default function AdminDashboardPage() {
                 <link.icon className="w-4 h-4" />
                 <div>
                   <p className="font-medium">{link.label}</p>
-                  <p className="text-[10px] text-zinc-600">{link.desc}</p>
+                  <p className="text-[10px] text-muted-foreground">{link.desc}</p>
                 </div>
               </Link>
             ))}
@@ -377,8 +377,8 @@ export default function AdminDashboardPage() {
         <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-zinc-500" />
-              <h2 className="text-sm font-semibold text-white">Derniers inscrits</h2>
+              <Clock className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold text-foreground">Derniers inscrits</h2>
             </div>
             {(stats?.newUsersThisMonth || 0) > 0 && (
               <span className="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-full">
@@ -394,17 +394,17 @@ export default function AdminDashboardPage() {
                 return (
                   <div
                     key={user.id}
-                    className="flex items-center justify-between py-2.5 border-b border-zinc-800/30 last:border-0"
+                    className="flex items-center justify-between py-2.5 border-b border-border last:border-0"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                        <Users className="w-4 h-4 text-zinc-500" />
+                        <Users className="w-4 h-4 text-muted-foreground" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-zinc-200">
+                        <p className="text-sm font-medium text-foreground">
                           {user.name || "Sans nom"}
                         </p>
-                        <p className="text-xs text-zinc-500">{user.email}</p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -416,12 +416,12 @@ export default function AdminDashboardPage() {
                       </div>
                       <div className="flex items-center gap-1 justify-end mt-0.5">
                         {user.companyCity && (
-                          <span className="text-[10px] text-zinc-600 flex items-center gap-0.5">
+                          <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
                             <MapPin className="w-2.5 h-2.5" />
                             {user.companyCity}
                           </span>
                         )}
-                        <span className="text-[10px] text-zinc-600 ml-1">
+                        <span className="text-[10px] text-muted-foreground ml-1">
                           {new Date(user.createdAt).toLocaleDateString("fr-FR")}
                         </span>
                       </div>
@@ -431,7 +431,7 @@ export default function AdminDashboardPage() {
               })}
             </div>
           ) : (
-            <p className="text-sm text-zinc-600">Aucun utilisateur inscrit</p>
+            <p className="text-sm text-muted-foreground">Aucun utilisateur inscrit</p>
           )}
         </div>
       </div>

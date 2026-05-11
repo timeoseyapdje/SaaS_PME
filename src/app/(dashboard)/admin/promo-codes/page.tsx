@@ -154,7 +154,7 @@ export default function PromoCodesPage() {
   );
 
   const getStatus = (promo: PromoCode) => {
-    if (!promo.isActive) return { label: "Désactivé", color: "bg-zinc-500/10 text-zinc-400" };
+    if (!promo.isActive) return { label: "Désactivé", color: "bg-muted text-muted-foreground" };
     if (promo.endDate && new Date(promo.endDate) < new Date())
       return { label: "Expiré", color: "bg-red-500/10 text-red-400" };
     if (promo.maxUses && promo.currentUses >= promo.maxUses)
@@ -185,8 +185,8 @@ export default function PromoCodesPage() {
           { label: "Utilisations", value: promoCodes.reduce((sum, p) => sum + p.currentUses, 0), color: "text-violet-400" },
           { label: "Expirés", value: promoCodes.filter((p) => p.endDate && new Date(p.endDate) < new Date()).length, color: "text-amber-400" },
         ].map((stat) => (
-          <div key={stat.label} className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4">
-            <p className="text-zinc-500 text-xs font-medium">{stat.label}</p>
+          <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
+            <p className="text-muted-foreground text-xs font-medium">{stat.label}</p>
             <p className={cn("text-2xl font-bold mt-1", stat.color)}>{stat.value}</p>
           </div>
         ))}
@@ -194,13 +194,13 @@ export default function PromoCodesPage() {
 
       {/* Search */}
       <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <input
           type="text"
           placeholder="Rechercher un code promo..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50"
+          className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50"
         />
       </div>
 
@@ -219,11 +219,11 @@ export default function PromoCodesPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+              className="bg-card border border-border rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold text-white">Nouveau code promo</h2>
-                <button onClick={() => setShowForm(false)} className="text-zinc-500 hover:text-zinc-300">
+                <h2 className="text-lg font-bold text-foreground">Nouveau code promo</h2>
+                <button onClick={() => setShowForm(false)} className="text-muted-foreground hover:text-foreground">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -231,32 +231,32 @@ export default function PromoCodesPage() {
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Code */}
                 <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">Code</label>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Code</label>
                   <input
                     type="text"
                     required
                     value={form.code}
                     onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
                     placeholder="ex: PROMO2026"
-                    className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                    className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                   />
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">Description</label>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Description</label>
                   <input
                     type="text"
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
                     placeholder="Description optionnelle"
-                    className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                    className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                   />
                 </div>
 
                 {/* Type de réduction */}
                 <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">Type de réduction</label>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Type de réduction</label>
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       type="button"
@@ -265,7 +265,7 @@ export default function PromoCodesPage() {
                         "flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-all",
                         form.discountType === "PERCENTAGE"
                           ? "bg-indigo-500/10 border-indigo-500/50 text-indigo-400"
-                          : "bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:border-zinc-600"
+                          : "bg-muted border-border text-muted-foreground hover:border-border"
                       )}
                     >
                       <Percent className="w-4 h-4" />
@@ -278,7 +278,7 @@ export default function PromoCodesPage() {
                         "flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-all",
                         form.discountType === "FIXED_AMOUNT"
                           ? "bg-indigo-500/10 border-indigo-500/50 text-indigo-400"
-                          : "bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:border-zinc-600"
+                          : "bg-muted border-border text-muted-foreground hover:border-border"
                       )}
                     >
                       <Banknote className="w-4 h-4" />
@@ -289,7 +289,7 @@ export default function PromoCodesPage() {
 
                 {/* Valeur */}
                 <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
                     Valeur {form.discountType === "PERCENTAGE" ? "(%)" : "(XAF)"}
                   </label>
                   <input
@@ -299,13 +299,13 @@ export default function PromoCodesPage() {
                     max={form.discountType === "PERCENTAGE" ? 100 : undefined}
                     value={form.discountValue}
                     onChange={(e) => setForm({ ...form, discountValue: Number(e.target.value) })}
-                    className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                    className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                   />
                 </div>
 
                 {/* Nombre d'utilisations max */}
                 <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
                     Nombre d&apos;utilisations max
                   </label>
                   <div className="flex items-center gap-3">
@@ -317,7 +317,7 @@ export default function PromoCodesPage() {
                         setForm({ ...form, maxUses: e.target.value ? Number(e.target.value) : null })
                       }
                       placeholder="Illimité"
-                      className="flex-1 bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                      className="flex-1 bg-muted border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                     />
                     <button
                       type="button"
@@ -326,7 +326,7 @@ export default function PromoCodesPage() {
                         "px-3 py-2.5 rounded-xl border text-sm transition-all",
                         form.maxUses === null
                           ? "bg-amber-500/10 border-amber-500/50 text-amber-400"
-                          : "bg-zinc-800/50 border-zinc-700 text-zinc-500 hover:border-zinc-600"
+                          : "bg-muted border-border text-muted-foreground hover:border-border"
                       )}
                       title="Illimité"
                     >
@@ -337,22 +337,22 @@ export default function PromoCodesPage() {
 
                 {/* Période */}
                 <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">Date de début</label>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Date de début</label>
                   <input
                     type="date"
                     required
                     value={form.startDate}
                     onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                    className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                    className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                   />
                 </div>
 
                 {/* Durée de l'avantage */}
                 <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
                     Durée de l&apos;avantage
                   </label>
-                  <p className="text-xs text-zinc-500 mb-3">
+                  <p className="text-xs text-muted-foreground mb-3">
                     Nombre de mois de réduction offerts à l&apos;utilisateur, peu importe quand il saisit le code.
                   </p>
                   <div className="grid grid-cols-5 gap-2">
@@ -365,7 +365,7 @@ export default function PromoCodesPage() {
                           "px-3 py-2.5 rounded-xl border text-xs font-medium transition-all text-center",
                           form.benefitMonths === opt.value
                             ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400"
-                            : "bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:border-zinc-600"
+                            : "bg-muted border-border text-muted-foreground hover:border-border"
                         )}
                       >
                         {opt.label}
@@ -376,10 +376,10 @@ export default function PromoCodesPage() {
 
                 {/* Période de saisie */}
                 <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-1.5">
+                  <label className="block text-sm font-medium text-foreground mb-1.5">
                     Période de saisie du code
                   </label>
-                  <p className="text-xs text-zinc-500 mb-3">
+                  <p className="text-xs text-muted-foreground mb-3">
                     Fenêtre pendant laquelle le code peut être utilisé. Après la date limite, le code expire.
                   </p>
                   <div className="grid grid-cols-2 gap-3">
@@ -390,7 +390,7 @@ export default function PromoCodesPage() {
                         "flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-all",
                         form.isLifetime
                           ? "bg-amber-500/10 border-amber-500/50 text-amber-400"
-                          : "bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:border-zinc-600"
+                          : "bg-muted border-border text-muted-foreground hover:border-border"
                       )}
                     >
                       <Infinity className="w-4 h-4" />
@@ -403,7 +403,7 @@ export default function PromoCodesPage() {
                         "flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-all",
                         !form.isLifetime
                           ? "bg-indigo-500/10 border-indigo-500/50 text-indigo-400"
-                          : "bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:border-zinc-600"
+                          : "bg-muted border-border text-muted-foreground hover:border-border"
                       )}
                     >
                       <Calendar className="w-4 h-4" />
@@ -418,7 +418,7 @@ export default function PromoCodesPage() {
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                   >
-                    <label className="block text-sm font-medium text-zinc-300 mb-1.5">
+                    <label className="block text-sm font-medium text-foreground mb-1.5">
                       Date limite de saisie
                     </label>
                     <input
@@ -427,7 +427,7 @@ export default function PromoCodesPage() {
                       value={form.endDate}
                       onChange={(e) => setForm({ ...form, endDate: e.target.value })}
                       min={form.startDate}
-                      className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                      className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                     />
                   </motion.div>
                 )}
@@ -453,9 +453,9 @@ export default function PromoCodesPage() {
         </div>
       ) : filteredCodes.length === 0 ? (
         <div className="text-center py-20">
-          <Ticket className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
-          <p className="text-zinc-400 font-medium">Aucun code promo</p>
-          <p className="text-zinc-600 text-sm mt-1">
+          <Ticket className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground font-medium">Aucun code promo</p>
+          <p className="text-muted-foreground text-sm mt-1">
             Créez votre premier code promo pour commencer
           </p>
         </div>
@@ -468,7 +468,7 @@ export default function PromoCodesPage() {
                 key={promo.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4 hover:border-zinc-700/50 transition-colors"
+                className="bg-card border border-border rounded-xl p-4 hover:border-border transition-colors"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -477,12 +477,12 @@ export default function PromoCodesPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <code className="text-white font-bold text-sm tracking-wider">
+                        <code className="text-foreground font-bold text-sm tracking-wider">
                           {promo.code}
                         </code>
                         <button
                           onClick={() => copyCode(promo.code)}
-                          className="text-zinc-600 hover:text-zinc-300 transition-colors"
+                          className="text-muted-foreground hover:text-foreground transition-colors"
                         >
                           {copiedCode === promo.code ? (
                             <Check className="w-3.5 h-3.5 text-emerald-400" />
@@ -494,9 +494,9 @@ export default function PromoCodesPage() {
                           {status.label}
                         </span>
                       </div>
-                      <p className="text-zinc-500 text-xs mt-1">
+                      <p className="text-muted-foreground text-xs mt-1">
                         {promo.description || "Pas de description"} &middot;{" "}
-                        <span className="text-zinc-400">
+                        <span className="text-muted-foreground">
                           {promo.discountType === "PERCENTAGE"
                             ? `${promo.discountValue}%`
                             : `${promo.discountValue.toLocaleString()} XAF`}
@@ -511,21 +511,21 @@ export default function PromoCodesPage() {
 
                   <div className="flex items-center gap-6">
                     <div className="text-right">
-                      <p className="text-xs text-zinc-500">Utilisations</p>
-                      <p className="text-sm font-medium text-zinc-300">
+                      <p className="text-xs text-muted-foreground">Utilisations</p>
+                      <p className="text-sm font-medium text-foreground">
                         {promo.currentUses}
                         {promo.maxUses ? ` / ${promo.maxUses}` : " / ∞"}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-zinc-500">Validité</p>
+                      <p className="text-xs text-muted-foreground">Validité</p>
                       {promo.endDate ? (() => {
                         const now = new Date();
                         const end = new Date(promo.endDate);
                         const daysLeft = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
                         return (
                           <>
-                            <p className="text-sm font-medium text-zinc-300">
+                            <p className="text-sm font-medium text-foreground">
                               {new Date(promo.startDate).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} → {end.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
                             </p>
                             <p className={cn("text-[10px] font-medium", daysLeft > 7 ? "text-emerald-400" : daysLeft > 0 ? "text-amber-400" : "text-red-400")}>
@@ -534,13 +534,13 @@ export default function PromoCodesPage() {
                           </>
                         );
                       })() : (
-                        <p className="text-sm font-medium text-zinc-500">Sans limite</p>
+                        <p className="text-sm font-medium text-muted-foreground">Sans limite</p>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => toggleActive(promo.id, promo.isActive)}
-                        className="text-zinc-500 hover:text-zinc-300 transition-colors"
+                        className="text-muted-foreground hover:text-foreground transition-colors"
                         title={promo.isActive ? "Désactiver" : "Activer"}
                       >
                         {promo.isActive ? (
@@ -551,7 +551,7 @@ export default function PromoCodesPage() {
                       </button>
                       <button
                         onClick={() => deletePromo(promo.id)}
-                        className="text-zinc-600 hover:text-red-400 transition-colors"
+                        className="text-muted-foreground hover:text-red-400 transition-colors"
                         title="Supprimer"
                       >
                         <Trash2 className="w-4 h-4" />

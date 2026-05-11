@@ -53,7 +53,7 @@ export default function AdminCompaniesPage() {
   );
 
   const planBadge: Record<string, { label: string; color: string; icon: typeof Zap }> = {
-    STARTER: { label: "Starter", color: "text-zinc-400 bg-zinc-500/10 border-zinc-500/20", icon: Zap },
+    STARTER: { label: "Starter", color: "text-muted-foreground bg-muted border-border", icon: Zap },
     PRO: { label: "Pro", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20", icon: Crown },
     MAX: { label: "Max", color: "text-amber-400 bg-amber-500/10 border-amber-500/20", icon: Rocket },
   };
@@ -71,14 +71,14 @@ export default function AdminCompaniesPage() {
       <Header title="Entreprises" subtitle={`${companies.length} entreprise${companies.length > 1 ? "s" : ""} enregistrée${companies.length > 1 ? "s" : ""}`} />
       <div className="p-4 lg:p-6 max-w-7xl mx-auto w-full">
       <div className="flex items-center justify-end mb-6">
-        <div className="flex items-center gap-2 bg-zinc-900/50 border border-zinc-800/50 rounded-lg px-3 py-2">
-          <Search className="w-4 h-4 text-zinc-500" />
+        <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2">
+          <Search className="w-4 h-4 text-muted-foreground" />
           <input
             type="text"
             placeholder="Rechercher..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-sm text-zinc-200 placeholder-zinc-600 outline-none w-48"
+            className="bg-transparent text-sm text-foreground placeholder-muted-foreground outline-none w-48"
           />
         </div>
       </div>
@@ -94,7 +94,7 @@ export default function AdminCompaniesPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.03 }}
-              className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-5 hover:border-zinc-700/50 transition-colors"
+              className="bg-card border border-border rounded-xl p-5 hover:border-border transition-colors"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
@@ -102,9 +102,9 @@ export default function AdminCompaniesPage() {
                     <Building2 className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-white">{company.name}</h3>
+                    <h3 className="text-sm font-semibold text-foreground">{company.name}</h3>
                     {company.legalName && company.legalName !== company.name && (
-                      <p className="text-[10px] text-zinc-600">{company.legalName}</p>
+                      <p className="text-[10px] text-muted-foreground">{company.legalName}</p>
                     )}
                   </div>
                 </div>
@@ -117,44 +117,44 @@ export default function AdminCompaniesPage() {
               {/* Infos entreprise */}
               <div className="space-y-1.5 mb-3">
                 {company.city && (
-                  <p className="text-xs text-zinc-400 flex items-center gap-1.5">
-                    <MapPin className="w-3 h-3 text-zinc-600" />
+                  <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <MapPin className="w-3 h-3 text-muted-foreground" />
                     {[company.city, company.country].filter(Boolean).join(", ")}
                   </p>
                 )}
                 {company.email && (
-                  <p className="text-xs text-zinc-400 flex items-center gap-1.5">
-                    <Mail className="w-3 h-3 text-zinc-600" />
+                  <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <Mail className="w-3 h-3 text-muted-foreground" />
                     {company.email}
                   </p>
                 )}
                 {company.phone && (
-                  <p className="text-xs text-zinc-400 flex items-center gap-1.5">
-                    <Phone className="w-3 h-3 text-zinc-600" />
+                  <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <Phone className="w-3 h-3 text-muted-foreground" />
                     {company.phone}
                   </p>
                 )}
                 {company.registrationNo && (
-                  <p className="text-xs text-zinc-400 flex items-center gap-1.5">
-                    <FileText className="w-3 h-3 text-zinc-600" />
+                  <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <FileText className="w-3 h-3 text-muted-foreground" />
                     RCCM: {company.registrationNo}
                   </p>
                 )}
                 {company.taxId && (
-                  <p className="text-xs text-zinc-400 flex items-center gap-1.5">
-                    <FileText className="w-3 h-3 text-zinc-600" />
+                  <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <FileText className="w-3 h-3 text-muted-foreground" />
                     NIU: {company.taxId}
                   </p>
                 )}
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-between pt-3 border-t border-zinc-800/30">
-                <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+              <div className="flex items-center justify-between pt-3 border-t border-border">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Users className="w-3 h-3" />
                   <span>{company._count.users} utilisateur{company._count.users > 1 ? "s" : ""}</span>
                 </div>
-                <p className="text-[10px] text-zinc-600">
+                <p className="text-[10px] text-muted-foreground">
                   Inscrite le {new Date(company.createdAt).toLocaleDateString("fr-FR")}
                 </p>
               </div>
@@ -164,7 +164,7 @@ export default function AdminCompaniesPage() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center py-12 text-sm text-zinc-600">
+        <div className="text-center py-12 text-sm text-muted-foreground">
           Aucune entreprise trouvée
         </div>
       )}
