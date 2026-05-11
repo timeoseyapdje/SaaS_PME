@@ -34,27 +34,27 @@ const steps = [
       "Votre tableau de bord est immédiatement opérationnel",
     ],
     screen: (
-      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-5 h-5 rounded bg-white/10" />
-          <div className="h-2 w-28 bg-zinc-700 rounded" />
+          <div className="h-2 w-28 bg-muted-foreground/20 rounded" />
         </div>
         <div className="flex gap-2 flex-1">
           <div className="flex flex-col gap-1.5 w-24 flex-shrink-0">
             <div className="h-6 bg-emerald-500/20 border border-emerald-500/30 rounded" />
-            <div className="h-6 bg-zinc-800/60 rounded w-4/5" />
-            <div className="h-6 bg-zinc-800/60 rounded" />
+            <div className="h-6 bg-muted rounded w-4/5" />
+            <div className="h-6 bg-muted rounded" />
           </div>
           <div className="flex-1 space-y-2">
-            <div className="h-8 bg-zinc-900 border border-zinc-700/40 rounded-lg p-2 flex items-center gap-2">
-              <div className="h-2 w-16 bg-zinc-600 rounded" />
+            <div className="h-8 bg-card border border-border rounded-lg p-2 flex items-center gap-2">
+              <div className="h-2 w-16 bg-muted-foreground/30 rounded" />
               <div className="ml-auto h-5 w-14 bg-emerald-600/40 rounded" />
             </div>
             <div className="grid grid-cols-2 gap-2">
               {["RCCM", "NIU", "Ville", "Tél"].map((l) => (
-                <div key={l} className="h-9 bg-zinc-900 border border-zinc-700/30 rounded-lg p-2">
-                  <div className="h-1.5 w-8 bg-zinc-600 rounded mb-1.5" />
-                  <div className="h-2 w-12 bg-zinc-700 rounded" />
+                <div key={l} className="h-9 bg-card border border-border rounded-lg p-2">
+                  <div className="h-1.5 w-8 bg-muted-foreground/30 rounded mb-1.5" />
+                  <div className="h-2 w-12 bg-muted-foreground/20 rounded" />
                 </div>
               ))}
             </div>
@@ -81,15 +81,15 @@ const steps = [
       "Lancez une facture ou une commande depuis la fiche client",
     ],
     screen: (
-      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
         <div className="flex items-center justify-between mb-1">
           <div className="h-2.5 w-16 bg-white/70 rounded font-bold" />
           <div className="h-6 w-20 bg-emerald-600/40 border border-emerald-500/30 rounded-lg" />
         </div>
         <div className="flex gap-2 mb-1">
           {["Tous", "Entreprise", "Particulier"].map((t, i) => (
-            <div key={t} className={`h-5 px-2 rounded-full text-[8px] flex items-center ${i === 0 ? "bg-emerald-600/40 border border-emerald-500/30" : "bg-zinc-800 border border-zinc-700/30"}`}>
-              <div className="h-1 w-5 bg-zinc-500 rounded" />
+            <div key={t} className={`h-5 px-2 rounded-full text-[8px] flex items-center ${i === 0 ? "bg-emerald-600/40 border border-emerald-500/30" : "bg-muted border border-border"}`}>
+              <div className="h-1 w-5 bg-muted-foreground/30 rounded" />
             </div>
           ))}
         </div>
@@ -99,11 +99,11 @@ const steps = [
           { color: "bg-amber-500/60", w: "w-24" },
           { color: "bg-purple-500/60", w: "w-14" },
         ].map((row, i) => (
-          <div key={i} className="flex items-center gap-2 h-8 bg-zinc-900/70 border border-zinc-700/30 rounded-lg px-2">
-            <div className="w-5 h-5 rounded-full bg-zinc-700 flex-shrink-0" />
+          <div key={i} className="flex items-center gap-2 h-8 bg-card/70 border border-border rounded-lg px-2">
+            <div className="w-5 h-5 rounded-full bg-muted-foreground/20 flex-shrink-0" />
             <div className="flex-1">
-              <div className="h-1.5 w-16 bg-zinc-600 rounded mb-1" />
-              <div className="h-1 w-10 bg-zinc-700 rounded" />
+              <div className="h-1.5 w-16 bg-muted-foreground/30 rounded mb-1" />
+              <div className="h-1 w-10 bg-muted-foreground/20 rounded" />
             </div>
             <div className={`h-4 ${row.w} ${row.color} rounded-full`} />
           </div>
@@ -126,7 +126,7 @@ const steps = [
       "L'inventaire se met à jour automatiquement à chaque commande",
     ],
     screen: (
-      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
         <div className="flex items-center justify-between mb-1">
           <div className="h-2.5 w-20 bg-white/70 rounded" />
           <div className="h-6 w-20 bg-amber-600/40 border border-amber-500/30 rounded-lg" />
@@ -138,11 +138,11 @@ const steps = [
             { name: "Produit C", stock: 12, color: "bg-amber-500/60" },
             { name: "Produit D", stock: 28, color: "bg-emerald-500/60" },
           ].map((p, i) => (
-            <div key={i} className="bg-zinc-900/70 border border-zinc-700/30 rounded-xl p-2 flex flex-col gap-1">
-              <div className="h-8 bg-zinc-800/60 rounded-lg mb-1" />
-              <div className="h-1.5 w-14 bg-zinc-600 rounded" />
+            <div key={i} className="bg-card/70 border border-border rounded-xl p-2 flex flex-col gap-1">
+              <div className="h-8 bg-muted rounded-lg mb-1" />
+              <div className="h-1.5 w-14 bg-muted-foreground/30 rounded" />
               <div className="flex items-center justify-between mt-1">
-                <div className="h-2 w-10 bg-zinc-700 rounded" />
+                <div className="h-2 w-10 bg-muted-foreground/20 rounded" />
                 <div className={`h-3.5 w-9 ${p.color} rounded-full`} />
               </div>
             </div>
@@ -166,13 +166,13 @@ const steps = [
       "Convertissez en facture en un seul clic",
     ],
     screen: (
-      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
         <div className="flex items-center gap-2 mb-1">
           <div className="h-2.5 w-20 bg-white/70 rounded" />
           <div className="ml-auto flex gap-1">
             {["Pending", "Confirmed", "Delivered"].map((s, i) => (
-              <div key={s} className={`h-4 px-1.5 rounded-full text-[7px] ${i === 1 ? "bg-emerald-600/50 border border-emerald-500/40" : "bg-zinc-800 border border-zinc-700/30"}`}>
-                <div className="h-1 w-5 bg-zinc-500 rounded mt-1.5" />
+              <div key={s} className={`h-4 px-1.5 rounded-full text-[7px] ${i === 1 ? "bg-emerald-600/50 border border-emerald-500/40" : "bg-muted border border-border"}`}>
+                <div className="h-1 w-5 bg-muted-foreground/30 rounded mt-1.5" />
               </div>
             ))}
           </div>
@@ -181,11 +181,11 @@ const steps = [
           { status: "bg-emerald-500/60", label: "Livré" },
           { status: "bg-amber-500/60", label: "En cours" },
           { status: "bg-blue-500/60", label: "Confirmé" },
-          { status: "bg-zinc-500/60", label: "Brouillon" },
+          { status: "bg-muted-foreground/40", label: "Brouillon" },
         ].map((o, i) => (
-          <div key={i} className="flex items-center gap-2 h-8 bg-zinc-900/70 border border-zinc-700/30 rounded-lg px-2">
-            <div className="h-1.5 w-12 bg-zinc-600 rounded" />
-            <div className="flex-1 h-1.5 bg-zinc-700/50 rounded" />
+          <div key={i} className="flex items-center gap-2 h-8 bg-card/70 border border-border rounded-lg px-2">
+            <div className="h-1.5 w-12 bg-muted-foreground/30 rounded" />
+            <div className="flex-1 h-1.5 bg-muted-foreground/20/50 rounded" />
             <div className={`h-4 w-12 ${o.status} rounded-full`} />
           </div>
         ))}
@@ -211,42 +211,42 @@ const steps = [
       "Statuts : Brouillon → Envoyée → Payée → En retard",
     ],
     screen: (
-      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
         <div className="flex items-center justify-between mb-1">
           <div>
             <div className="h-2.5 w-24 bg-white/70 rounded mb-1" />
-            <div className="h-1.5 w-16 bg-zinc-600 rounded" />
+            <div className="h-1.5 w-16 bg-muted-foreground/30 rounded" />
           </div>
           <div className="h-5 w-14 bg-rose-500/30 border border-rose-500/30 rounded-full" />
         </div>
-        <div className="flex-1 bg-zinc-900/60 border border-zinc-700/30 rounded-xl p-2 flex flex-col gap-1.5">
-          <div className="flex justify-between text-[8px] text-zinc-500 pb-1 border-b border-zinc-800">
+        <div className="flex-1 bg-card/60 border border-border rounded-xl p-2 flex flex-col gap-1.5">
+          <div className="flex justify-between text-[8px] text-muted-foreground pb-1 border-b border-border">
             <span>Description</span><span>Qté</span><span>Total</span>
           </div>
           {["Service conseil", "Formation", "Maintenance"].map((item, i) => (
             <div key={i} className="flex items-center gap-1 h-5">
-              <div className="flex-1 h-1.5 bg-zinc-700 rounded" />
-              <div className="h-1.5 w-4 bg-zinc-700 rounded" />
-              <div className="h-1.5 w-10 bg-zinc-600 rounded" />
+              <div className="flex-1 h-1.5 bg-muted-foreground/20 rounded" />
+              <div className="h-1.5 w-4 bg-muted-foreground/20 rounded" />
+              <div className="h-1.5 w-10 bg-muted-foreground/30 rounded" />
             </div>
           ))}
-          <div className="mt-auto pt-1.5 border-t border-zinc-800 space-y-1">
+          <div className="mt-auto pt-1.5 border-t border-border space-y-1">
             <div className="flex justify-between">
-              <div className="h-1.5 w-10 bg-zinc-700 rounded" />
-              <div className="h-1.5 w-12 bg-zinc-600 rounded" />
+              <div className="h-1.5 w-10 bg-muted-foreground/20 rounded" />
+              <div className="h-1.5 w-12 bg-muted-foreground/30 rounded" />
             </div>
             <div className="flex justify-between">
-              <div className="h-1.5 w-8 bg-zinc-700 rounded" />
+              <div className="h-1.5 w-8 bg-muted-foreground/20 rounded" />
               <div className="h-1.5 w-10 bg-amber-500/50 rounded" />
             </div>
             <div className="flex justify-between">
-              <div className="h-2 w-10 bg-zinc-600 rounded" />
+              <div className="h-2 w-10 bg-muted-foreground/30 rounded" />
               <div className="h-2 w-14 bg-emerald-500/60 rounded" />
             </div>
           </div>
         </div>
         <div className="flex gap-1.5">
-          <div className="flex-1 h-6 bg-zinc-800 border border-zinc-700/40 rounded-lg" />
+          <div className="flex-1 h-6 bg-muted border border-border rounded-lg" />
           <div className="flex-1 h-6 bg-rose-600/30 border border-rose-500/30 rounded-lg" />
         </div>
       </div>
@@ -267,16 +267,16 @@ const steps = [
       "Vous êtes notifié dès que le paiement est confirmé",
     ],
     screen: (
-      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
         <div className="h-2.5 w-20 bg-white/70 rounded mb-1" />
-        <div className="flex-1 bg-zinc-900/60 border border-zinc-700/30 rounded-xl p-2.5 flex flex-col gap-2">
+        <div className="flex-1 bg-card/60 border border-border rounded-xl p-2.5 flex flex-col gap-2">
           <div className="space-y-1.5">
-            <div className="h-1.5 w-10 bg-zinc-600 rounded" />
-            <div className="h-6 bg-zinc-800 border border-zinc-700/40 rounded-lg" />
+            <div className="h-1.5 w-10 bg-muted-foreground/30 rounded" />
+            <div className="h-6 bg-muted border border-border rounded-lg" />
           </div>
           <div className="space-y-1.5">
-            <div className="h-1.5 w-12 bg-zinc-600 rounded" />
-            <div className="h-6 bg-zinc-800 border border-zinc-700/40 rounded-lg" />
+            <div className="h-1.5 w-12 bg-muted-foreground/30 rounded" />
+            <div className="h-6 bg-muted border border-border rounded-lg" />
           </div>
           <div className="flex gap-1.5">
             <div className="flex-1 h-10 bg-amber-500/15 border border-amber-500/30 rounded-lg flex flex-col items-center justify-center gap-1">
@@ -311,7 +311,7 @@ const steps = [
       "Visualisez l'évolution de votre trésorerie",
     ],
     screen: (
-      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
         <div className="h-2.5 w-16 bg-white/70 rounded mb-1" />
         <div className="grid grid-cols-2 gap-1.5 flex-shrink-0">
           {[
@@ -320,14 +320,14 @@ const steps = [
             { name: "MTN", color: "bg-amber-500/60" },
             { name: "Orange", color: "bg-orange-500/60" },
           ].map((a) => (
-            <div key={a.name} className="h-10 bg-zinc-900/70 border border-zinc-700/30 rounded-xl p-1.5 flex flex-col gap-1">
+            <div key={a.name} className="h-10 bg-card/70 border border-border rounded-xl p-1.5 flex flex-col gap-1">
               <div className={`h-1.5 w-8 ${a.color} rounded`} />
-              <div className="h-2 w-12 bg-zinc-600 rounded" />
+              <div className="h-2 w-12 bg-muted-foreground/30 rounded" />
             </div>
           ))}
         </div>
-        <div className="flex-1 bg-zinc-900/60 border border-zinc-700/30 rounded-xl p-2 flex flex-col">
-          <div className="h-1.5 w-16 bg-zinc-600 rounded mb-2" />
+        <div className="flex-1 bg-card/60 border border-border rounded-xl p-2 flex flex-col">
+          <div className="h-1.5 w-16 bg-muted-foreground/30 rounded mb-2" />
           <div className="flex-1 flex items-end gap-1">
             {[40, 60, 35, 75, 55, 80].map((h, i) => (
               <div key={i} className="flex-1 flex flex-col gap-0.5 items-center justify-end h-full">
@@ -355,7 +355,7 @@ const steps = [
       "Export rapports TVA et IS pour votre comptable",
     ],
     screen: (
-      <div className="w-full h-full bg-zinc-950 flex flex-col p-3 gap-2">
+      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
         <div className="h-2.5 w-24 bg-white/70 rounded mb-1" />
         <div className="flex gap-1.5 flex-shrink-0">
           {[
@@ -364,14 +364,14 @@ const steps = [
             { color: "bg-amber-500/50", border: "border-amber-500/25" },
             { color: "bg-blue-500/50", border: "border-blue-500/25" },
           ].map((k, i) => (
-            <div key={i} className={`flex-1 h-12 bg-zinc-900/70 border ${k.border} rounded-xl p-1.5`}>
-              <div className="h-1.5 w-8 bg-zinc-600 rounded mb-1.5" />
+            <div key={i} className={`flex-1 h-12 bg-card/70 border ${k.border} rounded-xl p-1.5`}>
+              <div className="h-1.5 w-8 bg-muted-foreground/30 rounded mb-1.5" />
               <div className={`h-2.5 w-10 ${k.color} rounded`} />
             </div>
           ))}
         </div>
-        <div className="flex-1 bg-zinc-900/60 border border-zinc-700/30 rounded-xl p-2 flex flex-col">
-          <div className="h-1.5 w-20 bg-zinc-600 rounded mb-2" />
+        <div className="flex-1 bg-card/60 border border-border rounded-xl p-2 flex flex-col">
+          <div className="h-1.5 w-20 bg-muted-foreground/30 rounded mb-2" />
           <div className="flex-1 flex items-end gap-1 px-0.5">
             {[30, 50, 40, 70, 55, 80, 65].map((h, i) => (
               <div key={i} className="flex-1 flex flex-col gap-0.5 items-center justify-end h-full">
@@ -393,14 +393,14 @@ function ScreenFrame({ children }: { children: React.ReactNode }) {
       {/* Glow */}
       <div className="absolute -inset-2 bg-gradient-to-b from-emerald-500/20 to-transparent rounded-2xl blur-xl opacity-60" />
       {/* Browser chrome */}
-      <div className="relative rounded-xl border border-zinc-700/60 bg-zinc-900 shadow-2xl overflow-hidden">
+      <div className="relative rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
         {/* Title bar */}
-        <div className="h-7 bg-zinc-900 border-b border-zinc-800/60 flex items-center px-2.5 gap-1.5 flex-shrink-0">
+        <div className="h-7 bg-card border-b border-border flex items-center px-2.5 gap-1.5 flex-shrink-0">
           <div className="w-2 h-2 rounded-full bg-red-500/70" />
           <div className="w-2 h-2 rounded-full bg-amber-500/70" />
           <div className="w-2 h-2 rounded-full bg-green-500/70" />
-          <div className="h-3.5 flex-1 mx-2 bg-zinc-800 border border-zinc-700/40 rounded flex items-center justify-center">
-            <span className="text-[7px] text-zinc-600">nkapcontrol.cm</span>
+          <div className="h-3.5 flex-1 mx-2 bg-muted border border-border rounded flex items-center justify-center">
+            <span className="text-[7px] text-muted-foreground">nkapcontrol.cm</span>
           </div>
         </div>
         {/* Screen content */}
@@ -413,22 +413,22 @@ function ScreenFrame({ children }: { children: React.ReactNode }) {
 /* ─── Page principale ─── */
 export default function OnboardingPage() {
   return (
-    <div className="min-h-[100svh] bg-zinc-950 text-white" style={{ overflowX: "hidden" }}>
+    <div className="min-h-[100svh] bg-background text-foreground" style={{ overflowX: "hidden" }}>
       {/* ─── Barre de skip en haut ─── */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-lg border-b border-zinc-800/60">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-b border-border">
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             <div className="w-7 h-7 rounded-lg bg-white overflow-hidden p-0.5">
               <img src="/logo.jpeg" alt="Nkap Control" className="w-full h-full object-contain" />
             </div>
-            <span className="font-bold text-sm text-white hidden sm:block">Nkap Control</span>
+            <span className="font-bold text-sm text-foreground hidden sm:block">Nkap Control</span>
           </Link>
-          <p className="text-xs sm:text-sm text-zinc-400 text-center hidden sm:block">
+          <p className="text-xs sm:text-sm text-muted-foreground text-center hidden sm:block">
             Suivez le guide ou connectez-vous directement à votre tableau de bord
           </p>
           <Link
             href="/login"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-200 border border-zinc-700/50 transition-colors touch-manipulation flex-shrink-0"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-muted hover:bg-muted-foreground/20 active:bg-muted-foreground/30 text-foreground border border-border/50 transition-colors touch-manipulation flex-shrink-0"
           >
             <X className="w-3.5 h-3.5" />
             Passer le guide
@@ -443,17 +443,17 @@ export default function OnboardingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-foreground text-xs font-medium mb-6">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             Guide de démarrage — 8 étapes
           </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-4 leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground mb-4 leading-tight">
             Bienvenue sur{" "}
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-400">
               Nkap Control
             </span>
           </h1>
-          <p className="text-base sm:text-lg text-zinc-400 max-w-xl mx-auto">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
             Suivez ces 8 étapes pour maîtriser la plateforme et tirer le meilleur de votre outil de gestion.
           </p>
         </motion.div>
@@ -468,7 +468,7 @@ export default function OnboardingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.45, delay: 0.05 }}
-            className={`rounded-2xl border ${step.border} bg-zinc-900/60 overflow-hidden`}
+            className={`rounded-2xl border ${step.border} bg-card/60 overflow-hidden`}
           >
             <div className={`flex flex-col ${i % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"} gap-0`}>
               {/* ── Texte ── */}
@@ -481,13 +481,13 @@ export default function OnboardingPage() {
                     Étape {step.number}
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-white mb-2 leading-snug">
+                <h3 className="text-base sm:text-lg font-bold text-foreground mb-2 leading-snug">
                   {step.title}
                 </h3>
-                <p className="text-sm text-zinc-400 leading-relaxed mb-4">{step.description}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">{step.description}</p>
                 <ul className="space-y-2">
                   {step.actions.map((action, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm text-zinc-300">
+                    <li key={j} className="flex items-start gap-2 text-sm text-foreground">
                       <ChevronRight className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${step.color}`} />
                       {action}
                     </li>
@@ -496,7 +496,7 @@ export default function OnboardingPage() {
               </div>
 
               {/* ── Screen ── */}
-              <div className={`lg:w-72 xl:w-80 ${step.bg} flex items-center justify-center p-5 sm:p-6 border-t border-zinc-800/40 lg:border-t-0 ${i % 2 === 0 ? "lg:border-l" : "lg:border-r"} ${step.border}`}>
+              <div className={`lg:w-72 xl:w-80 ${step.bg} flex items-center justify-center p-5 sm:p-6 border-t border-border/40 lg:border-t-0 ${i % 2 === 0 ? "lg:border-l" : "lg:border-r"} ${step.border}`}>
                 <ScreenFrame>{step.screen}</ScreenFrame>
               </div>
             </div>
@@ -517,7 +517,7 @@ export default function OnboardingPage() {
               <CheckCircle2 className="w-4 h-4" />
               Guide terminé — vous êtes prêt !
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
               Lancez-vous maintenant
             </h2>
             <p className="text-emerald-100 text-sm sm:text-base mb-7 max-w-md mx-auto">
@@ -539,19 +539,19 @@ export default function OnboardingPage() {
       </section>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-zinc-800/50 py-6 px-4">
+      <footer className="border-t border-border py-6 px-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg bg-white overflow-hidden p-0.5">
               <img src="/logo.jpeg" alt="" className="w-full h-full object-contain" />
             </div>
-            <span className="text-sm font-bold text-white">Nkap Control</span>
+            <span className="text-sm font-bold text-foreground">Nkap Control</span>
           </div>
-          <p className="text-xs text-zinc-600">© {new Date().getFullYear()} Nkap Control</p>
-          <div className="flex gap-4 text-xs text-zinc-500">
-            <Link href="/#features" className="hover:text-zinc-300 transition-colors">Fonctionnalités</Link>
-            <Link href="/#pricing" className="hover:text-zinc-300 transition-colors">Tarifs</Link>
-            <Link href="/help" className="hover:text-zinc-300 transition-colors">Aide</Link>
+          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Nkap Control</p>
+          <div className="flex gap-4 text-xs text-muted-foreground">
+            <Link href="/#features" className="hover:text-foreground transition-colors">Fonctionnalités</Link>
+            <Link href="/#pricing" className="hover:text-foreground transition-colors">Tarifs</Link>
+            <Link href="/help" className="hover:text-foreground transition-colors">Aide</Link>
           </div>
         </div>
       </footer>
