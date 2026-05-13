@@ -24,41 +24,39 @@ interface PaymentLinkData {
 
 function MtnLogo() {
   return (
-    <svg viewBox="0 0 80 36" width="80" height="36" xmlns="http://www.w3.org/2000/svg">
-      <rect width="80" height="36" rx="6" fill="#FFCC00"/>
-      <text x="40" y="15" fontFamily="Arial Black, Arial, sans-serif" fontSize="14" fontWeight="900" fill="#000" textAnchor="middle" dominantBaseline="middle">MTN</text>
-      <text x="40" y="28" fontFamily="Arial, sans-serif" fontSize="7" fontWeight="600" fill="#000" textAnchor="middle" dominantBaseline="middle">Mobile Money</text>
-    </svg>
+    <div style={{ background: "#FFCC00", borderRadius: 6, padding: "2px 10px", display: "inline-flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minWidth: 72, height: 36 }}>
+      <span style={{ color: "#000", fontWeight: 900, fontSize: 14, lineHeight: 1.1, fontFamily: "Arial Black, Arial, sans-serif" }}>MTN</span>
+      <span style={{ color: "#000", fontWeight: 600, fontSize: 8, lineHeight: 1.2, fontFamily: "Arial, sans-serif" }}>Mobile Money</span>
+    </div>
   );
 }
 
 function OrangeLogo() {
   return (
-    <svg viewBox="0 0 80 36" width="80" height="36" xmlns="http://www.w3.org/2000/svg">
-      <rect width="80" height="36" rx="6" fill="#FF6600"/>
-      <text x="40" y="14" fontFamily="Arial, sans-serif" fontSize="13" fontWeight="700" fill="#fff" textAnchor="middle" dominantBaseline="middle">Orange</text>
-      <text x="40" y="27" fontFamily="Arial, sans-serif" fontSize="9" fontWeight="600" fill="#fff" textAnchor="middle" dominantBaseline="middle">Money</text>
-    </svg>
+    <div style={{ background: "#FF6600", borderRadius: 6, padding: "2px 10px", display: "inline-flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minWidth: 72, height: 36 }}>
+      <span style={{ color: "#fff", fontWeight: 700, fontSize: 13, lineHeight: 1.1, fontFamily: "Arial, sans-serif" }}>Orange</span>
+      <span style={{ color: "#fff", fontWeight: 600, fontSize: 9, lineHeight: 1.2, fontFamily: "Arial, sans-serif" }}>Money</span>
+    </div>
   );
 }
 
 function VisaLogo() {
   return (
-    <svg viewBox="0 0 54 34" width="54" height="34" xmlns="http://www.w3.org/2000/svg">
-      <rect width="54" height="34" rx="5" fill="#fff" stroke="#ddd" strokeWidth="1"/>
-      <text x="27" y="21" fontFamily="Arial, sans-serif" fontSize="16" fontWeight="900" fontStyle="italic" fill="#1A1F71" textAnchor="middle" dominantBaseline="middle" letterSpacing="1">VISA</text>
-    </svg>
+    <div style={{ background: "#fff", border: "1px solid #ddd", borderRadius: 5, width: 52, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+      <span style={{ color: "#1A1F71", fontWeight: 900, fontSize: 16, fontStyle: "italic", fontFamily: "Arial, sans-serif", letterSpacing: 1 }}>VISA</span>
+    </div>
   );
 }
 
 function MastercardLogo() {
   return (
-    <svg viewBox="0 0 54 34" width="54" height="34" xmlns="http://www.w3.org/2000/svg">
-      <rect width="54" height="34" rx="5" fill="#fff" stroke="#ddd" strokeWidth="1"/>
-      <circle cx="21" cy="16" r="9" fill="#EB001B"/>
-      <circle cx="33" cy="16" r="9" fill="#F79E1B"/>
-      <path d="M27 9.2a9 9 0 0 1 0 13.6A9 9 0 0 1 27 9.2z" fill="#FF5F00"/>
-    </svg>
+    <div style={{ background: "#fff", border: "1px solid #ddd", borderRadius: 5, width: 52, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+      <svg viewBox="0 0 44 28" width="44" height="28" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="14" r="11" fill="#EB001B"/>
+        <circle cx="28" cy="14" r="11" fill="#F79E1B"/>
+        <path d="M22 5.2a11 11 0 0 1 0 17.6A11 11 0 0 1 22 5.2z" fill="#FF5F00"/>
+      </svg>
+    </div>
   );
 }
 
