@@ -1,27 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
-// POST /api/webhooks/payment-links
-// Called automatically by CinetPay or NotchPay when a payment is confirmed.
-// Set this URL in your aggregator dashboard as the notify/webhook URL.
-//
-// CinetPay format:  POST with cpm_trans_id, cpm_result ("00" = success), cpm_amount
-// NotchPay format:  POST with event ("payment.complete"), data.reference, data.status
+import { verifyWebhookSignature } from "@/lib/notchpay";
 
 function parseProvider(body: Record<string, unknown>): {
   transactionRef: string | null;
   success: boolean;
   failed: boolean;
 } {
-  // CinetPay
-  if ("cpm_trans_id" in body) {
-    return {
-      transactionRef: (body.cpm_trans_id as string) ?? null,
-      success: body.cpm_result === "00",
-      failed: body.cpm_result !== "00",
-    };
-  }
-
   // NotchPay
   if ("event" in body && "data" in body) {
     const data = body.data as Record<string, unknown>;
@@ -32,7 +17,16 @@ function parseProvider(body: Record<string, unknown>): {
     };
   }
 
-  // Generic fallback (transactionRef + status field)
+  // CinetPay
+  if ("cpm_trans_id" in body) {
+    return {
+      transactionRef: (body.cpm_trans_id as string) ?? null,
+      success: body.cpm_result === "00",
+      failed: body.cpm_result !== "00",
+    };
+  }
+
+  // Generic fallback
   const ref = (body.transactionRef ?? body.transaction_ref ?? body.ref) as string | null;
   const status = ((body.status as string) ?? "").toUpperCase();
   return {
@@ -44,25 +38,26 @@ function parseProvider(body: Record<string, unknown>): {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const rawBody = await request.text();
+
+    // Verify NotchPay webhook signature if private key is set
+    const signature = request.headers.get("x-notch-signature") ?? "";
+    if (signature && !verifyWebhookSignature(rawBody, signature)) {
+      return NextResponse.json({ error: "Signature invalide" }, { status: 401 });
+    }
+
+    const body = JSON.parse(rawBody) as Record<string, unknown>;
     const { transactionRef, success, failed } = parseProvider(body);
 
     if (!transactionRef) {
-      return NextResponse.json({ error: "transactionRef manquant" }, { status: 400 });
+      return NextResponse.json({ received: true });
     }
 
     const tx = await prisma.paymentLinkTransaction.findFirst({
       where: { transactionRef },
     });
 
-    if (!tx) {
-      // Unknown ref — return 200 so the provider doesn't keep retrying
-      console.warn(`Webhook payment-links: ref inconnue ${transactionRef}`);
-      return NextResponse.json({ received: true });
-    }
-
-    if (tx.status !== "PENDING") {
-      // Already processed
+    if (!tx || tx.status !== "PENDING") {
       return NextResponse.json({ received: true });
     }
 

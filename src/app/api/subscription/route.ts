@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { sendSubscriptionConfirmationEmail } from "@/lib/email";
 import { isDemoAccount } from "@/lib/demo";
+import { initializePayment, isNotchPayConfigured } from "@/lib/notchpay";
 
 // GET - Récupérer l'abonnement actuel
 export async function GET() {
@@ -135,7 +136,41 @@ export async function POST(request: Request) {
     },
   });
 
-  // Créer le paiement
+  const isMobileMoney = ["MTN_MONEY", "ORANGE_MONEY"].includes(paymentMethod);
+
+  // For mobile money with NotchPay: create PENDING payment and redirect to checkout
+  if (isMobileMoney && isNotchPayConfigured()) {
+    const payment = await prisma.payment.create({
+      data: {
+        subscriptionId: subscription.id,
+        amount: finalAmount,
+        currency: "XAF",
+        paymentMethod: paymentMethod as "MTN_MONEY" | "ORANGE_MONEY" | "VIREMENT" | "CARTE_BANCAIRE",
+        phoneNumber: phoneNumber || null,
+        status: "PENDING",
+      },
+    });
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app";
+    const notchpay = await initializePayment({
+      email: session.user.email!,
+      amount: finalAmount,
+      currency: "XAF",
+      reference: payment.id,
+      description: `Abonnement Nkap Control - Plan ${plan}`,
+      callbackUrl: `${appUrl}/api/payments/webhook`,
+    });
+
+    if (notchpay) {
+      await prisma.payment.update({
+        where: { id: payment.id },
+        data: { transactionRef: notchpay.reference },
+      });
+      return NextResponse.json({ subscription, payment, checkoutUrl: notchpay.checkoutUrl });
+    }
+  }
+
+  // Fallback: direct completion for virement/carte or if NotchPay not configured
   const payment = await prisma.payment.create({
     data: {
       subscriptionId: subscription.id,
@@ -148,12 +183,10 @@ export async function POST(request: Request) {
     },
   });
 
-  // Envoyer email de confirmation si paiement complété
   if (payment.status === "COMPLETED") {
     const userEmail = session.user.email;
     const userName = session.user.name || "Utilisateur";
     if (userEmail) {
-      // Envoi asynchrone sans bloquer la réponse
       sendSubscriptionConfirmationEmail({
         to: userEmail,
         userName,
