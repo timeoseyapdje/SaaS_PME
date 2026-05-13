@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sendVerificationCodeEmail } from "@/lib/email";
+import { sendVerificationCodeEmail, sendWelcomeEmail } from "@/lib/email";
 
 // POST - Envoyer un code de vérification par email
 export async function POST(request: Request) {
@@ -102,10 +102,14 @@ export async function PUT(request: Request) {
     });
 
     // Marquer l'email comme vérifié
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { email },
       data: { emailVerified: new Date() },
+      select: { name: true },
     });
+
+    // Send welcome email
+    sendWelcomeEmail({ to: email, userName: user.name || "Utilisateur" }).catch(console.error);
 
     return NextResponse.json({
       success: true,
