@@ -22,11 +22,51 @@ interface PaymentLinkData {
   client?: { name: string; email?: string };
 }
 
+function MtnLogo() {
+  return (
+    <svg viewBox="0 0 80 36" width="80" height="36" xmlns="http://www.w3.org/2000/svg">
+      <rect width="80" height="36" rx="6" fill="#FFCC00"/>
+      <text x="40" y="15" fontFamily="Arial Black, Arial, sans-serif" fontSize="14" fontWeight="900" fill="#000" textAnchor="middle" dominantBaseline="middle">MTN</text>
+      <text x="40" y="28" fontFamily="Arial, sans-serif" fontSize="7" fontWeight="600" fill="#000" textAnchor="middle" dominantBaseline="middle">Mobile Money</text>
+    </svg>
+  );
+}
+
+function OrangeLogo() {
+  return (
+    <svg viewBox="0 0 80 36" width="80" height="36" xmlns="http://www.w3.org/2000/svg">
+      <rect width="80" height="36" rx="6" fill="#FF6600"/>
+      <text x="40" y="14" fontFamily="Arial, sans-serif" fontSize="13" fontWeight="700" fill="#fff" textAnchor="middle" dominantBaseline="middle">Orange</text>
+      <text x="40" y="27" fontFamily="Arial, sans-serif" fontSize="9" fontWeight="600" fill="#fff" textAnchor="middle" dominantBaseline="middle">Money</text>
+    </svg>
+  );
+}
+
+function VisaLogo() {
+  return (
+    <svg viewBox="0 0 54 34" width="54" height="34" xmlns="http://www.w3.org/2000/svg">
+      <rect width="54" height="34" rx="5" fill="#fff" stroke="#ddd" strokeWidth="1"/>
+      <text x="27" y="21" fontFamily="Arial, sans-serif" fontSize="16" fontWeight="900" fontStyle="italic" fill="#1A1F71" textAnchor="middle" dominantBaseline="middle" letterSpacing="1">VISA</text>
+    </svg>
+  );
+}
+
+function MastercardLogo() {
+  return (
+    <svg viewBox="0 0 54 34" width="54" height="34" xmlns="http://www.w3.org/2000/svg">
+      <rect width="54" height="34" rx="5" fill="#fff" stroke="#ddd" strokeWidth="1"/>
+      <circle cx="21" cy="16" r="9" fill="#EB001B"/>
+      <circle cx="33" cy="16" r="9" fill="#F79E1B"/>
+      <path d="M27 9.2a9 9 0 0 1 0 13.6A9 9 0 0 1 27 9.2z" fill="#FF5F00"/>
+    </svg>
+  );
+}
+
 const PAYMENT_METHODS = [
-  { value: "MTN_MONEY", label: "MTN Mobile Money", logo: "/mtn-money.svg", color: "border-yellow-400 bg-yellow-50 dark:bg-yellow-900/10" },
-  { value: "ORANGE_MONEY", label: "Orange Money", logo: "/orange-money.svg", color: "border-orange-400 bg-orange-50 dark:bg-orange-900/10" },
-  { value: "ESPECES", label: "Espèces / Cash", icon: "💵", color: "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/10" },
-  { value: "VIREMENT", label: "Virement bancaire", logo: "/visa.svg", logo2: "/mastercard.svg", color: "border-blue-400 bg-blue-50 dark:bg-blue-900/10" },
+  { value: "MTN_MONEY",    label: "MTN Mobile Money", color: "border-yellow-400 bg-yellow-50 dark:bg-yellow-900/10" },
+  { value: "ORANGE_MONEY", label: "Orange Money",     color: "border-orange-400 bg-orange-50 dark:bg-orange-900/10" },
+  { value: "ESPECES",      label: "Espèces / Cash",   color: "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/10" },
+  { value: "VIREMENT",     label: "Virement bancaire",color: "border-blue-400 bg-blue-50 dark:bg-blue-900/10" },
 ];
 
 export default function PublicPaymentPage() {
@@ -152,16 +192,12 @@ export default function PublicPaymentPage() {
                       : "border-border hover:border-emerald-300"
                   }`}
                 >
-                  {"logo" in m ? (
-                    <div className="flex items-center gap-1 mb-1">
-                      <img src={(m as {logo: string}).logo} alt={m.label} className="h-7 w-auto rounded object-contain" />
-                      {"logo2" in m && (
-                        <img src={(m as {logo2: string}).logo2} alt="Mastercard" className="h-7 w-auto rounded object-contain" />
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-xl block mb-1">{(m as {icon: string}).icon}</span>
-                  )}
+                  <div className="mb-1 flex items-center gap-1">
+                    {m.value === "MTN_MONEY"    && <MtnLogo />}
+                    {m.value === "ORANGE_MONEY" && <OrangeLogo />}
+                    {m.value === "VIREMENT"     && <><VisaLogo /><MastercardLogo /></>}
+                    {m.value === "ESPECES"      && <span className="text-xl">💵</span>}
+                  </div>
                   <span className="text-xs font-medium text-foreground">{m.label}</span>
                 </button>
               ))}
