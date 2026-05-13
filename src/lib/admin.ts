@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
-export const SUPER_ADMIN_EMAIL = "admin@nkapcontrol.cm";
+export const SUPER_ADMIN_EMAIL = "admin@nkapcontrol.com";
 
 export async function requireAdmin() {
   const session = await auth();

@@ -23,7 +23,7 @@ export async function GET(request: Request) {
       updatedAt: { lt: sixMonthsAgo },
       // Ne pas supprimer les comptes système
       email: {
-        notIn: ["admin@nkapcontrol.cm", "demo@nkapcontrol.cm"],
+        notIn: ["admin@nkapcontrol.com", "demo@nkapcontrol.com"],
       },
     },
     select: {

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { DEMO_EMAIL } from "@/lib/demo";
 
-const SUPER_ADMIN_EMAIL = "admin@nkapcontrol.cm";
+const SUPER_ADMIN_EMAIL = "admin@nkapcontrol.com";
 // Les comptes système ne paient pas
 const EXCLUDED_EMAILS = [SUPER_ADMIN_EMAIL, DEMO_EMAIL];
 

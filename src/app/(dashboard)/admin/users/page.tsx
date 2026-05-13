@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { Users, Search, Building2, Mail, Calendar, ShieldCheck, Loader2, Crown, Zap, Rocket, MapPin, Trash2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 
-const SUPER_ADMIN_EMAIL = "admin@nkapcontrol.cm";
+const SUPER_ADMIN_EMAIL = "admin@nkapcontrol.com";
 
 interface AdminUser {
   id: string;

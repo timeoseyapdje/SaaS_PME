@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 // Compte démo - lecture seule
-export const DEMO_EMAIL = "demo@nkapcontrol.cm";
+export const DEMO_EMAIL = "demo@nkapcontrol.com";
 
 export function isDemoAccount(email: string | null | undefined): boolean {
   return email === DEMO_EMAIL;

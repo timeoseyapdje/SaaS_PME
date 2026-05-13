@@ -210,8 +210,8 @@ export default function TermsPage() {
             <h2 className="text-lg font-semibold text-foreground mb-3">17. Contact</h2>
             <p>
               Pour toute question relative aux présentes CGU, contactez-nous à :{" "}
-              <a href="mailto:contact@nkapcontrol.cm" className="text-emerald-400 hover:text-emerald-300">
-                contact@nkapcontrol.cm
+              <a href="mailto:contact@nkapcontrol.com" className="text-emerald-400 hover:text-emerald-300">
+                contact@nkapcontrol.com
               </a>
             </p>
           </section>

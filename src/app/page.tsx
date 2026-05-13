@@ -498,7 +498,7 @@ export default function LandingPage() {
                       <div className="w-3 h-3 rounded-full bg-green-500" />
                     </div>
                     <div className="h-5 w-56 bg-zinc-800 border border-zinc-700/50 rounded-md mx-auto flex items-center justify-center">
-                      <span className="text-[9px] text-zinc-500">nkapcontrol.cm/dashboard</span>
+                      <span className="text-[9px] text-zinc-500">nkapcontrol.com/dashboard</span>
                     </div>
                     <div className="flex gap-1.5 ml-auto">
                       <div className="w-4 h-4 rounded bg-zinc-800" />
@@ -731,7 +731,7 @@ export default function LandingPage() {
               <h4 className="font-semibold text-foreground mb-3 text-sm">Support</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="/help" className="hover:text-foreground transition-colors">Centre d&apos;aide</Link></li>
-                <li><a href="mailto:contact@nkapcontrol.cm" className="hover:text-foreground transition-colors">Contact</a></li>
+                <li><a href="mailto:contact@nkapcontrol.com" className="hover:text-foreground transition-colors">Contact</a></li>
               </ul>
             </div>
             <div>
