@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { initializePayment, isNotchPayConfigured } from "@/lib/notchpay";
+import { sendPaymentRequestNotification } from "@/lib/email";
 
 export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
@@ -63,6 +64,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       where: { slug },
       data: { currentUses: { increment: 1 } },
     });
+
+    // Notify the merchant by email
+    if (link.company?.email) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app";
+      sendPaymentRequestNotification({
+        to: link.company.email,
+        merchantName: link.company.name,
+        payerName: payerName || undefined,
+        paymentMethod,
+        amount: link.amount,
+        currency: link.currency,
+        linkTitle: link.title,
+        dashboardUrl: `${appUrl}/payment-links`,
+      }).catch(console.error);
+    }
 
     // If NotchPay is configured, initialize online payment
     if (isNotchPayConfigured()) {

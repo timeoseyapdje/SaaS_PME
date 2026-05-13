@@ -69,7 +69,7 @@ export async function POST(request: Request) {
       try {
         const { Resend } = await import("resend");
         const resend = new Resend(apiKey);
-        const fromEmail = process.env.FROM_EMAIL || "Nkap Control <onboarding@resend.dev>";
+        const fromEmail = process.env.FROM_EMAIL || "Nkap Control <no-reply@nkapcontrol.com>";
 
         for (const user of users) {
           try {
