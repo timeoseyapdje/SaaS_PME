@@ -1,30 +1,45 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendSubscriptionConfirmationEmail } from "@/lib/email";
+import { verifyWebhookSignature } from "@/lib/notchpay";
 
-// POST - Webhook de callback pour les paiements (MTN MoMo, Orange Money, etc.)
-// Ce endpoint est appelé par le provider de paiement quand le paiement est complété
+// Maps any provider status to internal status
+function mapStatus(event: string, status: string): string {
+  if (event === "payment.complete" || ["SUCCESSFUL", "SUCCESS", "COMPLETED", "complete"].includes(status)) return "COMPLETED";
+  if (event === "payment.failed"   || ["FAILED", "CANCELLED", "failed", "cancelled"].includes(status)) return "FAILED";
+  return "PENDING";
+}
+
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const rawBody = await request.text();
 
-    // Extraire les données du webhook selon le provider
-    const {
-      transactionRef,
-      status,
-      amount,
-      paymentMethod,
-      provider, // "mtn", "orange", "stripe", etc.
-    } = body;
-
-    if (!transactionRef || !status) {
-      return NextResponse.json(
-        { error: "Données webhook invalides" },
-        { status: 400 }
-      );
+    // Verify NotchPay signature if present
+    const signature = request.headers.get("x-notch-signature") ?? "";
+    if (signature && !verifyWebhookSignature(rawBody, signature)) {
+      return NextResponse.json({ error: "Signature invalide" }, { status: 401 });
     }
 
-    // Trouver le paiement par référence de transaction
+    const body = JSON.parse(rawBody);
+
+    // Extract ref + status from NotchPay or generic format
+    let transactionRef: string | undefined;
+    let mappedStatus: string;
+
+    if (body.event && body.data) {
+      // NotchPay format
+      transactionRef = body.data.reference;
+      mappedStatus = mapStatus(body.event, body.data.status ?? "");
+    } else {
+      // Generic / legacy format
+      transactionRef = body.transactionRef;
+      mappedStatus = mapStatus("", (body.status ?? "").toUpperCase());
+    }
+
+    if (!transactionRef) {
+      return NextResponse.json({ error: "transactionRef manquant" }, { status: 400 });
+    }
+
     const payment = await prisma.payment.findFirst({
       where: { transactionRef },
       include: {
@@ -32,11 +47,7 @@ export async function POST(request: Request) {
           include: {
             company: {
               include: {
-                users: {
-                  where: { role: "ADMIN" },
-                  select: { email: true, name: true },
-                  take: 1,
-                },
+                users: { where: { role: "ADMIN" }, select: { email: true, name: true }, take: 1 },
               },
             },
           },
@@ -45,26 +56,10 @@ export async function POST(request: Request) {
     });
 
     if (!payment) {
-      console.error(`Webhook: Paiement non trouvé pour ref ${transactionRef}`);
-      return NextResponse.json(
-        { error: "Paiement non trouvé" },
-        { status: 404 }
-      );
+      console.warn(`Webhook subscription: ref inconnue ${transactionRef}`);
+      return NextResponse.json({ received: true });
     }
 
-    // Mapper le statut du provider vers notre statut
-    const statusMap: Record<string, string> = {
-      SUCCESSFUL: "COMPLETED",
-      SUCCESS: "COMPLETED",
-      COMPLETED: "COMPLETED",
-      FAILED: "FAILED",
-      CANCELLED: "FAILED",
-      PENDING: "PENDING",
-    };
-
-    const mappedStatus = statusMap[status.toUpperCase()] || "PENDING";
-
-    // Mettre à jour le paiement
     await prisma.payment.update({
       where: { id: payment.id },
       data: {
@@ -73,35 +68,28 @@ export async function POST(request: Request) {
       },
     });
 
-    // Si le paiement est complété, activer l'abonnement + envoyer email
     if (mappedStatus === "COMPLETED") {
       const endDate = new Date();
       endDate.setMonth(endDate.getMonth() + 1);
 
       await prisma.subscription.update({
         where: { id: payment.subscriptionId },
-        data: {
-          status: "ACTIVE",
-          startDate: new Date(),
-          endDate,
-        },
+        data: { status: "ACTIVE", startDate: new Date(), endDate },
       });
 
-      // Envoyer l'email de confirmation
       const adminUser = payment.subscription?.company?.users?.[0];
       if (adminUser?.email) {
-        await sendSubscriptionConfirmationEmail({
+        sendSubscriptionConfirmationEmail({
           to: adminUser.email,
           userName: adminUser.name || "Utilisateur",
           plan: payment.subscription?.plan || "PRO",
           amount: payment.amount,
           paymentMethod: payment.paymentMethod,
           endDate: endDate.toISOString(),
-        });
+        }).catch(console.error);
       }
     }
 
-    // Si échoué, marquer l'abonnement comme suspendu
     if (mappedStatus === "FAILED") {
       await prisma.subscription.update({
         where: { id: payment.subscriptionId },
@@ -109,11 +97,8 @@ export async function POST(request: Request) {
       });
     }
 
-    console.log(
-      `Webhook [${provider}]: Paiement ${transactionRef} -> ${mappedStatus} (${amount} XAF)`
-    );
-
-    return NextResponse.json({ success: true, status: mappedStatus });
+    console.log(`Webhook subscription: ${transactionRef} → ${mappedStatus}`);
+    return NextResponse.json({ received: true, status: mappedStatus });
   } catch (error) {
     console.error("Webhook error:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

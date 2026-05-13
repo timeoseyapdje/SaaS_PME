@@ -20,6 +20,7 @@ interface PaymentLinkData {
   maxUses?: number;
   company: { name: string; phone?: string; email?: string; logo?: string; city?: string };
   client?: { name: string; email?: string };
+  notchpayEnabled?: boolean;
 }
 
 function MtnLogo() {
@@ -76,6 +77,7 @@ export default function PublicPaymentPage() {
   const [method, setMethod] = useState("");
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -99,10 +101,15 @@ export default function PublicPaymentPage() {
       const res = await fetch(`/api/pay/${slug}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentMethod: method, phoneNumber: phone || null, payerName: name || null }),
+        body: JSON.stringify({ paymentMethod: method, phoneNumber: phone || null, payerName: name || null, payerEmail: email || null }),
       });
-      if (res.ok) { setSuccess(true); }
-      else { const d = await res.json(); setError(d.error); }
+      const d = await res.json();
+      if (!res.ok) { setError(d.error); return; }
+      if (d.checkoutUrl) {
+        window.location.href = d.checkoutUrl;
+      } else {
+        setSuccess(true);
+      }
     } catch { setError("Erreur. Veuillez réessayer."); }
     finally { setSubmitting(false); }
   }
@@ -175,6 +182,13 @@ export default function PublicPaymentPage() {
             <Label className="text-sm font-medium">Votre nom (optionnel)</Label>
             <Input value={name} onChange={e => setName(e.target.value)} placeholder="Jean Dupont" />
           </div>
+
+          {data?.notchpayEnabled && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Email (requis pour le paiement en ligne)</Label>
+              <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="vous@exemple.com" required />
+            </div>
+          )}
 
           <div className="space-y-3">
             <Label className="text-sm font-medium">Méthode de paiement *</Label>
