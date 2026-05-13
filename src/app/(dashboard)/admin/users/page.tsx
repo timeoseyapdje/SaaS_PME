@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
-import { Users, Search, Building2, Mail, Calendar, ShieldCheck, Loader2, Crown, Zap, Rocket, MapPin } from "lucide-react";
+import { Users, Search, Building2, Mail, Calendar, ShieldCheck, Loader2, Crown, Zap, Rocket, MapPin, Trash2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 
 const SUPER_ADMIN_EMAIL = "admin@nkapcontrol.cm";
@@ -25,6 +25,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [changingRole, setChangingRole] = useState<string | null>(null);
+  const [deletingUser, setDeletingUser] = useState<string | null>(null);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -40,6 +41,22 @@ export default function AdminUsersPage() {
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
+
+  async function handleDeleteUser(userId: string, userName: string) {
+    if (!confirm(`Supprimer l'utilisateur "${userName}" ? Cette action est irréversible.`)) return;
+    setDeletingUser(userId);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
+      if (res.ok) {
+        setUsers(prev => prev.filter(u => u.id !== userId));
+      } else {
+        const err = await res.json();
+        alert(err.error || "Erreur lors de la suppression");
+      }
+    } finally {
+      setDeletingUser(null);
+    }
+  }
 
   async function handleRoleChange(userId: string, newRole: string) {
     setChangingRole(userId);
@@ -224,7 +241,7 @@ export default function AdminUsersPage() {
                         {user.email === SUPER_ADMIN_EMAIL ? (
                           <span className="text-[10px] text-muted-foreground">Protégé</span>
                         ) : (
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-2">
                             {changingRole === user.id ? (
                               <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
                             ) : (
@@ -237,6 +254,17 @@ export default function AdminUsersPage() {
                                 <option value="ACCOUNTANT">ACCOUNTANT</option>
                                 <option value="ADMIN">ADMIN</option>
                               </select>
+                            )}
+                            {deletingUser === user.id ? (
+                              <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+                            ) : (
+                              <button
+                                onClick={() => handleDeleteUser(user.id, user.name || user.email)}
+                                className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors"
+                                title="Supprimer cet utilisateur"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
                             )}
                           </div>
                         )}
