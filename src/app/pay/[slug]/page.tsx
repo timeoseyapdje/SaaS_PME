@@ -61,44 +61,6 @@ function MastercardLogo() {
   );
 }
 
-function MtnLogo() {
-  return (
-    <div style={{ background: "#FFCC00", borderRadius: 6, padding: "2px 10px", display: "inline-flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minWidth: 72, height: 36 }}>
-      <span style={{ color: "#000", fontWeight: 900, fontSize: 14, lineHeight: 1.1, fontFamily: "Arial Black, Arial, sans-serif" }}>MTN</span>
-      <span style={{ color: "#000", fontWeight: 600, fontSize: 8, lineHeight: 1.2, fontFamily: "Arial, sans-serif" }}>Mobile Money</span>
-    </div>
-  );
-}
-
-function OrangeLogo() {
-  return (
-    <div style={{ background: "#FF6600", borderRadius: 6, padding: "2px 10px", display: "inline-flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minWidth: 72, height: 36 }}>
-      <span style={{ color: "#fff", fontWeight: 700, fontSize: 13, lineHeight: 1.1, fontFamily: "Arial, sans-serif" }}>Orange</span>
-      <span style={{ color: "#fff", fontWeight: 600, fontSize: 9, lineHeight: 1.2, fontFamily: "Arial, sans-serif" }}>Money</span>
-    </div>
-  );
-}
-
-function VisaLogo() {
-  return (
-    <div style={{ background: "#fff", border: "1px solid #ddd", borderRadius: 5, width: 52, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-      <span style={{ color: "#1A1F71", fontWeight: 900, fontSize: 16, fontStyle: "italic", fontFamily: "Arial, sans-serif", letterSpacing: 1 }}>VISA</span>
-    </div>
-  );
-}
-
-function MastercardLogo() {
-  return (
-    <div style={{ background: "#fff", border: "1px solid #ddd", borderRadius: 5, width: 52, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-      <svg viewBox="0 0 44 28" width="44" height="28" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="16" cy="14" r="11" fill="#EB001B"/>
-        <circle cx="28" cy="14" r="11" fill="#F79E1B"/>
-        <path d="M22 5.2a11 11 0 0 1 0 17.6A11 11 0 0 1 22 5.2z" fill="#FF5F00"/>
-      </svg>
-    </div>
-  );
-}
-
 const PAYMENT_METHODS = [
   { value: "MTN_MONEY",    label: "MTN Mobile Money", color: "border-yellow-400 bg-yellow-50 dark:bg-yellow-900/10" },
   { value: "ORANGE_MONEY", label: "Orange Money",     color: "border-orange-400 bg-orange-50 dark:bg-orange-900/10" },
