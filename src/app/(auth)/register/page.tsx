@@ -28,7 +28,7 @@ export default function RegisterPage() {
   const [legalName, setLegalName] = useState("");
   const [registrationNo, setRegistrationNo] = useState("");
   const [taxId, setTaxId] = useState("");
-  const [city, setCity] = useState("Yaoundé");
+  const [city, setCity] = useState("Douala");
   const [phone, setPhone] = useState("");
 
   // Step 2: User info
@@ -86,10 +86,12 @@ export default function RegisterPage() {
         return;
       }
 
+      // Store credentials temporarily so verify-email can auto sign-in after verification
+      sessionStorage.setItem("pending_verify", JSON.stringify({ email, password }));
       setSuccess(true);
       setTimeout(() => {
-        router.push("/onboarding");
-      }, 2000);
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+      }, 1500);
     } catch {
       setError("Une erreur est survenue. Veuillez réessayer.");
     } finally {
@@ -109,7 +111,7 @@ export default function RegisterPage() {
             <CheckCircle2 className="w-10 h-10 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-foreground mb-3 tracking-tight">Compte créé !</h2>
-          <p className="text-muted-foreground text-lg">Découvrez la plateforme en quelques étapes...</p>
+          <p className="text-muted-foreground text-lg">Vérifiez votre email pour continuer...</p>
         </div>
       </div>
     );
@@ -214,7 +216,7 @@ export default function RegisterPage() {
                       <Label htmlFor="city" className="font-semibold text-foreground/80">Ville</Label>
                       <Input
                         id="city"
-                        placeholder="Yaoundé"
+                        placeholder="Douala"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                         className="h-11 bg-background border-border/60 focus-visible:ring-emerald-500"
