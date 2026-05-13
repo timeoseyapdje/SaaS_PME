@@ -10,7 +10,7 @@ const loginSchema = z.object({
   password: z.string().min(6),
 });
 
-const EXEMPT_EMAILS = ["admin@nkapcontrol.cm", "demo@nkapcontrol.cm"];
+const EXEMPT_EMAILS = ["admin@nkapcontrol.com", "demo@nkapcontrol.com"];
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),

@@ -68,7 +68,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     if (isNotchPayConfigured()) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app";
       const callbackUrl = `${appUrl}/api/webhooks/payment-links`;
-      const email = payerEmail || link.company?.email || "client@nkapcontrol.cm";
+      const email = payerEmail || link.company?.email || "client@nkapcontrol.com";
 
       const notchpay = await initializePayment({
         email,

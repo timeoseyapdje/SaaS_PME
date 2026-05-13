@@ -263,7 +263,7 @@ export default function LoginPage() {
             </p>
             <div className="px-4 py-3 rounded-xl bg-muted/50 border border-border/50 text-center mx-auto mt-2">
               <p className="text-xs text-muted-foreground font-medium">
-                Demo: <span className="text-foreground">demo@nkapcontrol.cm</span> / <span className="text-foreground">demo123456</span>
+                Demo: <span className="text-foreground">demo@nkapcontrol.com</span> / <span className="text-foreground">demo123456</span>
               </p>
             </div>
             <p className="text-[11px] text-muted-foreground/60 text-center">
