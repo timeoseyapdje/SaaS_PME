@@ -23,10 +23,10 @@ interface PaymentLinkData {
 }
 
 const PAYMENT_METHODS = [
-  { value: "MTN_MONEY", label: "MTN Mobile Money", icon: "📱", color: "border-yellow-400 bg-yellow-50 dark:bg-yellow-900/10" },
-  { value: "ORANGE_MONEY", label: "Orange Money", icon: "🍊", color: "border-orange-400 bg-orange-50 dark:bg-orange-900/10" },
-  { value: "ESPECES", label: "Espèces", icon: "💵", color: "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/10" },
-  { value: "VIREMENT", label: "Virement bancaire", icon: "🏦", color: "border-blue-400 bg-blue-50 dark:bg-blue-900/10" },
+  { value: "MTN_MONEY", label: "MTN Mobile Money", logo: "/mtn-money.svg", color: "border-yellow-400 bg-yellow-50 dark:bg-yellow-900/10" },
+  { value: "ORANGE_MONEY", label: "Orange Money", logo: "/orange-money.svg", color: "border-orange-400 bg-orange-50 dark:bg-orange-900/10" },
+  { value: "ESPECES", label: "Espèces / Cash", icon: "💵", color: "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/10" },
+  { value: "VIREMENT", label: "Virement bancaire", logo: "/visa.svg", logo2: "/mastercard.svg", color: "border-blue-400 bg-blue-50 dark:bg-blue-900/10" },
 ];
 
 export default function PublicPaymentPage() {
@@ -152,7 +152,16 @@ export default function PublicPaymentPage() {
                       : "border-border hover:border-emerald-300"
                   }`}
                 >
-                  <span className="text-xl block mb-1">{m.icon}</span>
+                  {"logo" in m ? (
+                    <div className="flex items-center gap-1 mb-1">
+                      <img src={(m as {logo: string}).logo} alt={m.label} className="h-7 w-auto rounded object-contain" />
+                      {"logo2" in m && (
+                        <img src={(m as {logo2: string}).logo2} alt="Mastercard" className="h-7 w-auto rounded object-contain" />
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-xl block mb-1">{(m as {icon: string}).icon}</span>
+                  )}
                   <span className="text-xs font-medium text-foreground">{m.label}</span>
                 </button>
               ))}
