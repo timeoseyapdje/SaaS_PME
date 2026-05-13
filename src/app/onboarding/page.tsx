@@ -400,7 +400,7 @@ function ScreenFrame({ children }: { children: React.ReactNode }) {
           <div className="w-2 h-2 rounded-full bg-amber-500/70" />
           <div className="w-2 h-2 rounded-full bg-green-500/70" />
           <div className="h-3.5 flex-1 mx-2 bg-muted border border-border rounded flex items-center justify-center">
-            <span className="text-[7px] text-muted-foreground">nkapcontrol.cm</span>
+            <span className="text-[7px] text-muted-foreground">nkapcontrol.com</span>
           </div>
         </div>
         {/* Screen content */}

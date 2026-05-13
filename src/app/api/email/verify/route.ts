@@ -60,12 +60,14 @@ export async function PUT(request: Request) {
       where: { identifier_token: { identifier: email, token: code } },
     });
 
+    // Marquer l'email comme vérifié
     const user = await prisma.user.update({
       where: { email },
       data: { emailVerified: new Date() },
       select: { name: true },
     });
 
+    // Send welcome email
     sendWelcomeEmail({ to: email, userName: user.name || "Utilisateur" }).catch(console.error);
 
     return NextResponse.json({ success: true });

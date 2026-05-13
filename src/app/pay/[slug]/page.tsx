@@ -20,6 +20,45 @@ interface PaymentLinkData {
   maxUses?: number;
   company: { name: string; phone?: string; email?: string; logo?: string; city?: string };
   client?: { name: string; email?: string };
+  notchpayEnabled?: boolean;
+}
+
+function MtnLogo() {
+  return (
+    <div style={{ background: "#FFCC00", borderRadius: 6, padding: "2px 10px", display: "inline-flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minWidth: 72, height: 36 }}>
+      <span style={{ color: "#000", fontWeight: 900, fontSize: 14, lineHeight: 1.1, fontFamily: "Arial Black, Arial, sans-serif" }}>MTN</span>
+      <span style={{ color: "#000", fontWeight: 600, fontSize: 8, lineHeight: 1.2, fontFamily: "Arial, sans-serif" }}>Mobile Money</span>
+    </div>
+  );
+}
+
+function OrangeLogo() {
+  return (
+    <div style={{ background: "#FF6600", borderRadius: 6, padding: "2px 10px", display: "inline-flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minWidth: 72, height: 36 }}>
+      <span style={{ color: "#fff", fontWeight: 700, fontSize: 13, lineHeight: 1.1, fontFamily: "Arial, sans-serif" }}>Orange</span>
+      <span style={{ color: "#fff", fontWeight: 600, fontSize: 9, lineHeight: 1.2, fontFamily: "Arial, sans-serif" }}>Money</span>
+    </div>
+  );
+}
+
+function VisaLogo() {
+  return (
+    <div style={{ background: "#fff", border: "1px solid #ddd", borderRadius: 5, width: 52, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+      <span style={{ color: "#1A1F71", fontWeight: 900, fontSize: 16, fontStyle: "italic", fontFamily: "Arial, sans-serif", letterSpacing: 1 }}>VISA</span>
+    </div>
+  );
+}
+
+function MastercardLogo() {
+  return (
+    <div style={{ background: "#fff", border: "1px solid #ddd", borderRadius: 5, width: 52, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+      <svg viewBox="0 0 44 28" width="44" height="28" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="14" r="11" fill="#EB001B"/>
+        <circle cx="28" cy="14" r="11" fill="#F79E1B"/>
+        <path d="M22 5.2a11 11 0 0 1 0 17.6A11 11 0 0 1 22 5.2z" fill="#FF5F00"/>
+      </svg>
+    </div>
+  );
 }
 
 function MtnLogo() {
@@ -76,6 +115,7 @@ export default function PublicPaymentPage() {
   const [method, setMethod] = useState("");
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -99,10 +139,15 @@ export default function PublicPaymentPage() {
       const res = await fetch(`/api/pay/${slug}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentMethod: method, phoneNumber: phone || null, payerName: name || null }),
+        body: JSON.stringify({ paymentMethod: method, phoneNumber: phone || null, payerName: name || null, payerEmail: email || null }),
       });
-      if (res.ok) { setSuccess(true); }
-      else { const d = await res.json(); setError(d.error); }
+      const d = await res.json();
+      if (!res.ok) { setError(d.error); return; }
+      if (d.checkoutUrl) {
+        window.location.href = d.checkoutUrl;
+      } else {
+        setSuccess(true);
+      }
     } catch { setError("Erreur. Veuillez réessayer."); }
     finally { setSubmitting(false); }
   }
@@ -175,6 +220,13 @@ export default function PublicPaymentPage() {
             <Label className="text-sm font-medium">Votre nom (optionnel)</Label>
             <Input value={name} onChange={e => setName(e.target.value)} placeholder="Jean Dupont" />
           </div>
+
+          {data?.notchpayEnabled && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Email (requis pour le paiement en ligne)</Label>
+              <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="vous@exemple.com" required />
+            </div>
+          )}
 
           <div className="space-y-3">
             <Label className="text-sm font-medium">Méthode de paiement *</Label>

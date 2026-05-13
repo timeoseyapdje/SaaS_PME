@@ -166,7 +166,12 @@ export default function SubscriptionPage() {
         }),
       });
 
+      const data = await res.json();
       if (res.ok) {
+        if (data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+          return;
+        }
         setSuccess(true);
         setSelectedPlan("");
         setPaymentMethod("");
@@ -175,8 +180,7 @@ export default function SubscriptionPage() {
         fetchSubscription();
         setTimeout(() => setSuccess(false), 5000);
       } else {
-        const err = await res.json();
-        setError(err.error || "Erreur lors du paiement");
+        setError(data.error || "Erreur lors du paiement");
       }
     } catch {
       setError("Une erreur est survenue");
