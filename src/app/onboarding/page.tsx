@@ -525,7 +525,7 @@ export default function OnboardingPage() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button asChild size="lg" className="w-full sm:w-auto h-12 px-8 font-semibold bg-white text-emerald-700 hover:bg-emerald-50 active:bg-emerald-100 rounded-full shadow-lg touch-manipulation">
-                <Link href="/login">
+                <Link href="/dashboard">
                   Aller au tableau de bord
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>

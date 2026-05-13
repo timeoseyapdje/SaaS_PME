@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { sendVerificationCodeEmail } from "@/lib/email";
 
 const registerSchema = z.object({
   companyName: z.string().min(2),
@@ -73,6 +74,13 @@ export async function POST(request: Request) {
         companyId: company.id,
       },
     });
+
+    // Send verification code immediately after account creation
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = new Date(Date.now() + 15 * 60 * 1000);
+    await prisma.verificationToken.deleteMany({ where: { identifier: data.email } });
+    await prisma.verificationToken.create({ data: { identifier: data.email, token: code, expires } });
+    sendVerificationCodeEmail({ to: data.email, code, userName: data.userName }).catch(console.error);
 
     return NextResponse.json({ success: true, userId: user.id });
   } catch (error) {

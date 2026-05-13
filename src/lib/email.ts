@@ -11,6 +11,8 @@ function getResendClient() {
 const FROM_EMAIL = process.env.FROM_EMAIL || "Nkap Control <no-reply@nkapcontrol.com>";
 const APP_NAME = "Nkap Control";
 
+const NO_REPLY_NOTICE = `<p style="color: #3f3f46; font-size: 11px; margin: 4px 0 0;">Cet email est envoyé automatiquement — merci de ne pas y répondre.</p>`;
+
 // ============================================================
 // EMAIL: Confirmation de paiement d'abonnement
 // ============================================================
@@ -78,6 +80,7 @@ export async function sendSubscriptionConfirmationEmail({
       </div>
       <div style="padding: 20px 32px; background: #09090b; text-align: center;">
         <p style="color: #52525b; font-size: 12px; margin: 0;">${APP_NAME} - Gestion financiere pour PME camerounaises</p>
+        ${NO_REPLY_NOTICE}
       </div>
     </div>
   `;
@@ -182,6 +185,7 @@ export async function sendInvoiceEmail({
       </div>
       <div style="padding: 20px 32px; background: #09090b; text-align: center;">
         <p style="color: #52525b; font-size: 12px; margin: 0;">Envoyé depuis ${APP_NAME}</p>
+        ${NO_REPLY_NOTICE}
       </div>
     </div>
   `;
@@ -242,6 +246,7 @@ export async function sendVerificationCodeEmail({
       </div>
       <div style="padding: 20px 32px; background: #09090b; text-align: center;">
         <p style="color: #52525b; font-size: 12px; margin: 0;">${APP_NAME} - Gestion financiere pour PME camerounaises</p>
+        ${NO_REPLY_NOTICE}
       </div>
     </div>
   `;
@@ -280,7 +285,7 @@ export async function sendWelcomeEmail({ to, userName }: { to: string; userName:
         <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0; font-size: 14px;">Bienvenue !</p>
       </div>
       <div style="padding: 32px; color: #d4d4d8; text-align: center;">
-        <p style="font-size: 18px; margin: 0 0 8px; color: white; font-weight: 700;">Votre compte est actif 🎉</p>
+        <p style="font-size: 18px; margin: 0 0 8px; color: white; font-weight: 700;">Votre compte est actif !</p>
         <p style="margin: 0 0 24px; font-size: 15px;">Bonjour <strong style="color: white;">${userName}</strong>, votre adresse email a été vérifiée avec succès.</p>
         <p style="margin: 0 0 32px; font-size: 14px; color: #a1a1aa;">Vous pouvez maintenant gérer votre trésorerie, créer des factures, suivre vos dépenses et bien plus encore.</p>
         <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app"}/dashboard"
@@ -290,6 +295,7 @@ export async function sendWelcomeEmail({ to, userName }: { to: string; userName:
       </div>
       <div style="padding: 20px 32px; background: #09090b; text-align: center;">
         <p style="color: #52525b; font-size: 12px; margin: 0;">${APP_NAME} · Gestion financière pour PME camerounaises · <a href="mailto:contact@nkapcontrol.com" style="color: #52525b;">contact@nkapcontrol.com</a></p>
+        ${NO_REPLY_NOTICE}
       </div>
     </div>
   `;
@@ -353,13 +359,14 @@ export async function sendPaymentRequestNotification({
       </div>
       <div style="padding: 20px 32px; background: #09090b; text-align: center;">
         <p style="color: #52525b; font-size: 12px; margin: 0;">${APP_NAME} · Gestion financière pour PME camerounaises</p>
+        ${NO_REPLY_NOTICE}
       </div>
     </div>
   `;
   try {
     const resend = getResendClient();
     if (!resend) return { success: false };
-    const { error } = await resend.emails.send({ from: FROM_EMAIL, to, subject: `💳 Nouvelle demande de paiement — ${amount.toLocaleString()} ${currency}`, html });
+    const { error } = await resend.emails.send({ from: FROM_EMAIL, to, subject: `Nouvelle demande de paiement — ${amount.toLocaleString()} ${currency}`, html });
     if (error) { console.error("Payment request email error:", error); return { success: false }; }
     return { success: true };
   } catch (err) { console.error("Payment request email exception:", err); return { success: false }; }
@@ -396,9 +403,6 @@ export async function sendPaymentConfirmedEmail({
         <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0; font-size: 14px;">Paiement confirmé</p>
       </div>
       <div style="padding: 32px; color: #d4d4d8; text-align: center;">
-        <div style="width: 64px; height: 64px; background: #052e16; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-          <span style="font-size: 32px;">✅</span>
-        </div>
         <p style="font-size: 18px; margin: 0 0 8px; color: white; font-weight: 700;">Paiement confirmé !</p>
         <p style="margin: 0 0 24px; font-size: 15px;">Bonjour <strong style="color: white;">${payerName}</strong>, votre paiement pour <strong style="color: white;">${linkTitle}</strong> a été confirmé par ${companyName}.</p>
         <div style="background: #18181b; border-radius: 12px; padding: 20px; margin: 0 auto 24px; max-width: 300px; text-align: left;">
@@ -411,13 +415,14 @@ export async function sendPaymentConfirmedEmail({
       </div>
       <div style="padding: 20px 32px; background: #09090b; text-align: center;">
         <p style="color: #52525b; font-size: 12px; margin: 0;">Paiement sécurisé via ${APP_NAME}</p>
+        ${NO_REPLY_NOTICE}
       </div>
     </div>
   `;
   try {
     const resend = getResendClient();
     if (!resend) return { success: false };
-    const { error } = await resend.emails.send({ from: FROM_EMAIL, to, subject: `✅ Paiement confirmé — ${amount.toLocaleString()} ${currency} · ${companyName}`, html });
+    const { error } = await resend.emails.send({ from: FROM_EMAIL, to, subject: `Paiement confirmé — ${amount.toLocaleString()} ${currency} · ${companyName}`, html });
     if (error) { console.error("Payment confirmed email error:", error); return { success: false }; }
     return { success: true };
   } catch (err) { console.error("Payment confirmed email exception:", err); return { success: false }; }
