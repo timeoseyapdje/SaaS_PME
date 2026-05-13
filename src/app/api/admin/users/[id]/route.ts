@@ -18,7 +18,6 @@ export async function PATCH(
     return NextResponse.json({ error: "Rôle invalide" }, { status: 400 });
   }
 
-  // Vérifier que l'utilisateur cible existe
   const targetUser = await prisma.user.findUnique({
     where: { id },
     select: { email: true },
@@ -28,7 +27,6 @@ export async function PATCH(
     return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
   }
 
-  // Empêcher de modifier le rôle du Super Admin lui-même
   if (targetUser.email === SUPER_ADMIN_EMAIL) {
     return NextResponse.json({ error: "Impossible de modifier le rôle du Super Admin" }, { status: 403 });
   }
@@ -41,3 +39,35 @@ export async function PATCH(
 
   return NextResponse.json(updated);
 }
+
+// DELETE - Supprimer un utilisateur (Super Admin uniquement)
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const { error } = await requireSuperAdmin();
+  if (error) return error;
+
+  const targetUser = await prisma.user.findUnique({
+    where: { id },
+    select: { email: true },
+  });
+
+  if (!targetUser) {
+    return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
+  }
+
+  if (targetUser.email === SUPER_ADMIN_EMAIL) {
+    return NextResponse.json({ error: "Impossible de supprimer le Super Admin" }, { status: 403 });
+  }
+
+  // Delete auth data then the user
+  await prisma.session.deleteMany({ where: { userId: id } });
+  await prisma.account.deleteMany({ where: { userId: id } });
+  await prisma.notification.deleteMany({ where: { userId: id } });
+  await prisma.user.delete({ where: { id } });
+
+  return NextResponse.json({ success: true });
+}
+
