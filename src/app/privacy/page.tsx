@@ -143,8 +143,8 @@ export default function PrivacyPage() {
             </ul>
             <p className="mt-2">
               Pour exercer ces droits, contactez-nous à{" "}
-              <a href="mailto:contact@nkapcontrol.cm" className="text-emerald-400 hover:text-emerald-300">
-                contact@nkapcontrol.cm
+              <a href="mailto:contact@nkapcontrol.com" className="text-emerald-400 hover:text-emerald-300">
+                contact@nkapcontrol.com
               </a>
             </p>
           </section>
@@ -170,8 +170,8 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-semibold text-foreground mb-3">10. Contact</h2>
             <p>
               Pour toute question concernant la protection de vos données :{" "}
-              <a href="mailto:contact@nkapcontrol.cm" className="text-emerald-400 hover:text-emerald-300">
-                contact@nkapcontrol.cm
+              <a href="mailto:contact@nkapcontrol.com" className="text-emerald-400 hover:text-emerald-300">
+                contact@nkapcontrol.com
               </a>
             </p>
           </section>

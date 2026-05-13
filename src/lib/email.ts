@@ -8,7 +8,7 @@ function getResendClient() {
   return new Resend(apiKey);
 }
 
-const FROM_EMAIL = process.env.FROM_EMAIL || "Nkap Control <onboarding@resend.dev>";
+const FROM_EMAIL = process.env.FROM_EMAIL || "Nkap Control <no-reply@nkapcontrol.com>";
 const APP_NAME = "Nkap Control";
 
 // ============================================================

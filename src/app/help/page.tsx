@@ -488,11 +488,11 @@ export default function HelpPage() {
               repondrons dans les plus brefs delais.
             </p>
             <a
-              href="mailto:contact@nkapcontrol.cm"
+              href="mailto:contact@nkapcontrol.com"
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors shadow-lg shadow-emerald-500/20"
             >
               <Mail className="w-4 h-4" />
-              contact@nkapcontrol.cm
+              contact@nkapcontrol.com
             </a>
           </div>
         </div>

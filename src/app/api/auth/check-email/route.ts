@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-const EXEMPT_EMAILS = ["admin@nkapcontrol.cm", "demo@nkapcontrol.cm"];
+const EXEMPT_EMAILS = ["admin@nkapcontrol.com", "demo@nkapcontrol.com"];
 
 export async function POST(request: Request) {
   try {

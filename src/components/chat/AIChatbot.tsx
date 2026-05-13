@@ -60,7 +60,7 @@ function TypingIndicator() {
   );
 }
 
-const DEMO_EMAIL = "demo@nkapcontrol.cm";
+const DEMO_EMAIL = "demo@nkapcontrol.com";
 
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
