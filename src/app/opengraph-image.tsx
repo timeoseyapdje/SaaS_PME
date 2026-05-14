@@ -5,6 +5,8 @@ export const alt = "Nkap Control — Gestion financière pour PME camerounaises"
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app";
+
 export default function OGImage() {
   return new ImageResponse(
     (
@@ -16,68 +18,60 @@ export default function OGImage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #052e16 0%, #064e3b 50%, #065f46 100%)",
+          background: "#ffffff",
           fontFamily: "sans-serif",
+          position: "relative",
         }}
       >
-        {/* Logo circle */}
+        {/* Subtle green bar on top */}
         <div
           style={{
-            width: 96,
-            height: 96,
-            borderRadius: 24,
-            background: "#fff",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 8,
+            background: "linear-gradient(90deg, #15803d, #16a34a, #15803d)",
             display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: 32,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
           }}
-        >
-          <div style={{ fontSize: 52, display: "flex" }}>💰</div>
-        </div>
+        />
 
-        {/* Title */}
-        <div
-          style={{
-            fontSize: 64,
-            fontWeight: 900,
-            color: "#fff",
-            letterSpacing: -2,
-            marginBottom: 16,
-            display: "flex",
-          }}
-        >
-          Nkap Control
-        </div>
+        {/* Logo */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`${APP_URL}/logo.jpeg`}
+          width={420}
+          height={420}
+          alt="Nkap Control"
+          style={{ objectFit: "contain", marginBottom: 16 }}
+        />
 
-        {/* Subtitle */}
+        {/* Tagline */}
         <div
           style={{
-            fontSize: 28,
-            color: "#6ee7b7",
-            fontWeight: 500,
-            textAlign: "center",
-            maxWidth: 700,
-            lineHeight: 1.4,
+            fontSize: 30,
+            color: "#15803d",
+            fontWeight: 700,
+            letterSpacing: 0.5,
             display: "flex",
           }}
         >
-          Logiciel de gestion financière pour PME camerounaises
+          Gestion financière pour PME camerounaises
         </div>
 
         {/* Pills */}
-        <div style={{ display: "flex", gap: 16, marginTop: 40 }}>
-          {["Factures", "Trésorerie", "MTN Money", "Orange Money", "Stocks"].map((label) => (
+        <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
+          {["Factures", "Trésorerie", "MTN Money", "Orange Money"].map((label) => (
             <div
               key={label}
               style={{
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
+                background: "#f0fdf4",
+                border: "1.5px solid #bbf7d0",
                 borderRadius: 999,
-                padding: "8px 20px",
-                fontSize: 18,
-                color: "#d1fae5",
+                padding: "6px 18px",
+                fontSize: 20,
+                color: "#15803d",
+                fontWeight: 600,
                 display: "flex",
               }}
             >
@@ -90,14 +84,27 @@ export default function OGImage() {
         <div
           style={{
             position: "absolute",
-            bottom: 32,
-            fontSize: 20,
-            color: "rgba(255,255,255,0.4)",
+            bottom: 24,
+            fontSize: 18,
+            color: "#9ca3af",
             display: "flex",
           }}
         >
           nkapcontrol.com
         </div>
+
+        {/* Bottom green bar */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 8,
+            background: "linear-gradient(90deg, #15803d, #16a34a, #15803d)",
+            display: "flex",
+          }}
+        />
       </div>
     ),
     { ...size }
