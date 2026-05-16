@@ -78,7 +78,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     });
 
     if (link.company?.email) {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app";
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
       sendPaymentRequestNotification({
         to: link.company.email,
         merchantName: link.company.name,
@@ -92,7 +92,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     }
 
     if (isOnline) {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app";
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
       const callbackUrl = `${appUrl}/api/webhooks/payment-links`;
       const email = payerEmail || link.company?.email || "client@nkapcontrol.com";
 

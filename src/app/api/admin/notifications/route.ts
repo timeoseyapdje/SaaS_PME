@@ -87,7 +87,7 @@ export async function POST(request: Request) {
                     <div style="color: #a1a1aa; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${message}</div>
                   </div>
                   <div style="text-align: center;">
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app"}/dashboard"
+                    <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com"}/dashboard"
                        style="display: inline-block; background: #059669; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
                       Acceder au tableau de bord
                     </a>

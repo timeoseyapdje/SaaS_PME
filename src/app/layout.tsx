@@ -6,7 +6,7 @@ import { PWARegister } from "@/components/PWARegister";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),

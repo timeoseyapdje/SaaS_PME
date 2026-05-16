@@ -36,7 +36,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-3">2. Définitions</h2>
             <ul className="list-disc pl-5 space-y-1.5">
-              <li><strong className="text-foreground">Plateforme</strong> : le site web et l&apos;application Nkap Control accessible à l&apos;adresse nkap-control.vercel.app</li>
+              <li><strong className="text-foreground">Plateforme</strong> : le site web et l&apos;application Nkap Control accessible à l&apos;adresse nkapcontrol.com</li>
               <li><strong className="text-foreground">Utilisateur</strong> : toute personne physique ou morale créant un compte sur la Plateforme</li>
               <li><strong className="text-foreground">Entreprise</strong> : l&apos;entité commerciale associée au compte Utilisateur</li>
               <li><strong className="text-foreground">Abonnement</strong> : le plan souscrit par l&apos;Utilisateur (Starter, Pro ou Max)</li>
