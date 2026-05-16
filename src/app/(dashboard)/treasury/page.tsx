@@ -27,7 +27,10 @@ import {
   Smartphone,
   Wallet,
   Edit,
-  TrendingUp,
+  ArrowDownLeft,
+  CheckCircle2,
+  Clock,
+  XCircle,
 } from "lucide-react";
 
 const accountTypeLabels: Record<string, string> = {
@@ -37,6 +40,21 @@ const accountTypeLabels: Record<string, string> = {
   ORANGE_MONEY: "Orange Money",
   CAISSE: "Caisse",
 };
+
+interface Payout {
+  id: string;
+  amount: number;
+  currency: string;
+  status: "INITIATED" | "PROCESSING" | "COMPLETED" | "FAILED";
+  payoutRef?: string;
+  createdAt: string;
+  bankAccount: { name: string; type: string };
+  transaction?: {
+    paymentMethod: string;
+    payerName?: string;
+    paymentLink?: { title: string };
+  };
+}
 
 function getAccountIcon(type: string) {
   switch (type) {
@@ -63,18 +81,36 @@ function getAccountColor(type: string) {
   }
 }
 
+function PayoutStatusBadge({ status }: { status: Payout["status"] }) {
+  const config = {
+    INITIATED:  { label: "Initié",     icon: <Clock className="w-3 h-3" />,        cls: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
+    PROCESSING: { label: "En cours",   icon: <Clock className="w-3 h-3" />,        cls: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" },
+    COMPLETED:  { label: "Effectué",   icon: <CheckCircle2 className="w-3 h-3" />, cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" },
+    FAILED:     { label: "Échoué",     icon: <XCircle className="w-3 h-3" />,      cls: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" },
+  }[status];
+
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${config.cls}`}>
+      {config.icon}
+      {config.label}
+    </span>
+  );
+}
+
 export default function TreasuryPage() {
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [totalBalance, setTotalBalance] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [payouts, setPayouts] = useState<Payout[]>([]);
+  const [payoutsLoading, setPayoutsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editAccount, setEditAccount] = useState<BankAccount | null>(null);
 
-  // Form state
   const [formName, setFormName] = useState("");
   const [formType, setFormType] = useState("COMPTE_COURANT");
   const [formBankName, setFormBankName] = useState("");
   const [formBalance, setFormBalance] = useState("0");
+  const [formPhone, setFormPhone] = useState("");
   const [formSubmitting, setFormSubmitting] = useState(false);
 
   const fetchAccounts = useCallback(async () => {
@@ -89,9 +125,20 @@ export default function TreasuryPage() {
     }
   }, []);
 
+  const fetchPayouts = useCallback(async () => {
+    setPayoutsLoading(true);
+    try {
+      const r = await fetch("/api/payouts");
+      if (r.ok) setPayouts(await r.json());
+    } finally {
+      setPayoutsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchAccounts();
-  }, [fetchAccounts]);
+    fetchPayouts();
+  }, [fetchAccounts, fetchPayouts]);
 
   function openAddForm() {
     setEditAccount(null);
@@ -99,6 +146,7 @@ export default function TreasuryPage() {
     setFormType("COMPTE_COURANT");
     setFormBankName("");
     setFormBalance("0");
+    setFormPhone("");
     setShowForm(true);
   }
 
@@ -108,6 +156,7 @@ export default function TreasuryPage() {
     setFormType(account.type);
     setFormBankName(account.bankName || "");
     setFormBalance(String(account.balance));
+    setFormPhone((account as BankAccount & { phoneNumber?: string }).phoneNumber || "");
     setShowForm(true);
   }
 
@@ -115,28 +164,24 @@ export default function TreasuryPage() {
     e.preventDefault();
     setFormSubmitting(true);
     try {
+      const payload = {
+        name: formName,
+        type: formType,
+        bankName: formBankName || null,
+        balance: parseFloat(formBalance),
+        phoneNumber: ["MTN_MONEY", "ORANGE_MONEY"].includes(formType) ? formPhone || null : null,
+      };
       if (editAccount) {
         await fetch("/api/treasury", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id: editAccount.id,
-            name: formName,
-            type: formType,
-            bankName: formBankName,
-            balance: parseFloat(formBalance),
-          }),
+          body: JSON.stringify({ id: editAccount.id, ...payload }),
         });
       } else {
         await fetch("/api/treasury", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: formName,
-            type: formType,
-            bankName: formBankName,
-            balance: parseFloat(formBalance),
-          }),
+          body: JSON.stringify(payload),
         });
       }
       setShowForm(false);
@@ -220,6 +265,53 @@ export default function TreasuryPage() {
         </div>
       )}
 
+      {/* Payout history */}
+      <Card className="border-border">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <ArrowDownLeft className="w-4 h-4 text-emerald-500" />
+            Historique des reversements
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {payoutsLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map(i => <div key={i} className="h-12 bg-muted/50 animate-pulse rounded-lg" />)}
+            </div>
+          ) : payouts.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">Aucun reversement pour l&apos;instant</p>
+          ) : (
+            <div className="space-y-2">
+              {payouts.map((payout) => (
+                <div key={payout.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+                      <ArrowDownLeft className="w-4 h-4 text-emerald-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        {payout.transaction?.paymentLink?.title ?? "Reversement"}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {payout.bankAccount.name}
+                        {payout.transaction?.payerName && ` · ${payout.transaction.payerName}`}
+                        {" · "}{new Date(payout.createdAt).toLocaleDateString("fr-FR")}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <PayoutStatusBadge status={payout.status} />
+                    <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                      +{formatCurrency(payout.amount, payout.currency)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Add/Edit account dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-md">
@@ -253,14 +345,29 @@ export default function TreasuryPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Banque</Label>
-              <Input
-                placeholder="Ex: Société Générale Cameroun"
-                value={formBankName}
-                onChange={(e) => setFormBankName(e.target.value)}
-              />
-            </div>
+            {["MTN_MONEY", "ORANGE_MONEY"].includes(formType) ? (
+              <div className="space-y-2">
+                <Label>Numéro de téléphone Mobile Money *</Label>
+                <Input
+                  type="tel"
+                  placeholder="6XX XXX XXX"
+                  value={formPhone}
+                  onChange={(e) => setFormPhone(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Ce numéro recevra les reversements automatiques.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label>Banque</Label>
+                <Input
+                  placeholder="Ex: Société Générale Cameroun"
+                  value={formBankName}
+                  onChange={(e) => setFormBankName(e.target.value)}
+                />
+              </div>
+            )}
             <div className="space-y-2">
               <Label>Solde actuel (FCFA)</Label>
               <Input
