@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { initializePayment, isNotchPayConfigured } from "@/lib/notchpay";
+import { initializePayment, isNotchPayConfigured, calculateGrossAmount } from "@/lib/notchpay";
 import { sendPaymentRequestNotification } from "@/lib/email";
 
 export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
@@ -24,7 +24,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
       return NextResponse.json({ error: "Ce lien a atteint son nombre maximum d'utilisations" }, { status: 410 });
     }
 
-    return NextResponse.json({ ...link, notchpayEnabled: isNotchPayConfigured() });
+    const { grossAmount, feeAmount } = calculateGrossAmount(link.amount);
+    return NextResponse.json({
+      ...link,
+      notchpayEnabled: isNotchPayConfigured(),
+      grossAmount,
+      feeAmount,
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
@@ -48,11 +54,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       return NextResponse.json({ error: "Méthode de paiement requise" }, { status: 400 });
     }
 
-    // Create transaction record
+    // For online mobile money payments, gross up the amount so company receives exactly link.amount
+    const isOnline = isNotchPayConfigured() && ["MTN_MONEY", "ORANGE_MONEY", "CARTE_BANCAIRE"].includes(paymentMethod);
+    const { grossAmount, feeAmount } = calculateGrossAmount(link.amount);
+    const chargedAmount = isOnline ? grossAmount : link.amount;
+
     const transaction = await prisma.paymentLinkTransaction.create({
       data: {
         paymentLinkId: link.id,
         amount: link.amount,
+        grossAmount: isOnline ? grossAmount : null,
+        feeAmount: isOnline ? feeAmount : null,
         paymentMethod,
         phoneNumber: phoneNumber || null,
         payerName: payerName || null,
@@ -65,7 +77,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       data: { currentUses: { increment: 1 } },
     });
 
-    // Notify the merchant by email
     if (link.company?.email) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app";
       sendPaymentRequestNotification({
@@ -80,15 +91,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       }).catch(console.error);
     }
 
-    // If NotchPay is configured, initialize online payment
-    if (isNotchPayConfigured()) {
+    if (isOnline) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app";
       const callbackUrl = `${appUrl}/api/webhooks/payment-links`;
       const email = payerEmail || link.company?.email || "client@nkapcontrol.com";
 
       const notchpay = await initializePayment({
         email,
-        amount: link.amount,
+        amount: chargedAmount,
         currency: link.currency,
         reference: transaction.id,
         description: link.title,
@@ -96,7 +106,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       });
 
       if (notchpay) {
-        // Save the NotchPay reference for webhook matching
         await prisma.paymentLinkTransaction.update({
           where: { id: transaction.id },
           data: { transactionRef: notchpay.reference },
@@ -105,7 +114,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       }
     }
 
-    // Fallback: manual confirmation flow
     return NextResponse.json({ message: "Transaction enregistrée. Le marchand vous contactera pour confirmation." });
   } catch (error) {
     console.error(error);
