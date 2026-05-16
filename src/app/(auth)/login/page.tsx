@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -15,12 +15,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { TrendingUp, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
+import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [isPWA, setIsPWA] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    const standalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as { standalone?: boolean }).standalone === true;
+    setIsPWA(standalone);
+  }, []);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [needsVerification, setNeedsVerification] = useState(false);
@@ -126,13 +134,15 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-md relative z-10">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour à l&apos;accueil
-        </Link>
+        {!isPWA && (
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-6"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Retour à l&apos;accueil
+          </Link>
+        )}
         <div className="text-center mb-10 flex flex-col items-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-5 shadow-xl shadow-emerald-500/20 border border-border/50 overflow-hidden p-1.5">
             <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
