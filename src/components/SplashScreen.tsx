@@ -5,18 +5,31 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export function SplashScreen() {
   const [phase, setPhase] = useState<"logo" | "expand" | "fade">("logo");
-  const [visible, setVisible] = useState(false);
+  // Start visible=true so the splash covers content from the very first render
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    // Show only once per session
-    if (sessionStorage.getItem("splash_shown")) return;
+    // If already shown this session, hide immediately (no flash)
+    if (sessionStorage.getItem("splash_shown")) {
+      setVisible(false);
+      return;
+    }
     sessionStorage.setItem("splash_shown", "1");
-    setVisible(true);
 
-    const t1 = setTimeout(() => setPhase("expand"), 700);
-    const t2 = setTimeout(() => setPhase("fade"), 1500);
-    const t3 = setTimeout(() => setVisible(false), 1900);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    const startAnimation = () => {
+      const t1 = setTimeout(() => setPhase("expand"), 600);
+      const t2 = setTimeout(() => setPhase("fade"), 1400);
+      const t3 = setTimeout(() => setVisible(false), 1800);
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    };
+
+    // Wait for the page to be fully loaded before animating out
+    if (document.readyState === "complete") {
+      return startAnimation();
+    }
+    const onLoad = () => startAnimation();
+    window.addEventListener("load", onLoad, { once: true });
+    return () => window.removeEventListener("load", onLoad);
   }, []);
 
   return (
@@ -47,7 +60,7 @@ export function SplashScreen() {
               />
             </motion.div>
 
-            {/* Text — slides in from left after logo */}
+            {/* Text — slides in after logo */}
             <motion.div
               initial={{ opacity: 0, x: -16, width: 0 }}
               animate={
