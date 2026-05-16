@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { PWARegister } from "@/components/PWARegister";
+import { SplashScreen } from "@/components/SplashScreen";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -102,6 +103,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <PWARegister />
+          <SplashScreen />
           {children}
         </ThemeProvider>
       </body>
