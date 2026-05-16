@@ -66,7 +66,7 @@ export async function POST(request: Request) {
     // Convertir XAF en EUR pour Stripe (1 EUR = 655.957 XAF)
     const amountInEurCents = Math.round((finalAmount / 655.957) * 100);
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
 
     // Créer la session Stripe Checkout
     const checkoutSession = await stripe.checkout.sessions.create({

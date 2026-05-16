@@ -72,7 +72,7 @@ export async function sendSubscriptionConfirmationEmail({
         <p style="margin: 0 0 24px; font-size: 14px; color: #a1a1aa;">Vous pouvez gérer votre abonnement depuis votre tableau de bord.</p>
 
         <div style="text-align: center;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app"}/subscription"
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com"}/subscription"
              style="display: inline-block; background: #059669; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
             Voir mon abonnement
           </a>
@@ -288,7 +288,7 @@ export async function sendWelcomeEmail({ to, userName }: { to: string; userName:
         <p style="font-size: 18px; margin: 0 0 8px; color: white; font-weight: 700;">Votre compte est actif !</p>
         <p style="margin: 0 0 24px; font-size: 15px;">Bonjour <strong style="color: white;">${userName}</strong>, votre adresse email a été vérifiée avec succès.</p>
         <p style="margin: 0 0 32px; font-size: 14px; color: #a1a1aa;">Vous pouvez maintenant gérer votre trésorerie, créer des factures, suivre vos dépenses et bien plus encore.</p>
-        <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app"}/dashboard"
+        <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com"}/dashboard"
            style="display: inline-block; background: #059669; color: white; padding: 14px 36px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px;">
           Accéder à mon espace
         </a>

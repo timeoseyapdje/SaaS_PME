@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
 
 export default function robots(): MetadataRoute.Robots {
   return {

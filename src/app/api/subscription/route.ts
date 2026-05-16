@@ -151,7 +151,7 @@ export async function POST(request: Request) {
       },
     });
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkap-control.vercel.app";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
     const notchpay = await initializePayment({
       email: session.user.email!,
       amount: finalAmount,
