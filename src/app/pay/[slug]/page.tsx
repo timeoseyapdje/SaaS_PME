@@ -13,6 +13,8 @@ interface PaymentLinkData {
   title: string;
   description?: string;
   amount: number;
+  grossAmount: number;
+  feeAmount: number;
   currency: string;
   slug: string;
   status: string;
@@ -171,7 +173,16 @@ export default function PublicPaymentPage() {
         {/* Amount card */}
         <div className="bg-emerald-500 rounded-2xl p-6 text-center text-white shadow-lg">
           <p className="text-sm opacity-80 mb-1">{data?.title}</p>
-          <p className="text-4xl font-bold">{formatCurrency(data!.amount, data!.currency)}</p>
+          {data?.notchpayEnabled && ["MTN_MONEY", "ORANGE_MONEY", "CARTE_BANCAIRE"].includes(method) ? (
+            <>
+              <p className="text-4xl font-bold">{formatCurrency(data!.grossAmount, data!.currency)}</p>
+              <p className="text-xs opacity-70 mt-1">
+                dont {formatCurrency(data!.feeAmount, data!.currency)} de frais de traitement
+              </p>
+            </>
+          ) : (
+            <p className="text-4xl font-bold">{formatCurrency(data!.amount, data!.currency)}</p>
+          )}
           {data?.description && <p className="text-sm opacity-70 mt-2">{data.description}</p>}
           {data?.client && <p className="text-sm opacity-80 mt-1">Pour : {data.client.name}</p>}
         </div>
@@ -234,7 +245,9 @@ export default function PublicPaymentPage() {
 
           <Button type="submit" disabled={submitting || !method} className="w-full h-12 text-base">
             {submitting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
-            Confirmer le paiement · {formatCurrency(data!.amount, data!.currency)}
+            {data?.notchpayEnabled && ["MTN_MONEY", "ORANGE_MONEY", "CARTE_BANCAIRE"].includes(method)
+              ? `Payer ${formatCurrency(data!.grossAmount, data!.currency)}`
+              : `Confirmer le paiement · ${formatCurrency(data!.amount, data!.currency)}`}
           </Button>
         </form>
 

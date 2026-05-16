@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyWebhookSignature } from "@/lib/notchpay";
+import { verifyWebhookSignature, initiateTransfer } from "@/lib/notchpay";
 
 function parseProvider(body: Record<string, unknown>): {
   transactionRef: string | null;
@@ -36,11 +36,15 @@ function parseProvider(body: Record<string, unknown>): {
   };
 }
 
+const MOBILE_MONEY_CHANNELS: Record<string, "cm.mtn" | "cm.orange"> = {
+  MTN_MONEY: "cm.mtn",
+  ORANGE_MONEY: "cm.orange",
+};
+
 export async function POST(request: Request) {
   try {
     const rawBody = await request.text();
 
-    // Verify NotchPay webhook signature if private key is set
     const signature = request.headers.get("x-notch-signature") ?? "";
     if (signature && !verifyWebhookSignature(rawBody, signature)) {
       return NextResponse.json({ error: "Signature invalide" }, { status: 401 });
@@ -55,6 +59,20 @@ export async function POST(request: Request) {
 
     const tx = await prisma.paymentLinkTransaction.findFirst({
       where: { transactionRef },
+      include: {
+        paymentLink: {
+          include: {
+            company: {
+              include: {
+                bankAccounts: {
+                  where: { isDefault: true },
+                  take: 1,
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!tx || tx.status !== "PENDING") {
@@ -62,18 +80,71 @@ export async function POST(request: Request) {
     }
 
     const newStatus = success ? "COMPLETED" : failed ? "FAILED" : null;
-    if (newStatus) {
-      await prisma.paymentLinkTransaction.update({
-        where: { id: tx.id },
-        data: {
-          status: newStatus as "COMPLETED" | "FAILED",
-          paidAt: newStatus === "COMPLETED" ? new Date() : null,
-        },
-      });
-      console.log(`Webhook payment-links: ${transactionRef} → ${newStatus}`);
+    if (!newStatus) {
+      return NextResponse.json({ received: true, status: "PENDING" });
     }
 
-    return NextResponse.json({ received: true, status: newStatus ?? "PENDING" });
+    await prisma.paymentLinkTransaction.update({
+      where: { id: tx.id },
+      data: {
+        status: newStatus as "COMPLETED" | "FAILED",
+        paidAt: newStatus === "COMPLETED" ? new Date() : null,
+      },
+    });
+
+    if (newStatus === "COMPLETED") {
+      const company = tx.paymentLink.company;
+      const defaultAccount = company.bankAccounts[0];
+
+      if (defaultAccount) {
+        // Update treasury balance
+        await prisma.bankAccount.update({
+          where: { id: defaultAccount.id },
+          data: { balance: { increment: tx.amount } },
+        });
+
+        // Attempt automatic transfer for mobile money accounts
+        const channel = MOBILE_MONEY_CHANNELS[defaultAccount.type];
+        const phone = defaultAccount.phoneNumber || defaultAccount.accountNumber;
+
+        let payoutRef: string | undefined;
+        let payoutStatus: "INITIATED" | "PROCESSING" | "FAILED" = "INITIATED";
+
+        if (channel && phone) {
+          const transfer = await initiateTransfer({
+            amount: tx.amount,
+            currency: tx.paymentLink.currency,
+            phoneNumber: phone,
+            channel,
+            description: `Reversement - ${tx.paymentLink.title}`,
+            reference: `payout-${tx.id}`,
+          });
+
+          if (transfer) {
+            payoutRef = transfer.reference;
+            payoutStatus = "PROCESSING";
+          } else {
+            payoutStatus = "FAILED";
+          }
+        }
+
+        await prisma.payout.create({
+          data: {
+            companyId: company.id,
+            bankAccountId: defaultAccount.id,
+            paymentLinkTransactionId: tx.id,
+            amount: tx.amount,
+            currency: tx.paymentLink.currency,
+            status: payoutStatus,
+            payoutRef: payoutRef ?? null,
+            completedAt: payoutStatus === "PROCESSING" ? null : undefined,
+          },
+        });
+      }
+    }
+
+    console.log(`Webhook payment-links: ${transactionRef} → ${newStatus}`);
+    return NextResponse.json({ received: true, status: newStatus });
   } catch (error) {
     console.error("Webhook payment-links error:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

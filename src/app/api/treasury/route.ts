@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, type, bankName, accountNumber, balance, isDefault } = body;
+    const { name, type, bankName, accountNumber, phoneNumber, balance, isDefault } = body;
 
     if (!name || !type) {
       return NextResponse.json(
@@ -66,6 +66,7 @@ export async function POST(request: Request) {
         type,
         bankName,
         accountNumber,
+        phoneNumber: phoneNumber || null,
         balance: balance || 0,
         isDefault: isDefault || false,
       },
@@ -87,7 +88,7 @@ export async function PATCH(request: Request) {
     const companyId = (session.user as { companyId?: string }).companyId;
 
     const body = await request.json();
-    const { id, name, type, bankName, accountNumber, balance, isDefault } = body;
+    const { id, name, type, bankName, accountNumber, phoneNumber, balance, isDefault } = body;
 
     const existing = await prisma.bankAccount.findFirst({
       where: { id, companyId },
@@ -111,6 +112,7 @@ export async function PATCH(request: Request) {
         type,
         bankName,
         accountNumber,
+        phoneNumber: phoneNumber !== undefined ? (phoneNumber || null) : undefined,
         balance: balance !== undefined ? parseFloat(balance) : undefined,
         isDefault,
       },
