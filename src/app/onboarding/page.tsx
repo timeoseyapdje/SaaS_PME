@@ -15,6 +15,7 @@ import {
   Link2,
   CheckCircle2,
   ChevronRight,
+  Smartphone,
 } from "lucide-react";
 
 /* ─── Données des étapes ─── */
@@ -342,6 +343,65 @@ const steps = [
   },
   {
     number: "08",
+    icon: Smartphone,
+    color: "text-teal-400",
+    bg: "bg-teal-500/10",
+    border: "border-teal-500/20",
+    title: "Configurez votre compte de reversement automatique",
+    description: "Dès qu'un client paie via MTN ou Orange Money, l'argent est reversé automatiquement sur votre compte mobile money.",
+    actions: [
+      "Allez dans Trésorerie → Ajouter un compte",
+      "Choisissez MTN Mobile Money ou Orange Money",
+      "Entrez votre numéro de téléphone qui recevra les virements",
+      "Cochez « Compte principal » — les reversements arriveront automatiquement",
+    ],
+    screen: (
+      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
+        <div className="h-2.5 w-20 bg-white/70 rounded mb-1" />
+        <div className="bg-card/60 border border-teal-500/30 rounded-xl p-2.5 flex flex-col gap-2">
+          <div className="space-y-1.5">
+            <div className="h-1.5 w-14 bg-muted-foreground/30 rounded" />
+            <div className="h-6 bg-muted border border-border rounded-lg" />
+          </div>
+          <div className="space-y-1.5">
+            <div className="h-1.5 w-12 bg-muted-foreground/30 rounded" />
+            <div className="flex gap-1.5">
+              <div className="flex-1 h-8 bg-amber-500/15 border border-amber-500/40 rounded-lg flex items-center justify-center gap-1">
+                <div className="w-3 h-3 rounded-full bg-amber-500/60" />
+                <div className="h-1 w-8 bg-amber-400/50 rounded" />
+              </div>
+              <div className="flex-1 h-8 bg-orange-500/15 border border-orange-500/40 rounded-lg flex items-center justify-center gap-1">
+                <div className="w-3 h-3 rounded-full bg-orange-500/60" />
+                <div className="h-1 w-8 bg-orange-400/50 rounded" />
+              </div>
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <div className="h-1.5 w-20 bg-muted-foreground/30 rounded" />
+            <div className="h-6 bg-muted border border-border rounded-lg flex items-center px-2 gap-1">
+              <Smartphone className="w-2.5 h-2.5 text-muted-foreground/50" />
+              <div className="h-1.5 w-16 bg-muted-foreground/20 rounded" />
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 mt-1">
+            <div className="w-3.5 h-3.5 rounded border-2 border-teal-500/60 bg-teal-500/20 flex items-center justify-center">
+              <div className="w-1.5 h-1.5 rounded-sm bg-teal-500" />
+            </div>
+            <div className="h-1.5 w-20 bg-teal-400/40 rounded" />
+          </div>
+          <div className="mt-auto h-6 bg-teal-600/30 border border-teal-500/30 rounded-lg flex items-center justify-center">
+            <div className="h-1.5 w-16 bg-teal-400/50 rounded" />
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 px-1">
+          <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+          <div className="h-1.5 w-32 bg-teal-400/30 rounded" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    number: "09",
     icon: BarChart3,
     color: "text-emerald-400",
     bg: "bg-emerald-500/10",
@@ -445,7 +505,7 @@ export default function OnboardingPage() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-foreground text-xs font-medium mb-6">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Guide de démarrage — 8 étapes
+            Guide de démarrage — 9 étapes
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground mb-4 leading-tight">
             Bienvenue sur{" "}
@@ -454,7 +514,7 @@ export default function OnboardingPage() {
             </span>
           </h1>
           <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
-            Suivez ces 8 étapes pour maîtriser la plateforme et tirer le meilleur de votre outil de gestion.
+            Suivez ces 9 étapes pour maîtriser la plateforme et tirer le meilleur de votre outil de gestion.
           </p>
         </motion.div>
       </section>

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { PWARegister } from "@/components/PWARegister";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,6 +36,12 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large" },
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Nkap Control",
+  },
+  formatDetection: { telephone: false },
   openGraph: {
     type: "website",
     locale: "fr_FR",
@@ -82,6 +89,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <PWARegister />
           {children}
         </ThemeProvider>
       </body>
