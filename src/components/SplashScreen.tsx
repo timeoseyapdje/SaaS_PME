@@ -38,7 +38,7 @@ export function SplashScreen() {
                   : { x: 0, scale: 1 }
               }
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="w-16 h-16 rounded-2xl bg-white overflow-hidden p-1.5 shadow-2xl shadow-emerald-500/30 flex-shrink-0"
+              className="w-16 h-16 rounded-2xl bg-white dark:bg-zinc-900 overflow-hidden p-1.5 shadow-2xl shadow-emerald-500/30 flex-shrink-0"
             >
               <img
                 src="/logo.jpeg"

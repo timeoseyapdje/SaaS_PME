@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { CapacitorProvider } from "@/components/providers/CapacitorProvider";
 import { PWARegister } from "@/components/PWARegister";
 import { SplashScreen } from "@/components/SplashScreen";
 
@@ -104,7 +105,9 @@ export default function RootLayout({
         >
           <PWARegister />
           <SplashScreen />
-          {children}
+          <CapacitorProvider>
+            {children}
+          </CapacitorProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -478,7 +478,7 @@ export default function OnboardingPage() {
       <div className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-b border-border">
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-7 h-7 rounded-lg bg-white overflow-hidden p-0.5">
+            <div className="w-7 h-7 rounded-lg bg-white dark:bg-zinc-900 overflow-hidden p-0.5">
               <img src="/logo.jpeg" alt="Nkap Control" className="w-full h-full object-contain" />
             </div>
             <span className="font-bold text-sm text-foreground hidden sm:block">Nkap Control</span>
@@ -602,7 +602,7 @@ export default function OnboardingPage() {
       <footer className="border-t border-border py-6 px-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-white overflow-hidden p-0.5">
+            <div className="w-6 h-6 rounded-lg bg-white dark:bg-zinc-900 overflow-hidden p-0.5">
               <img src="/logo.jpeg" alt="" className="w-full h-full object-contain" />
             </div>
             <span className="text-sm font-bold text-foreground">Nkap Control</span>

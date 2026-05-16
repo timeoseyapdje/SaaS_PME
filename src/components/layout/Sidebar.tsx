@@ -146,7 +146,7 @@ export function Sidebar() {
       {/* Logo */}
       <div className="flex items-center justify-between px-5 py-5 lg:px-6 lg:py-6">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20 bg-white overflow-hidden p-0.5">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-emerald-500/20 bg-white dark:bg-zinc-900 overflow-hidden p-0.5">
             <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
           </div>
           <div>

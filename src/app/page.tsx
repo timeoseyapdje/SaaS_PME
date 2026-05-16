@@ -197,7 +197,7 @@ export default function LandingPage() {
         <div className="relative px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20 bg-white overflow-hidden p-0.5">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20 bg-white dark:bg-zinc-900 overflow-hidden p-0.5">
               <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-lg sm:text-xl font-bold tracking-tight text-white">Nkap Control</span>
@@ -710,7 +710,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 mb-8">
             <div className="md:col-span-1">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md bg-white overflow-hidden p-0.5">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md bg-white dark:bg-zinc-900 overflow-hidden p-0.5">
                   <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
                 </div>
                 <span className="font-bold tracking-tight text-foreground">Nkap Control</span>

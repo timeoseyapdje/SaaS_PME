@@ -135,7 +135,7 @@ export default function RegisterPage() {
           Retour à l&apos;accueil
         </Link>
         <div className="text-center mb-8 flex flex-col items-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-5 shadow-xl shadow-emerald-500/20 border border-border/50 overflow-hidden p-1.5">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-white dark:bg-zinc-900 rounded-2xl mb-5 shadow-xl shadow-emerald-500/20 border border-border/50 overflow-hidden p-1.5">
             <img src="/logo.jpeg" alt="Nkap Control Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Nkap Control</h1>
