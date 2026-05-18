@@ -1,18 +1,13 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { calculateInvoiceTotal } from "@/lib/tax";
+import { requirePermission, isNextResponse } from "@/lib/auth-permissions";
 
 export async function GET(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) {
-      return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
-    }
+    const result = await requirePermission("invoices", "view");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
@@ -47,14 +42,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) {
-      return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
-    }
+    const result = await requirePermission("invoices", "create");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const body = await request.json();
     const { clientId, dueDate, items, notes, terms, currency, applyTVA } = body;

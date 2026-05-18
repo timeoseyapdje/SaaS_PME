@@ -1,18 +1,13 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { requirePermission, isNextResponse } from "@/lib/auth-permissions";
 import { prisma } from "@/lib/prisma";
 import { isDemoAccount } from "@/lib/demo";
 
 export async function GET() {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) {
-      return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
-    }
+    const result = await requirePermission("settings", "view");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const company = await prisma.company.findUnique({ where: { id: companyId } });
     if (!company) {
@@ -28,16 +23,11 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) {
-      return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
-    }
+    const result = await requirePermission("settings", "edit");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
-    if (isDemoAccount(session.user.email)) {
+    if (isDemoAccount(result.session.user.email)) {
       return NextResponse.json({ error: "Modification non autorisée en mode démo" }, { status: 403 });
     }
 

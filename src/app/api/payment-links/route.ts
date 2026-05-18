@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { randomBytes } from "crypto";
+import { requirePermission, isNextResponse } from "@/lib/auth-permissions";
 
 function generateSlug(length = 10) {
   return randomBytes(Math.ceil(length * 3 / 4)).toString("base64url").slice(0, length);
@@ -9,10 +9,9 @@ function generateSlug(length = 10) {
 
 export async function GET() {
   try {
-    const session = await auth();
-    if (!session?.user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
+    const result = await requirePermission("payment_links", "view");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const links = await prisma.paymentLink.findMany({
       where: { companyId },
@@ -32,10 +31,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
+    const result = await requirePermission("payment_links", "create");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const body = await request.json();
     const { title, description, amount, currency, expiresAt, maxUses, clientId, invoiceId, orderId } = body;

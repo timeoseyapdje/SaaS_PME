@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 
 // GET - Lister toutes les entreprises (infos personnelles uniquement, PAS de finances)
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const { error } = await requireAdmin();
   if (error) return error;

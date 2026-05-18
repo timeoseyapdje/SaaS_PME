@@ -29,7 +29,7 @@ export default function AdminUsersPage() {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/users");
+      const res = await fetch("/api/admin/users", { cache: "no-store" });
       if (res.ok) {
         setUsers(await res.json());
       }
@@ -41,22 +41,6 @@ export default function AdminUsersPage() {
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
-
-  async function handleDeleteUser(userId: string, userName: string) {
-    if (!confirm(`Supprimer l'utilisateur "${userName}" ? Cette action est irréversible.`)) return;
-    setDeletingUser(userId);
-    try {
-      const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
-      if (res.ok) {
-        setUsers(prev => prev.filter(u => u.id !== userId));
-      } else {
-        const err = await res.json();
-        alert(err.error || "Erreur lors de la suppression");
-      }
-    } finally {
-      setDeletingUser(null);
-    }
-  }
 
   async function handleRoleChange(userId: string, newRole: string) {
     setChangingRole(userId);
@@ -77,6 +61,30 @@ export default function AdminUsersPage() {
       }
     } finally {
       setChangingRole(null);
+    }
+  }
+
+  async function handleDeleteUser(userId: string, userName: string) {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer "${userName}" ? Cette action est irréversible.\n\nSi c'est le dernier utilisateur de son entreprise, l'entreprise sera aussi supprimée.`)) {
+      return;
+    }
+    setDeletingUser(userId);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUsers((prev) => prev.filter((u) => u.id !== userId));
+        if (data.companyDeleted) {
+          alert(`${data.message}\n\nL'entreprise associée a aussi été supprimée (0 utilisateur restant).`);
+        }
+      } else {
+        const err = await res.json();
+        alert(err.error || "Erreur lors de la suppression");
+      }
+    } finally {
+      setDeletingUser(null);
     }
   }
 
@@ -255,17 +263,18 @@ export default function AdminUsersPage() {
                                 <option value="ADMIN">ADMIN</option>
                               </select>
                             )}
-                            {deletingUser === user.id ? (
-                              <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
-                            ) : (
-                              <button
-                                onClick={() => handleDeleteUser(user.id, user.name || user.email)}
-                                className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors"
-                                title="Supprimer cet utilisateur"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
+                            <button
+                              onClick={() => handleDeleteUser(user.id, user.name || user.email)}
+                              disabled={deletingUser === user.id}
+                              className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-colors disabled:opacity-50"
+                              title="Supprimer cet utilisateur"
+                            >
+                              {deletingUser === user.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </button>
                           </div>
                         )}
                       </td>

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { requirePermission, isNextResponse } from "@/lib/auth-permissions";
 import { prisma } from "@/lib/prisma";
 import { calculateInvoiceTotal } from "@/lib/tax";
 
@@ -9,11 +9,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-    const companyId = (session.user as { companyId?: string }).companyId;
+    const result = await requirePermission("invoices", "view");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const invoice = await prisma.invoice.findFirst({
       where: { id, companyId },
@@ -40,11 +38,9 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-    const companyId = (session.user as { companyId?: string }).companyId;
+    const result = await requirePermission("invoices", "edit");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const body = await request.json();
     const { status, items, clientId, dueDate, notes, terms, currency, applyTVA } = body;
@@ -125,11 +121,9 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-    const companyId = (session.user as { companyId?: string }).companyId;
+    const result = await requirePermission("invoices", "delete");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const invoice = await prisma.invoice.findFirst({
       where: { id, companyId },

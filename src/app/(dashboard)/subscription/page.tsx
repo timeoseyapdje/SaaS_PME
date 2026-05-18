@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -110,13 +111,15 @@ interface Subscription {
 
 export default function SubscriptionPage() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const urlStatus = searchParams.get("status");
   const isDemo = session?.user?.email === DEMO_EMAIL;
   const [currentPlan, setCurrentPlan] = useState("STARTER");
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(urlStatus === "success");
+  const [error, setError] = useState(urlStatus === "error" ? "Le paiement a échoué. Veuillez réessayer." : "");
 
   // Formulaire
   const [selectedPlan, setSelectedPlan] = useState("");
@@ -155,6 +158,21 @@ export default function SubscriptionPage() {
     setError("");
     setSubmitting(true);
     try {
+      if (paymentMethod === "NOTCHPAY") {
+        const res = await fetch("/api/payments/notchpay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ plan: selectedPlan }),
+        });
+        const data = await res.json();
+        if (res.ok && data.authorizationUrl) {
+          window.location.href = data.authorizationUrl;
+          return;
+        }
+        setError(data.error || "Erreur NotchPay");
+        return;
+      }
+
       const res = await fetch("/api/subscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -389,8 +407,9 @@ export default function SubscriptionPage() {
                         <SelectValue placeholder="Choisir un mode de paiement" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="MTN_MONEY">MTN Mobile Money</SelectItem>
-                        <SelectItem value="ORANGE_MONEY">Orange Money</SelectItem>
+                        <SelectItem value="NOTCHPAY">NotchPay (Mobile Money / Carte)</SelectItem>
+                        <SelectItem value="MTN_MONEY">MTN Mobile Money (manuel)</SelectItem>
+                        <SelectItem value="ORANGE_MONEY">Orange Money (manuel)</SelectItem>
                         <SelectItem value="VIREMENT">Virement bancaire</SelectItem>
                         <SelectItem value="CARTE_BANCAIRE">Carte bancaire</SelectItem>
                       </SelectContent>

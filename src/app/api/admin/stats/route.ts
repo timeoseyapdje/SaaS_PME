@@ -7,6 +7,8 @@ const SUPER_ADMIN_EMAIL = "admin@nkapcontrol.com";
 // Les comptes système ne paient pas
 const EXCLUDED_EMAILS = [SUPER_ADMIN_EMAIL, DEMO_EMAIL];
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const { error } = await requireAdmin();
   if (error) return error;

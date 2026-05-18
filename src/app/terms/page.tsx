@@ -15,7 +15,7 @@ export default function TermsPage() {
           Conditions Générales d&apos;Utilisation
         </h1>
         <p className="text-sm text-muted-foreground mb-10">
-          Dernière mise à jour : 7 mai 2026
+          Dernière mise à jour : 15 mai 2026
         </p>
 
         <div className="space-y-8 text-sm leading-relaxed">
@@ -57,6 +57,15 @@ export default function TermsPage() {
               <li>L&apos;Utilisateur s&apos;engage à ne pas créer de faux comptes</li>
               <li>La ville par défaut est Douala, modifiable dans les paramètres</li>
             </ul>
+
+            <h3 className="text-sm font-semibold text-foreground mt-4 mb-2">3.1 Création d&apos;entreprise et adhésion</h3>
+            <p>
+              Lors de l&apos;inscription, l&apos;Utilisateur peut choisir entre deux options :
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 mt-2">
+              <li><strong className="text-foreground">Créer une entreprise</strong> : l&apos;Utilisateur devient automatiquement Propriétaire de l&apos;entreprise créée avec tous les droits d&apos;administration</li>
+              <li><strong className="text-foreground">Rejoindre une entreprise existante</strong> : l&apos;Utilisateur envoie une demande d&apos;adhésion qui doit être approuvée par un membre disposant de la permission <strong className="text-foreground">team.invite</strong>. Tant que la demande n&apos;est pas acceptée, l&apos;accès aux données de l&apos;entreprise est restreint</li>
+            </ul>
           </section>
 
           <section>
@@ -85,7 +94,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-3">5. Paiements</h2>
             <ul className="list-disc pl-5 space-y-1.5">
-              <li>Les paiements sont acceptés via MTN Mobile Money, Orange Money, virement bancaire et carte bancaire</li>
+              <li>Les paiements sont acceptés via MTN Mobile Money, Orange Money, NotchPay (mobile money et carte bancaire) et virement bancaire</li>
               <li>Les abonnements sont facturés mensuellement</li>
               <li>Les paiements par virement sont validés après réception effective des fonds</li>
               <li>Les comptes système (administrateur et démonstration) sont exemptés de paiement</li>
@@ -106,13 +115,13 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-3">7. Comptes Inactifs</h2>
             <p>
-              Les comptes avec le rôle <strong className="text-foreground">Lecteur (Viewer)</strong> qui
-              n&apos;ont eu aucune activité pendant une période de <strong className="text-foreground">6 mois
+              Les comptes dont le poste attribué dispose uniquement de permissions de lecture
+              et qui n&apos;ont eu aucune activité pendant une période de <strong className="text-foreground">6 mois
               consécutifs</strong> seront automatiquement supprimés. Un email de notification sera
               envoyé 30 jours avant la suppression.
             </p>
             <p className="mt-2">
-              Les comptes Administrateur et Comptable ne sont pas concernés par cette politique.
+              Les comptes disposant de permissions d&apos;écriture ou d&apos;administration ne sont pas concernés par cette politique.
             </p>
           </section>
 
@@ -158,16 +167,36 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-foreground mb-3">12. Rôles et Permissions</h2>
-            <p>Trois rôles sont disponibles au sein d&apos;une entreprise :</p>
+            <h2 className="text-lg font-semibold text-foreground mb-3">12. Postes et Permissions</h2>
+            <p>
+              Nkap Control utilise un système de <strong className="text-foreground">postes hiérarchiques</strong> avec
+              des permissions granulaires par module. Les postes par défaut sont :
+            </p>
             <ul className="list-disc pl-5 space-y-1.5 mt-2">
-              <li><strong className="text-foreground">Administrateur</strong> : accès complet à toutes les fonctionnalités</li>
-              <li><strong className="text-foreground">Comptable</strong> : accès aux fonctions financières et de gestion</li>
+              <li><strong className="text-foreground">Propriétaire</strong> : accès complet à toutes les fonctionnalités, gestion des postes et de l&apos;équipe</li>
+              <li><strong className="text-foreground">Directeur Général</strong> : accès étendu à la gestion et aux rapports</li>
+              <li><strong className="text-foreground">Comptable</strong> : accès aux fonctions financières (factures, dépenses, trésorerie, rapports)</li>
               <li><strong className="text-foreground">Lecteur</strong> : accès en consultation uniquement</li>
             </ul>
-            <p className="mt-2">
-              Seul le Super Administrateur de la plateforme peut modifier les rôles des utilisateurs.
+            <p className="mt-3">
+              Chaque poste définit des permissions spécifiques pour chaque module : tableau de bord, factures,
+              dépenses, trésorerie, produits, commandes, clients, fournisseurs, rapports, liens de paiement,
+              paramètres et équipe.
             </p>
+            <p className="mt-2">
+              Le Propriétaire de l&apos;entreprise peut créer, modifier et supprimer des postes personnalisés,
+              et attribuer un poste à chaque membre de l&apos;équipe.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-3">12bis. Gestion d&apos;Équipe</h2>
+            <ul className="list-disc pl-5 space-y-1.5">
+              <li>Les membres disposant de la permission <strong className="text-foreground">team.invite</strong> peuvent approuver ou refuser les demandes d&apos;adhésion</li>
+              <li>Les membres disposant de la permission <strong className="text-foreground">team.manage</strong> peuvent modifier le poste des autres membres</li>
+              <li>Le Propriétaire peut retirer un membre de l&apos;entreprise à tout moment</li>
+              <li>Les demandes d&apos;adhésion en attente sont visibles dans la section <strong className="text-foreground">Équipe &gt; Demandes d&apos;adhésion</strong></li>
+            </ul>
           </section>
 
           <section>

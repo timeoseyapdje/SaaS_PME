@@ -47,7 +47,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          // Vérification email requise sauf pour super admin et compte démo
           if (!EXEMPT_EMAILS.includes(email) && !user.emailVerified) {
             return null;
           }
@@ -58,6 +57,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             name: user.name,
             role: user.role,
             companyId: user.companyId,
+            positionId: user.positionId,
           };
         } catch {
           return null;
@@ -71,15 +71,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id;
         token.role = (user as { role?: string }).role;
         token.companyId = (user as { companyId?: string }).companyId;
+        token.positionId = (user as { positionId?: string }).positionId;
       }
-      // Toujours relire le rôle depuis la DB pour refléter les changements
       if (token.id) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { role: true },
+          select: { role: true, positionId: true, companyId: true },
         });
         if (dbUser) {
           token.role = dbUser.role;
+          token.positionId = dbUser.positionId;
+          token.companyId = dbUser.companyId;
         }
       }
       return token;
@@ -89,6 +91,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id as string;
         (session.user as { role?: string }).role = token.role as string;
         (session.user as { companyId?: string }).companyId = token.companyId as string;
+        (session.user as { positionId?: string }).positionId = token.positionId as string;
       }
       return session;
     },

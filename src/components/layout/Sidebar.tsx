@@ -30,9 +30,10 @@ import {
   Link2,
   Boxes,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface NavChild {
   name: string;
@@ -89,10 +90,19 @@ const navigation: NavItem[] = [
   },
   {
     name: "Contacts",
-    icon: Users,
+    icon: Tag,
     children: [
       { name: "Clients", href: "/clients" },
       { name: "Fournisseurs", href: "/suppliers" },
+    ],
+  },
+  {
+    name: "Équipe",
+    icon: Users,
+    children: [
+      { name: "Membres", href: "/team" },
+      { name: "Postes", href: "/team/positions" },
+      { name: "Demandes", href: "/team/requests" },
     ],
   },
   { name: "Abonnement", href: "/subscription", icon: CreditCard },
@@ -122,8 +132,24 @@ const superAdminNavigation: NavItem[] = [
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { canAny } = usePermissions();
   const userRole = (session?.user as { role?: string } | undefined)?.role;
   const isAdmin = userRole === "ADMIN";
+
+  const filteredNavigation = useMemo(() => {
+    return navigation.filter((item) => {
+      if (item.name === "Dashboard") return canAny("dashboard");
+      if (item.name === "Produits") return canAny("products");
+      if (item.name === "Ventes") return canAny("orders") || canAny("payment_links");
+      if (item.name === "Facturation") return canAny("invoices");
+      if (item.name === "Finances") return canAny("expenses") || canAny("treasury");
+      if (item.name === "Rapports") return canAny("reports");
+      if (item.name === "Contacts") return canAny("clients") || canAny("suppliers");
+      if (item.name === "Équipe") return canAny("team");
+      if (item.name === "Paramètres") return canAny("settings");
+      return true;
+    });
+  }, [canAny]);
   const [openGroups, setOpenGroups] = useState<string[]>([
     "Facturation",
     "Finances",
@@ -164,7 +190,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-3 lg:px-4 lg:py-4 overflow-y-auto space-y-1.5 scrollbar-none">
-        {(isAdmin ? superAdminNavigation : navigation).map((item) => {
+        {(isAdmin ? superAdminNavigation : filteredNavigation).map((item) => {
           if (item.children) {
             const isOpen = openGroups.includes(item.name);
             const isActive = item.children.some(

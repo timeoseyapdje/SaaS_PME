@@ -15,6 +15,11 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  const user = session.user as { companyId?: string; email?: string; role?: string };
+  if (!user.companyId && user.email !== "admin@nkapcontrol.com") {
+    redirect("/pending");
+  }
+
   return (
     <SessionProvider session={session}>
       <div className="flex h-screen bg-background text-foreground overflow-hidden relative">

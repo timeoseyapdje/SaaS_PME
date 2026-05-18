@@ -15,7 +15,8 @@ import {
   Link2,
   CheckCircle2,
   ChevronRight,
-  Smartphone,
+  UserCog,
+  UserPlus,
 } from "lucide-react";
 
 /* ─── Données des étapes ─── */
@@ -26,12 +27,12 @@ const steps = [
     color: "text-emerald-400",
     bg: "bg-emerald-500/10",
     border: "border-emerald-500/20",
-    title: "Créez votre compte & configurez votre entreprise",
-    description: "Renseignez le nom, le logo, le RCCM et le NIU de votre entreprise. Tout est prêt en 2 minutes.",
+    title: "Créez ou rejoignez une entreprise",
+    description: "Créez votre entreprise ou rejoignez-en une existante. Renseignez vos infos et c'est prêt en 2 minutes.",
     actions: [
-      "Renseignez le nom commercial et la raison sociale",
-      "Ajoutez votre numéro RCCM et NIU pour la conformité fiscale",
-      "Choisissez votre devise (FCFA par défaut)",
+      "Créez une entreprise : renseignez nom, RCCM, NIU et devenez Propriétaire",
+      "Ou rejoignez une entreprise existante via une demande d'adhésion",
+      "Votre demande est approuvée par un membre autorisé",
       "Votre tableau de bord est immédiatement opérationnel",
     ],
     screen: (
@@ -259,12 +260,12 @@ const steps = [
     color: "text-cyan-400",
     bg: "bg-cyan-500/10",
     border: "border-cyan-500/20",
-    title: "Générez des liens de paiement Mobile Money",
-    description: "Créez un lien de paiement et partagez-le par WhatsApp. Votre client paie via MTN ou Orange Money.",
+    title: "Générez des liens de paiement",
+    description: "Créez un lien de paiement et partagez-le par WhatsApp. Votre client paie via MTN, Orange Money ou NotchPay.",
     actions: [
       "Définissez le montant et une date d'expiration",
       "Copiez et partagez le lien par WhatsApp, SMS ou email",
-      "Le client paie via MTN Money ou Orange Money",
+      "Le client paie via MTN Money, Orange Money ou NotchPay (mobile money et carte)",
       "Vous êtes notifié dès que le paiement est confirmé",
     ],
     screen: (
@@ -343,65 +344,6 @@ const steps = [
   },
   {
     number: "08",
-    icon: Smartphone,
-    color: "text-teal-400",
-    bg: "bg-teal-500/10",
-    border: "border-teal-500/20",
-    title: "Configurez votre compte de reversement automatique",
-    description: "Dès qu'un client paie via MTN ou Orange Money, l'argent est reversé automatiquement sur votre compte mobile money.",
-    actions: [
-      "Allez dans Trésorerie → Ajouter un compte",
-      "Choisissez MTN Mobile Money ou Orange Money",
-      "Entrez votre numéro de téléphone qui recevra les virements",
-      "Cochez « Compte principal » — les reversements arriveront automatiquement",
-    ],
-    screen: (
-      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
-        <div className="h-2.5 w-20 bg-white/70 rounded mb-1" />
-        <div className="bg-card/60 border border-teal-500/30 rounded-xl p-2.5 flex flex-col gap-2">
-          <div className="space-y-1.5">
-            <div className="h-1.5 w-14 bg-muted-foreground/30 rounded" />
-            <div className="h-6 bg-muted border border-border rounded-lg" />
-          </div>
-          <div className="space-y-1.5">
-            <div className="h-1.5 w-12 bg-muted-foreground/30 rounded" />
-            <div className="flex gap-1.5">
-              <div className="flex-1 h-8 bg-amber-500/15 border border-amber-500/40 rounded-lg flex items-center justify-center gap-1">
-                <div className="w-3 h-3 rounded-full bg-amber-500/60" />
-                <div className="h-1 w-8 bg-amber-400/50 rounded" />
-              </div>
-              <div className="flex-1 h-8 bg-orange-500/15 border border-orange-500/40 rounded-lg flex items-center justify-center gap-1">
-                <div className="w-3 h-3 rounded-full bg-orange-500/60" />
-                <div className="h-1 w-8 bg-orange-400/50 rounded" />
-              </div>
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <div className="h-1.5 w-20 bg-muted-foreground/30 rounded" />
-            <div className="h-6 bg-muted border border-border rounded-lg flex items-center px-2 gap-1">
-              <Smartphone className="w-2.5 h-2.5 text-muted-foreground/50" />
-              <div className="h-1.5 w-16 bg-muted-foreground/20 rounded" />
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 mt-1">
-            <div className="w-3.5 h-3.5 rounded border-2 border-teal-500/60 bg-teal-500/20 flex items-center justify-center">
-              <div className="w-1.5 h-1.5 rounded-sm bg-teal-500" />
-            </div>
-            <div className="h-1.5 w-20 bg-teal-400/40 rounded" />
-          </div>
-          <div className="mt-auto h-6 bg-teal-600/30 border border-teal-500/30 rounded-lg flex items-center justify-center">
-            <div className="h-1.5 w-16 bg-teal-400/50 rounded" />
-          </div>
-        </div>
-        <div className="flex items-center gap-1.5 px-1">
-          <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-          <div className="h-1.5 w-32 bg-teal-400/30 rounded" />
-        </div>
-      </div>
-    ),
-  },
-  {
-    number: "09",
     icon: BarChart3,
     color: "text-emerald-400",
     bg: "bg-emerald-500/10",
@@ -444,6 +386,93 @@ const steps = [
       </div>
     ),
   },
+  {
+    number: "09",
+    icon: UserCog,
+    color: "text-indigo-400",
+    bg: "bg-indigo-500/10",
+    border: "border-indigo-500/20",
+    title: "Configurez les postes & permissions",
+    description: "Définissez des postes hiérarchiques avec des permissions granulaires pour chaque module de votre entreprise.",
+    actions: [
+      "Utilisez les postes par défaut : Propriétaire, DG, Comptable, Lecteur",
+      "Créez des postes personnalisés avec des permissions sur mesure",
+      "Configurez les accès par module : factures, trésorerie, rapports, etc.",
+      "Attribuez un poste à chaque membre de votre équipe",
+    ],
+    screen: (
+      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
+        <div className="flex items-center justify-between mb-1">
+          <div className="h-2.5 w-20 bg-white/70 rounded" />
+          <div className="h-6 w-20 bg-indigo-600/40 border border-indigo-500/30 rounded-lg" />
+        </div>
+        {[
+          { name: "Propriétaire", color: "bg-emerald-500/60" },
+          { name: "Directeur Général", color: "bg-blue-500/60" },
+          { name: "Comptable", color: "bg-amber-500/60" },
+          { name: "Lecteur", color: "bg-muted-foreground/40" },
+        ].map((p, i) => (
+          <div key={i} className="flex items-center gap-2 h-8 bg-card/70 border border-border rounded-lg px-2">
+            <div className={`w-2 h-2 rounded-full ${p.color}`} />
+            <div className="flex-1">
+              <div className="h-1.5 w-16 bg-muted-foreground/30 rounded" />
+            </div>
+            <div className="flex gap-0.5">
+              {[1,2,3,4].map((j) => (
+                <div key={j} className={`w-3 h-3 rounded ${i < 3 ? "bg-indigo-500/40" : "bg-muted"}`} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    number: "10",
+    icon: UserPlus,
+    color: "text-pink-400",
+    bg: "bg-pink-500/10",
+    border: "border-pink-500/20",
+    title: "Gérez votre équipe",
+    description: "Acceptez les demandes d'adhésion, attribuez des postes et supervisez les membres de votre entreprise.",
+    actions: [
+      "Consultez et approuvez les demandes d'adhésion",
+      "Attribuez un poste à chaque nouveau membre",
+      "Modifiez les postes des membres existants",
+      "Retirez un membre si nécessaire",
+    ],
+    screen: (
+      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
+        <div className="flex items-center justify-between mb-1">
+          <div className="h-2.5 w-16 bg-white/70 rounded" />
+          <div className="flex gap-1">
+            {["Membres", "Demandes"].map((t, i) => (
+              <div key={t} className={`h-5 px-2 rounded-full text-[8px] flex items-center ${i === 0 ? "bg-pink-600/40 border border-pink-500/30" : "bg-muted border border-border"}`}>
+                <div className="h-1 w-8 bg-muted-foreground/30 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+        {[
+          { role: "Propriétaire", color: "bg-emerald-500/60" },
+          { role: "Comptable", color: "bg-amber-500/60" },
+          { role: "DG", color: "bg-blue-500/60" },
+        ].map((m, i) => (
+          <div key={i} className="flex items-center gap-2 h-8 bg-card/70 border border-border rounded-lg px-2">
+            <div className="w-5 h-5 rounded-full bg-muted-foreground/20 flex-shrink-0" />
+            <div className="flex-1">
+              <div className="h-1.5 w-14 bg-muted-foreground/30 rounded mb-1" />
+              <div className="h-1 w-10 bg-muted-foreground/20 rounded" />
+            </div>
+            <div className={`h-4 w-14 ${m.color} rounded-full`} />
+          </div>
+        ))}
+        <div className="h-7 bg-pink-600/20 border border-pink-500/30 rounded-lg flex items-center justify-center gap-1 mt-auto">
+          <div className="h-1.5 w-20 bg-pink-400/40 rounded" />
+        </div>
+      </div>
+    ),
+  },
 ];
 
 /* ─── Composant device frame ─── */
@@ -460,7 +489,7 @@ function ScreenFrame({ children }: { children: React.ReactNode }) {
           <div className="w-2 h-2 rounded-full bg-amber-500/70" />
           <div className="w-2 h-2 rounded-full bg-green-500/70" />
           <div className="h-3.5 flex-1 mx-2 bg-muted border border-border rounded flex items-center justify-center">
-            <span className="text-[7px] text-muted-foreground">nkapcontrol.com</span>
+            <span className="text-[7px] text-muted-foreground">nkapcontrol.cm</span>
           </div>
         </div>
         {/* Screen content */}
@@ -505,7 +534,7 @@ export default function OnboardingPage() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-foreground text-xs font-medium mb-6">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Guide de démarrage — 9 étapes
+            Guide de démarrage — 10 étapes
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground mb-4 leading-tight">
             Bienvenue sur{" "}
@@ -514,7 +543,7 @@ export default function OnboardingPage() {
             </span>
           </h1>
           <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
-            Suivez ces 9 étapes pour maîtriser la plateforme et tirer le meilleur de votre outil de gestion.
+            Suivez ces 10 étapes pour maîtriser la plateforme et tirer le meilleur de votre outil de gestion.
           </p>
         </motion.div>
       </section>
@@ -585,7 +614,7 @@ export default function OnboardingPage() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button asChild size="lg" className="w-full sm:w-auto h-12 px-8 font-semibold bg-white text-emerald-700 hover:bg-emerald-50 active:bg-emerald-100 rounded-full shadow-lg touch-manipulation">
-                <Link href="/dashboard">
+                <Link href="/login">
                   Aller au tableau de bord
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>

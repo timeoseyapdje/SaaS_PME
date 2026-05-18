@@ -11,6 +11,7 @@ import {
   Sparkles,
   Landmark,
   Settings,
+  UserCog,
   ChevronDown,
   ChevronRight,
   Search,
@@ -44,7 +45,12 @@ const helpCategories: HelpCategory[] = [
       {
         question: "Comment creer un compte ?",
         answer:
-          "Rendez-vous sur la page d'inscription, remplissez votre nom, email, nom d'entreprise et mot de passe. Votre compte sera cree automatiquement avec le plan Starter gratuit. La ville par defaut est Douala, modifiable dans les parametres.",
+          "Rendez-vous sur la page d'inscription, remplissez votre nom, email et mot de passe. Vous aurez ensuite le choix entre 'Creer une entreprise' (vous serez Proprietaire) ou 'Rejoindre une entreprise existante' (vous enverrez une demande d'adhesion). La ville par defaut est Douala, modifiable dans les parametres.",
+      },
+      {
+        question: "Comment rejoindre une entreprise existante ?",
+        answer:
+          "Lors de l'inscription, choisissez 'Rejoindre une entreprise existante' et recherchez l'entreprise. Votre demande d'adhesion sera envoyee et devra etre approuvee par un membre disposant de la permission team.invite. Vous serez notifie une fois la demande acceptee.",
       },
       {
         question: "Comment fonctionne le compte de demonstration ?",
@@ -52,9 +58,9 @@ const helpCategories: HelpCategory[] = [
           "Le compte demo vous permet de tester toutes les fonctionnalites de Nkap Control en lecture seule. Vous pouvez naviguer dans le tableau de bord, consulter les factures et rapports fictifs. Aucune modification n'est possible. Nkap AI n'est pas disponible en mode demo.",
       },
       {
-        question: "Quels sont les roles disponibles ?",
+        question: "Quels sont les postes disponibles ?",
         answer:
-          "Trois roles existent : Administrateur (acces complet), Comptable (fonctions financieres et de gestion), et Lecteur (consultation uniquement). Le super administrateur de la plateforme peut modifier les roles des utilisateurs.",
+          "Nkap Control utilise un systeme de postes hierarchiques avec permissions granulaires. Les postes par defaut sont : Proprietaire (acces complet, gestion equipe et postes), Directeur General (acces etendu), Comptable (fonctions financieres) et Lecteur (consultation uniquement). Le Proprietaire peut creer des postes personnalises avec des permissions specifiques par module.",
       },
       {
         question: "Comment modifier les informations de mon entreprise ?",
@@ -203,7 +209,7 @@ const helpCategories: HelpCategory[] = [
       {
         question: "Quels sont les plans disponibles ?",
         answer:
-          "Starter (gratuit) : 1 utilisateur, 20 factures/mois, tableau de bord basique.\nPro (5 000 XAF/mois) : 5 utilisateurs, factures illimitees, tresorerie multi-comptes, rapports fiscaux, Nkap AI (10 msg/jour).\nMax (15 000 XAF/mois) : utilisateurs illimites, Nkap AI illimite, personnalisation avancee, API, support 24/7.",
+          "Starter (gratuit) : 1 utilisateur, 20 factures/mois, tableau de bord basique.\nPro (3 000 XAF/mois) : 5 utilisateurs, factures illimitees, tresorerie multi-comptes, rapports fiscaux, Nkap AI (10 msg/jour).\nMax (10 000 XAF/mois) : utilisateurs illimites, Nkap AI illimite, personnalisation avancee, API, support 24/7.",
       },
       {
         question: "Comment changer de plan ?",
@@ -213,7 +219,7 @@ const helpCategories: HelpCategory[] = [
       {
         question: "Quels moyens de paiement sont acceptes ?",
         answer:
-          "Nous acceptons MTN Mobile Money, Orange Money, virement bancaire et carte bancaire (Visa, Mastercard). Les abonnements sont factures mensuellement.",
+          "Nous acceptons MTN Mobile Money, Orange Money, NotchPay (mobile money et carte bancaire), virement bancaire et carte bancaire (Visa, Mastercard). NotchPay est egalement utilise pour traiter les paiements d'abonnement et les transactions via liens de paiement. Les abonnements sont factures mensuellement.",
       },
       {
         question: "Comment resilier mon abonnement ?",
@@ -252,6 +258,40 @@ const helpCategories: HelpCategory[] = [
     ],
   },
   {
+    title: "Equipe et postes",
+    description: "Gerer votre equipe, les postes et les permissions",
+    icon: UserCog,
+    color: "text-indigo-500",
+    bg: "bg-indigo-500/10",
+    faqs: [
+      {
+        question: "Comment gerer les postes dans mon entreprise ?",
+        answer:
+          "Allez dans Equipe > Postes. Vous y trouverez les postes par defaut (Proprietaire, Directeur General, Comptable, Lecteur) et vous pouvez creer des postes personnalises. Chaque poste definit des permissions specifiques pour chaque module : tableau de bord, factures, depenses, tresorerie, produits, commandes, clients, fournisseurs, rapports, liens de paiement, parametres et equipe.",
+      },
+      {
+        question: "Comment creer un poste personnalise ?",
+        answer:
+          "Depuis Equipe > Postes, cliquez sur 'Nouveau poste'. Donnez un nom au poste et configurez les permissions pour chaque module via la grille de permissions. Vous pouvez definir precisement ce que chaque poste peut voir, creer, modifier ou supprimer.",
+      },
+      {
+        question: "Comment inviter ou accepter un nouveau membre ?",
+        answer:
+          "Les utilisateurs peuvent demander a rejoindre votre entreprise lors de leur inscription. Les demandes d'adhesion apparaissent dans Equipe > Demandes d'adhesion. Un membre disposant de la permission team.invite peut approuver ou refuser les demandes. Une fois accepte, le nouveau membre se voit attribuer un poste.",
+      },
+      {
+        question: "Comment changer le poste d'un membre ?",
+        answer:
+          "Allez dans Equipe > Membres. Cliquez sur le membre concerne et modifiez son poste. Seuls les membres disposant de la permission team.manage peuvent effectuer cette action.",
+      },
+      {
+        question: "Puis-je retirer un membre de mon entreprise ?",
+        answer:
+          "Oui, le Proprietaire de l'entreprise peut retirer un membre a tout moment depuis la page Equipe > Membres. Le membre retire perdra l'acces aux donnees de l'entreprise.",
+      },
+    ],
+  },
+  {
     title: "Parametres et securite",
     description: "Compte, mot de passe et preferences",
     icon: Settings,
@@ -271,7 +311,7 @@ const helpCategories: HelpCategory[] = [
       {
         question: "Que se passe-t-il si mon compte est inactif ?",
         answer:
-          "Les comptes avec le role Lecteur inactifs depuis 6 mois consecutifs sont automatiquement supprimes. Un email de notification est envoye 30 jours avant la suppression. Les comptes Administrateur et Comptable ne sont pas concernes.",
+          "Les comptes dont le poste ne dispose que de permissions de lecture et inactifs depuis 6 mois consecutifs sont automatiquement supprimes. Un email de notification est envoye 30 jours avant la suppression. Les comptes disposant de permissions d'ecriture ou d'administration ne sont pas concernes.",
       },
       {
         question: "Mes donnees sont-elles securisees ?",
