@@ -119,6 +119,7 @@ model Company {
   products           Product[]
   orders             Order[]
   paymentLinks       PaymentLink[]
+  payouts            Payout[]
 
   @@map("companies")
 }
@@ -322,8 +323,10 @@ model BankAccount {
   balance       Float       @default(0)
   currency      String      @default("XAF")
   isDefault     Boolean     @default(false)
+  phoneNumber   String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  payouts       Payout[]
 
   @@map("bank_accounts")
 }
@@ -670,14 +673,18 @@ model PaymentLinkTransaction {
   paymentLinkId String
   paymentLink   PaymentLink   @relation(fields: [paymentLinkId], references: [id])
   amount        Float
+  grossAmount   Float?
+  feeAmount     Float?
   paymentMethod PaymentMethod
   phoneNumber   String?
   payerName     String?
+  payerEmail    String?
   status        PaymentStatus @default(PENDING)
   transactionRef String?
   notchpayRef    String?
   paidAt        DateTime?
   createdAt     DateTime      @default(now())
+  payout        Payout?
 
   @@map("payment_link_transactions")
 }
@@ -728,4 +735,22 @@ enum AdmissionStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model Payout {
+  id                       String                  @id @default(cuid())
+  companyId                String
+  company                  Company                 @relation(fields: [companyId], references: [id])
+  bankAccountId            String
+  bankAccount              BankAccount             @relation(fields: [bankAccountId], references: [id])
+  paymentLinkTransactionId String                  @unique
+  transaction              PaymentLinkTransaction  @relation(fields: [paymentLinkTransactionId], references: [id])
+  amount                   Float
+  currency                 String                  @default("XAF")
+  status                   String                  @default("INITIATED")
+  payoutRef                String?
+  completedAt              DateTime?
+  createdAt                DateTime                @default(now())
+
+  @@map("payouts")
 }
