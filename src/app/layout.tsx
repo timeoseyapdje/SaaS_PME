@@ -23,6 +23,11 @@ export const metadata: Metadata = {
     description: "Solution complete de gestion financiere adaptee au contexte camerounais",
     images: ["/og-image.png"],
   },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
