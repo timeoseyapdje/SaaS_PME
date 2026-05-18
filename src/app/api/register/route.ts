@@ -113,7 +113,6 @@ export async function POST(request: Request) {
       sendWelcomeEmail({
         to: result.email,
         userName: result.userName,
-        companyName: result.companyName,
       }).catch((err) => console.error("Welcome email failed:", err));
 
       return NextResponse.json({ success: true, userId: result.userId, companyId: result.companyId });
