@@ -2,8 +2,6 @@ import crypto from "crypto";
 
 const NOTCHPAY_API = "https://api.notchpay.co";
 
-// NotchPay collection fee: 2.5%
-// Gross-up formula: client pays grossAmount so that after fees company receives netAmount exactly
 export const NOTCHPAY_FEE_RATE = 0.025;
 
 export function isNotchPayConfigured() {
@@ -23,6 +21,7 @@ export async function initializePayment({
   reference,
   description,
   callbackUrl,
+  phone,
 }: {
   email: string;
   amount: number;
@@ -30,6 +29,7 @@ export async function initializePayment({
   reference: string;
   description: string;
   callbackUrl: string;
+  phone?: string;
 }): Promise<{ checkoutUrl: string; reference: string } | null> {
   const key = process.env.NOTCHPAY_PUBLIC_KEY;
   if (!key) return null;
@@ -40,7 +40,7 @@ export async function initializePayment({
       Authorization: key,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ email, amount, currency, reference, description, callback: callbackUrl }),
+    body: JSON.stringify({ email, amount, currency, reference, description, callback: callbackUrl, phone }),
   });
 
   if (!res.ok) {
@@ -49,10 +49,22 @@ export async function initializePayment({
   }
 
   const data = await res.json();
-  const tx = data.transaction;
-  if (!tx?.authorization_url) return null;
+  if (!data.authorization_url) return null;
 
-  return { checkoutUrl: tx.authorization_url, reference: tx.reference ?? reference };
+  return { checkoutUrl: data.authorization_url, reference: data.transaction?.reference ?? reference };
+}
+
+export async function verifyPayment(reference: string): Promise<{ status: string; transaction?: { reference: string; status: string; amount: number } }> {
+  const key = process.env.NOTCHPAY_PUBLIC_KEY;
+  if (!key) return { status: "error" };
+
+  const res = await fetch(`${NOTCHPAY_API}/payments/${reference}`, {
+    method: "GET",
+    headers: { Authorization: key },
+  });
+
+  if (!res.ok) return { status: "error" };
+  return res.json();
 }
 
 export async function initiateTransfer({
@@ -93,7 +105,11 @@ export async function initiateTransfer({
 
 export function verifyWebhookSignature(payload: string, signature: string): boolean {
   const secret = process.env.NOTCHPAY_PRIVATE_KEY;
-  if (!secret) return true; // skip verification if not configured
+  if (!secret) return true;
   const expected = crypto.createHmac("sha256", secret).update(payload).digest("hex");
   return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+}
+
+export function generateReference(prefix: string = "NK"): string {
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
 }

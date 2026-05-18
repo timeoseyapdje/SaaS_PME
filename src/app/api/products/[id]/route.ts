@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { requirePermission, isNextResponse } from "@/lib/auth-permissions";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth();
-    if (!session?.user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
+    const result = await requirePermission("products", "view");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const { id } = await params;
     const product = await prisma.product.findFirst({
@@ -28,10 +27,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth();
-    if (!session?.user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
+    const result = await requirePermission("products", "edit");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const { id } = await params;
     const body = await request.json();
@@ -82,10 +80,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth();
-    if (!session?.user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
+    const result = await requirePermission("products", "delete");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const { id } = await params;
     const existing = await prisma.product.findFirst({ where: { id, companyId } });

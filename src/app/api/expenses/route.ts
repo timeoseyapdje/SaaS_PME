@@ -1,17 +1,13 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+
 import { prisma } from "@/lib/prisma";
+import { requirePermission, isNextResponse } from "@/lib/auth-permissions";
 
 export async function GET(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) {
-      return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
-    }
+    const result = await requirePermission("expenses", "view");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
@@ -50,14 +46,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) {
-      return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
-    }
+    const result = await requirePermission("expenses", "create");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const body = await request.json();
     const {
@@ -106,11 +97,9 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-    const companyId = (session.user as { companyId?: string }).companyId;
+    const result = await requirePermission("expenses", "edit");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const body = await request.json();
     const {
@@ -158,11 +147,9 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-    const companyId = (session.user as { companyId?: string }).companyId;
+    const result = await requirePermission("expenses", "delete");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

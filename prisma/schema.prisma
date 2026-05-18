@@ -6,9 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ============================================================
@@ -25,12 +24,15 @@ model User {
   role          UserRole  @default(VIEWER)
   companyId     String?
   company       Company?  @relation(fields: [companyId], references: [id])
+  positionId    String?
+  position      Position? @relation(fields: [positionId], references: [id])
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  notifications Notification[]
+  accounts           Account[]
+  sessions           Session[]
+  notifications      Notification[]
+  admissionRequests  AdmissionRequest[]
 
   @@map("users")
 }
@@ -102,20 +104,21 @@ model Company {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  users         User[]
-  clients       Client[]
-  suppliers     Supplier[]
-  invoices      Invoice[]
-  expenses      Expense[]
-  revenues      Revenue[]
-  bankAccounts  BankAccount[]
-  taxDeclarations TaxDeclaration[]
-  subscription  Subscription?
-  categories    Category[]
-  products      Product[]
-  orders        Order[]
-  paymentLinks  PaymentLink[]
-  payouts       Payout[]
+  users              User[]
+  positions          Position[]
+  admissionRequests  AdmissionRequest[]
+  clients            Client[]
+  suppliers          Supplier[]
+  invoices           Invoice[]
+  expenses           Expense[]
+  revenues           Revenue[]
+  bankAccounts       BankAccount[]
+  taxDeclarations    TaxDeclaration[]
+  subscription       Subscription?
+  categories         Category[]
+  products           Product[]
+  orders             Order[]
+  paymentLinks       PaymentLink[]
 
   @@map("companies")
 }
@@ -301,6 +304,7 @@ enum PaymentMethod {
   MTN_MONEY
   ORANGE_MONEY
   CARTE_BANCAIRE
+  NOTCHPAY
 }
 
 // ============================================================
@@ -315,14 +319,11 @@ model BankAccount {
   type          AccountType
   bankName      String?
   accountNumber String?
-  phoneNumber   String?
   balance       Float       @default(0)
   currency      String      @default("XAF")
   isDefault     Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-
-  payouts       Payout[]
 
   @@map("bank_accounts")
 }
@@ -405,6 +406,7 @@ model Payment {
   currency        String        @default("XAF")
   paymentMethod   PaymentMethod
   transactionRef  String?
+  notchpayRef     String?
   phoneNumber     String?       // Pour Mobile Money
   status          PaymentStatus @default(PENDING)
   paidAt          DateTime?
@@ -668,50 +670,62 @@ model PaymentLinkTransaction {
   paymentLinkId String
   paymentLink   PaymentLink   @relation(fields: [paymentLinkId], references: [id])
   amount        Float
-  grossAmount   Float?
-  feeAmount     Float?
   paymentMethod PaymentMethod
   phoneNumber   String?
   payerName     String?
   status        PaymentStatus @default(PENDING)
   transactionRef String?
+  notchpayRef    String?
   paidAt        DateTime?
   createdAt     DateTime      @default(now())
 
-  payout        Payout?
-
   @@map("payment_link_transactions")
-}
-
-model Payout {
-  id                       String        @id @default(cuid())
-  companyId                String
-  company                  Company       @relation(fields: [companyId], references: [id])
-  bankAccountId            String
-  bankAccount              BankAccount   @relation(fields: [bankAccountId], references: [id])
-  paymentLinkTransactionId String?       @unique
-  transaction              PaymentLinkTransaction? @relation(fields: [paymentLinkTransactionId], references: [id])
-  amount                   Float
-  currency                 String        @default("XAF")
-  status                   PayoutStatus  @default(INITIATED)
-  payoutRef                String?
-  failureReason            String?
-  completedAt              DateTime?
-  createdAt                DateTime      @default(now())
-  updatedAt                DateTime      @updatedAt
-
-  @@map("payouts")
-}
-
-enum PayoutStatus {
-  INITIATED
-  PROCESSING
-  COMPLETED
-  FAILED
 }
 
 enum PaymentLinkStatus {
   ACTIVE
   EXPIRED
   DISABLED
+}
+
+model Position {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  isOwner     Boolean  @default(false)
+  permissions Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users              User[]
+  admissionRequests  AdmissionRequest[]
+
+  @@unique([companyId, name])
+  @@map("positions")
+}
+
+model AdmissionRequest {
+  id         String          @id @default(cuid())
+  userId     String
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId  String
+  company    Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  status     AdmissionStatus @default(PENDING)
+  message    String?
+  reviewedBy String?
+  positionId String?
+  position   Position?       @relation(fields: [positionId], references: [id])
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@unique([userId, companyId])
+  @@map("admission_requests")
+}
+
+enum AdmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

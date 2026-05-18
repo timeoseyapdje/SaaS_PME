@@ -47,9 +47,21 @@ export function Header({ title, subtitle }: HeaderProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifs, setShowNotifs] = useState(false);
 
+  const getReadIds = (): Set<string> => {
+    try {
+      const stored = localStorage.getItem("nkap-read-notifs");
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  };
+
+  const saveReadIds = (ids: Set<string>) => {
+    try { localStorage.setItem("nkap-read-notifs", JSON.stringify([...ids])); } catch {}
+  };
+
   const fetchNotifications = useCallback(async () => {
     try {
       const notifs: Notification[] = [];
+      const readIds = getReadIds();
 
       // 1. Fetch stored notifications from DB (works for all users)
       try {
@@ -87,7 +99,7 @@ export function Header({ title, subtitle }: HeaderProps) {
                 title: "Paiements en attente",
                 message: `${data.pendingPayments} paiement(s) en attente de validation.`,
                 time: "Maintenant",
-                read: false,
+                read: readIds.has("pending-payments"),
               });
             }
             if (data.newUsersThisMonth > 0) {
@@ -97,7 +109,7 @@ export function Header({ title, subtitle }: HeaderProps) {
                 title: "Nouveaux utilisateurs",
                 message: `${data.newUsersThisMonth} nouveau(x) utilisateur(s) ce mois-ci.`,
                 time: "Ce mois",
-                read: false,
+                read: readIds.has("new-users"),
               });
             }
           }
@@ -115,22 +127,24 @@ export function Header({ title, subtitle }: HeaderProps) {
                 const due = new Date(inv.dueDate);
                 const now = new Date();
                 if (due < now) {
+                  const nid = `overdue-${inv.id}`;
                   notifs.push({
-                    id: `overdue-${inv.id}`,
+                    id: nid,
                     type: "alert",
                     title: "Facture en retard",
                     message: `${inv.number} - ${inv.client?.name || "Client"} (${formatCurrency(inv.total, inv.currency)})`,
                     time: due.toLocaleDateString("fr-FR"),
-                    read: false,
+                    read: readIds.has(nid),
                   });
                 } else {
+                  const nid = `pending-${inv.id}`;
                   notifs.push({
-                    id: `pending-${inv.id}`,
+                    id: nid,
                     type: "invoice",
                     title: "Facture en attente",
                     message: `${inv.number} - ${inv.client?.name || "Client"} (${formatCurrency(inv.total, inv.currency)})`,
                     time: `Échéance: ${due.toLocaleDateString("fr-FR")}`,
-                    read: false,
+                    read: readIds.has(nid),
                   });
                 }
               });
@@ -143,7 +157,7 @@ export function Header({ title, subtitle }: HeaderProps) {
                 title: "Attention aux dépenses",
                 message: `Vos dépenses (${formatCurrency(data.kpis.expenses.current, "XAF")}) dépassent vos revenus ce mois-ci.`,
                 time: "Ce mois",
-                read: false,
+                read: readIds.has("expense-alert"),
               });
             }
           }
@@ -177,8 +191,12 @@ export function Header({ title, subtitle }: HeaderProps) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   function markAllRead() {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    // Mark all stored notifications as read in DB
+    const readIds = getReadIds();
+    setNotifications((prev) => {
+      prev.forEach((n) => readIds.add(n.id));
+      saveReadIds(readIds);
+      return prev.map((n) => ({ ...n, read: true }));
+    });
     fetch("/api/notifications", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -239,7 +257,7 @@ export function Header({ title, subtitle }: HeaderProps) {
               {/* Backdrop */}
               <div className="fixed inset-0 z-30" onClick={() => setShowNotifs(false)} />
               {/* Panel */}
-              <div className="absolute right-0 top-12 w-80 sm:w-96 bg-card border border-border rounded-xl shadow-lg z-40 overflow-hidden">
+              <div className="fixed right-2 left-2 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-96 bg-card border border-border rounded-xl shadow-lg z-40 overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                   <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
                   <div className="flex items-center gap-2">

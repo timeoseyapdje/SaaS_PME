@@ -59,7 +59,7 @@ async function main() {
   // Create super admin user
   const superAdmin = await prisma.user.upsert({
     where: { email: "admin@nkapcontrol.com" },
-    update: { emailVerified: new Date(), password: adminHashedPassword },
+    update: {},
     create: {
       email: "admin@nkapcontrol.com",
       name: "Super Admin",
@@ -75,7 +75,7 @@ async function main() {
   // Create demo user
   const user = await prisma.user.upsert({
     where: { email: "demo@nkapcontrol.com" },
-    update: { emailVerified: new Date(), password: hashedPassword },
+    update: {},
     create: {
       email: "demo@nkapcontrol.com",
       name: "Utilisateur Démo",

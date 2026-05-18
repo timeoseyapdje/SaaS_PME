@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { requirePermission, isNextResponse } from "@/lib/auth-permissions";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth();
-    if (!session?.user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
+    const result = await requirePermission("payment_links", "view");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const { id } = await params;
     const link = await prisma.paymentLink.findFirst({
@@ -25,10 +24,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth();
-    if (!session?.user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
+    const result = await requirePermission("payment_links", "edit");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const { id } = await params;
     const existing = await prisma.paymentLink.findFirst({ where: { id, companyId } });
@@ -49,10 +47,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth();
-    if (!session?.user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
+    const result = await requirePermission("payment_links", "delete");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const { id } = await params;
     const existing = await prisma.paymentLink.findFirst({ where: { id, companyId } });

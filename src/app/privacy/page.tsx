@@ -15,7 +15,7 @@ export default function PrivacyPage() {
           Politique de Confidentialité
         </h1>
         <p className="text-sm text-muted-foreground mb-10">
-          Dernière mise à jour : 7 mai 2026
+          Dernière mise à jour : 15 mai 2026
         </p>
 
         <div className="space-y-8 text-sm leading-relaxed">
@@ -39,7 +39,8 @@ export default function PrivacyPage() {
               <li>Nom et prénom de l&apos;Utilisateur</li>
               <li>Adresse email</li>
               <li>Mot de passe (stocké de manière chiffrée avec bcrypt)</li>
-              <li>Rôle au sein de l&apos;entreprise</li>
+              <li>Poste et permissions au sein de l&apos;entreprise</li>
+              <li>Statut de la demande d&apos;adhésion (le cas échéant)</li>
             </ul>
 
             <h3 className="text-sm font-semibold text-foreground mt-4 mb-2">2.2 Données de l&apos;entreprise</h3>
@@ -65,9 +66,17 @@ export default function PrivacyPage() {
 
             <h3 className="text-sm font-semibold text-foreground mt-4 mb-2">2.4 Données de paiement</h3>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Méthode de paiement choisie (MTN MoMo, Orange Money, virement, carte)</li>
+              <li>Méthode de paiement choisie (MTN MoMo, Orange Money, NotchPay, virement, carte)</li>
               <li>Numéro de téléphone pour les paiements mobile money</li>
               <li>Historique des paiements d&apos;abonnement</li>
+              <li>Références de transactions NotchPay</li>
+            </ul>
+
+            <h3 className="text-sm font-semibold text-foreground mt-4 mb-2">2.5 Données d&apos;équipe et de permissions</h3>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Postes attribués et permissions associées par module</li>
+              <li>Demandes d&apos;adhésion et leur statut (en attente, approuvée, refusée)</li>
+              <li>Historique des invitations et modifications d&apos;équipe</li>
             </ul>
           </section>
 
@@ -97,7 +106,7 @@ export default function PrivacyPage() {
               </div>
               <div className="p-3 rounded-lg bg-card border border-border">
                 <p className="font-semibold text-foreground text-xs">Accès restreint</p>
-                <p className="text-xs text-muted-foreground mt-1">L&apos;accès aux données est strictement limité par un système de rôles (Administrateur, Comptable, Lecteur).</p>
+                <p className="text-xs text-muted-foreground mt-1">L&apos;accès aux données est strictement limité par un système de postes hiérarchiques avec permissions granulaires par module (Propriétaire, Directeur Général, Comptable, Lecteur).</p>
               </div>
               <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
                 <p className="font-semibold text-emerald-400 text-xs">Séparation des données</p>
@@ -117,7 +126,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-5 space-y-1.5 mt-2">
               <li>Obligation légale (décision de justice, réquisition des autorités compétentes)</li>
               <li>Protection des droits de Nkap Control en cas de litige</li>
-              <li>Sous-traitants techniques nécessaires au fonctionnement du service (hébergement, envoi d&apos;emails) sous contrat de confidentialité</li>
+              <li>Sous-traitants techniques nécessaires au fonctionnement du service (hébergement, envoi d&apos;emails, processeur de paiement NotchPay) sous contrat de confidentialité</li>
             </ul>
           </section>
 
@@ -125,7 +134,7 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-semibold text-foreground mb-3">6. Conservation des Données</h2>
             <ul className="list-disc pl-5 space-y-1.5">
               <li>Les données de compte sont conservées tant que le compte est actif</li>
-              <li>Les comptes <strong className="text-foreground">Lecteur (Viewer) inactifs depuis 6 mois</strong> sont automatiquement supprimés (notification envoyée 30 jours avant)</li>
+              <li>Les comptes dont le poste ne dispose que de permissions de lecture et inactifs depuis <strong className="text-foreground">6 mois</strong> sont automatiquement supprimés (notification envoyée 30 jours avant)</li>
               <li>En cas de suppression de compte, les données sont effacées dans un délai de 30 jours</li>
               <li>Les données de paiement sont conservées 5 ans conformément aux obligations légales</li>
             </ul>

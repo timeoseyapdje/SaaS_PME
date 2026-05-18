@@ -1,18 +1,12 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requirePermission, isNextResponse } from "@/lib/auth-permissions";
 
 export async function GET() {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
-    const companyId = (session.user as { companyId?: string }).companyId;
-    if (!companyId) {
-      return NextResponse.json({ error: "Entreprise non trouvée" }, { status: 404 });
-    }
+    const result = await requirePermission("dashboard", "view");
+    if (isNextResponse(result)) return result;
+    const companyId = result.session.user.companyId;
 
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
