@@ -14,67 +14,6 @@ const APP_NAME = "Nkap Control";
 const NO_REPLY_NOTICE = `<p style="color: #3f3f46; font-size: 11px; margin: 4px 0 0;">Cet email est envoyé automatiquement — merci de ne pas y répondre.</p>`;
 
 // ============================================================
-// EMAIL: Bienvenue après inscription
-// ============================================================
-export async function sendWelcomeEmail({
-  to,
-  userName,
-  companyName,
-}: {
-  to: string;
-  userName: string;
-  companyName?: string;
-}) {
-  const html = `
-    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; border-radius: 16px; overflow: hidden;">
-      <div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 40px 32px; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 28px;">${APP_NAME}</h1>
-        <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 16px;">Bienvenue !</p>
-      </div>
-      <div style="padding: 32px; color: #d4d4d8;">
-        <p style="font-size: 16px; margin: 0 0 24px;">Bonjour <strong style="color: white;">${userName}</strong>,</p>
-        <p style="margin: 0 0 16px;">Votre compte a bien ete cree${companyName ? ` pour <strong style="color: white;">${companyName}</strong>` : ""}. Bienvenue sur ${APP_NAME} !</p>
-        <p style="margin: 0 0 32px;">Vous pouvez maintenant gerer vos factures, suivre votre tresorerie et piloter votre activite depuis votre tableau de bord.</p>
-
-        <div style="text-align: center; margin: 0 0 32px;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com"}/login"
-             style="display: inline-block; background: #059669; color: white; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px;">
-            Acceder a mon tableau de bord
-          </a>
-        </div>
-
-        <p style="margin: 0; font-size: 13px; color: #71717a;">Si vous n'avez pas cree ce compte, ignorez cet email.</p>
-      </div>
-      <div style="padding: 20px 32px; background: #09090b; text-align: center;">
-        <p style="color: #52525b; font-size: 12px; margin: 0;">${APP_NAME} - Gestion financiere pour PME camerounaises</p>
-      </div>
-    </div>
-  `;
-
-  try {
-    const resend = getResendClient();
-    if (!resend) {
-      console.warn("Resend non configure - email de bienvenue non envoye");
-      return { success: false, error: "RESEND_API_KEY non configuree" };
-    }
-    const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
-      to,
-      subject: `Bienvenue sur ${APP_NAME} !`,
-      html,
-    });
-    if (error) {
-      console.error("Welcome email error:", error);
-      return { success: false, error };
-    }
-    return { success: true, data };
-  } catch (err) {
-    console.error("Welcome email exception:", err);
-    return { success: false, error: err };
-  }
-}
-
-// ============================================================
 // EMAIL: Confirmation de paiement d'abonnement
 // ============================================================
 export async function sendSubscriptionConfirmationEmail({
