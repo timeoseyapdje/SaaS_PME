@@ -8,13 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
 import {
@@ -123,8 +116,6 @@ export default function SubscriptionPage() {
 
   // Formulaire
   const [selectedPlan, setSelectedPlan] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [promoCode, setPromoCode] = useState("");
 
   const fetchSubscription = useCallback(async () => {
@@ -146,60 +137,21 @@ export default function SubscriptionPage() {
 
   async function handleSubscribe() {
     if (!selectedPlan) return;
-    if (!paymentMethod) {
-      setError("Veuillez choisir un mode de paiement");
-      return;
-    }
-    if ((paymentMethod === "MTN_MONEY" || paymentMethod === "ORANGE_MONEY") && !phoneNumber) {
-      setError("Veuillez entrer votre numéro de téléphone");
-      return;
-    }
 
     setError("");
     setSubmitting(true);
     try {
-      if (paymentMethod === "NOTCHPAY") {
-        const res = await fetch("/api/payments/notchpay", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ plan: selectedPlan }),
-        });
-        const data = await res.json();
-        if (res.ok && data.authorizationUrl) {
-          window.location.href = data.authorizationUrl;
-          return;
-        }
-        setError(data.error || "Erreur NotchPay");
-        return;
-      }
-
-      const res = await fetch("/api/subscription", {
+      const res = await fetch("/api/payments/notchpay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          plan: selectedPlan,
-          paymentMethod,
-          phoneNumber,
-          promoCode: promoCode || undefined,
-        }),
+        body: JSON.stringify({ plan: selectedPlan }),
       });
-
       const data = await res.json();
-      if (res.ok) {
-        if (data.checkoutUrl) {
-          window.location.href = data.checkoutUrl;
-          return;
-        }
-        setSuccess(true);
-        setSelectedPlan("");
-        setPaymentMethod("");
-        setPhoneNumber("");
-        setPromoCode("");
-        fetchSubscription();
-        setTimeout(() => setSuccess(false), 5000);
-      } else {
-        setError(data.error || "Erreur lors du paiement");
+      if (res.ok && data.authorizationUrl) {
+        window.location.href = data.authorizationUrl;
+        return;
       }
+      setError(data.error || "Erreur lors de l'initialisation du paiement");
     } catch {
       setError("Une erreur est survenue");
     } finally {
@@ -400,34 +352,6 @@ export default function SubscriptionPage() {
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-muted-foreground">Mode de paiement *</Label>
-                    <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                      <SelectTrigger className="bg-background border-border">
-                        <SelectValue placeholder="Choisir un mode de paiement" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="NOTCHPAY">NotchPay (Mobile Money / Carte)</SelectItem>
-                        <SelectItem value="MTN_MONEY">MTN Mobile Money (manuel)</SelectItem>
-                        <SelectItem value="ORANGE_MONEY">Orange Money (manuel)</SelectItem>
-                        <SelectItem value="VIREMENT">Virement bancaire</SelectItem>
-                        <SelectItem value="CARTE_BANCAIRE">Carte bancaire</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {(paymentMethod === "MTN_MONEY" || paymentMethod === "ORANGE_MONEY") && (
-                    <div className="space-y-2">
-                      <Label className="text-muted-foreground">Numéro de téléphone *</Label>
-                      <Input
-                        placeholder="+237 6xx xxx xxx"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        className="bg-background border-border"
-                      />
-                    </div>
-                  )}
-
                   <div className="space-y-2">
                     <Label className="text-muted-foreground flex items-center gap-1">
                       <Tag className="w-3 h-3" />

@@ -55,7 +55,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     }
 
     // For online mobile money payments, gross up the amount so company receives exactly link.amount
-    const isOnline = isNotchPayConfigured() && ["MTN_MONEY", "ORANGE_MONEY", "CARTE_BANCAIRE"].includes(paymentMethod);
+    const isOnline = isNotchPayConfigured() && ["MTN_MONEY", "ORANGE_MONEY"].includes(paymentMethod);
     const { grossAmount, feeAmount } = calculateGrossAmount(link.amount);
     const chargedAmount = isOnline ? grossAmount : link.amount;
 

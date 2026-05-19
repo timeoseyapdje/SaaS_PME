@@ -23,7 +23,6 @@ interface PaymentLinkData {
 }
 
 const PAYMENT_METHODS = [
-  { value: "NOTCHPAY", label: "NotchPay (Mobile Money / Carte)", icon: "💳", color: "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/10" },
   { value: "MTN_MONEY", label: "MTN Mobile Money", icon: "📱", color: "border-yellow-400 bg-yellow-50 dark:bg-yellow-900/10" },
   { value: "ORANGE_MONEY", label: "Orange Money", icon: "🍊", color: "border-orange-400 bg-orange-50 dark:bg-orange-900/10" },
   { value: "ESPECES", label: "Especes", icon: "💵", color: "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/10" },
@@ -69,28 +68,18 @@ function PaymentPageContent() {
     if (["MTN_MONEY", "ORANGE_MONEY"].includes(method) && !phone) { setError("Numero de telephone requis"); return; }
     setSubmitting(true); setError("");
     try {
-      if (method === "NOTCHPAY") {
-        const res = await fetch(`/api/pay/${slug}/notchpay`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ payerName: name || null, email: "", phone: phone || null }),
-        });
-        const d = await res.json();
-        if (res.ok && (d.checkoutUrl || d.authorizationUrl)) {
-          window.location.href = d.checkoutUrl || d.authorizationUrl;
-          return;
-        }
-        setError(d.error || "Erreur NotchPay");
-        return;
-      }
-
       const res = await fetch(`/api/pay/${slug}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ paymentMethod: method, phoneNumber: phone || null, payerName: name || null }),
       });
-      if (res.ok) { setSuccess(true); }
-      else { const d = await res.json(); setError(d.error); }
+      const d = await res.json();
+      if (!res.ok) { setError(d.error); return; }
+      if (d.checkoutUrl) {
+        window.location.href = d.checkoutUrl;
+      } else {
+        setSuccess(true);
+      }
     } catch { setError("Erreur. Veuillez reessayer."); }
     finally { setSubmitting(false); }
   }
