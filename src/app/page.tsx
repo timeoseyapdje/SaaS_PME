@@ -161,18 +161,18 @@ const plans = [
 const testimonials = [
   {
     name: "Jean-Pierre Mbarga",
-    role: "Gerant, TechSarl Yaounde",
+    role: "Gerante, TechSarl Yaounde",
     text: "Depuis que j'utilise Nkap Control, je gagne 2 heures par jour sur ma comptabilite. Le calcul automatique de la TVA est un vrai plus.",
     rating: 5,
   },
   {
-    name: "Celine Fotso",
-    role: "Directrice, Fotso Trading Douala",
+    name: "Vanessa SANDJI",
+    role: "Gerante, Extraits Cameroun",
     text: "Enfin un logiciel qui comprend le contexte camerounais ! Les paiements Mobile Money integres et les rapports OHADA sont exactement ce qu'il nous fallait.",
     rating: 5,
   },
   {
-    name: "Paul DJOCKO",
+    name: "Paul DJOKO",
     role: "Expert-comptable",
     text: "Je recommande Nkap Control a tous mes clients PME. Les rapports fiscaux sont conformes et me facilitent le travail en fin d'exercice.",
     rating: 5,
