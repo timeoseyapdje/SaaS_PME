@@ -172,8 +172,8 @@ const testimonials = [
     rating: 5,
   },
   {
-    name: "Paul Nganou",
-    role: "Expert-comptable, Cabinet Nganou",
+    name: "Paul DJOCKO",
+    role: "Expert-comptable",
     text: "Je recommande Nkap Control a tous mes clients PME. Les rapports fiscaux sont conformes et me facilitent le travail en fin d'exercice.",
     rating: 5,
   },
