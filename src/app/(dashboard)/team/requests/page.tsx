@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { UserPlus, Check, X, Loader2, Mail, MessageSquare, Clock } from "lucide-react";
 import { Header } from "@/components/layout/Header";
+import { usePermissions } from "@/hooks/usePermissions";
 
 interface AdmissionRequest {
   id: string;
@@ -21,6 +22,8 @@ interface Position {
 }
 
 export default function RequestsPage() {
+  const { can } = usePermissions();
+  const canInvite = can("team", "invite");
   const [requests, setRequests] = useState<AdmissionRequest[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(true);
@@ -138,38 +141,42 @@ export default function RequestsPage() {
                       {new Date(req.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <select
-                      value={selectedPositions[req.id] || ""}
-                      onChange={(e) => setSelectedPositions((prev) => ({ ...prev, [req.id]: e.target.value }))}
-                      className="text-xs bg-muted border border-border rounded-lg px-2 py-1.5 text-foreground outline-none focus:border-emerald-500/50"
-                    >
-                      <option value="" disabled>Poste à attribuer</option>
-                      {positions.filter((p) => !p.isOwner).map((p) => (
-                        <option key={p.id} value={p.id}>{p.name}</option>
-                      ))}
-                    </select>
-                    <div className="flex items-center gap-2">
-                      {processing === req.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => handleDecision(req.id, "APPROVED")}
-                            className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors"
-                          >
-                            <Check className="w-3 h-3" />Approuver
-                          </button>
-                          <button
-                            onClick={() => handleDecision(req.id, "REJECTED")}
-                            className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors"
-                          >
-                            <X className="w-3 h-3" />Refuser
-                          </button>
-                        </>
-                      )}
+                  {canInvite ? (
+                    <div className="flex flex-col items-end gap-2">
+                      <select
+                        value={selectedPositions[req.id] || ""}
+                        onChange={(e) => setSelectedPositions((prev) => ({ ...prev, [req.id]: e.target.value }))}
+                        className="text-xs bg-muted border border-border rounded-lg px-2 py-1.5 text-foreground outline-none focus:border-emerald-500/50"
+                      >
+                        <option value="" disabled>Poste à attribuer</option>
+                        {positions.filter((p) => !p.isOwner).map((p) => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                      </select>
+                      <div className="flex items-center gap-2">
+                        {processing === req.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleDecision(req.id, "APPROVED")}
+                              className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition-colors"
+                            >
+                              <Check className="w-3 h-3" />Approuver
+                            </button>
+                            <button
+                              onClick={() => handleDecision(req.id, "REJECTED")}
+                              className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors"
+                            >
+                              <X className="w-3 h-3" />Refuser
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground italic">Lecture seule</span>
+                  )}
                 </div>
               </motion.div>
             ))}

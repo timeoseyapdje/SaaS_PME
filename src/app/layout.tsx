@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Nkap Control - Gestion Financiere pour PME Camerounaises",
     description: "Solution complete de gestion financiere adaptee au contexte camerounais",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Nkap Control" }],
+    images: [{ url: "https://nkapcontrol.com/og-image.png", width: 1200, height: 630, alt: "Nkap Control" }],
     type: "website",
     locale: "fr_FR",
     siteName: "Nkap Control",
@@ -21,10 +21,13 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Nkap Control - Gestion Financiere pour PME Camerounaises",
     description: "Solution complete de gestion financiere adaptee au contexte camerounais",
-    images: ["/og-image.png"],
+    images: ["https://nkapcontrol.com/og-image.png"],
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
     apple: "/apple-touch-icon.png",
   },
   manifest: "/manifest.json",

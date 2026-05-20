@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shield, Plus, Trash2, Edit2, X, Loader2, Check, Users } from "lucide-react";
 import { Header } from "@/components/layout/Header";
+import { usePermissions } from "@/hooks/usePermissions";
 import { PERMISSION_MODULES, MODULE_ACTIONS, MODULE_LABELS, ACTION_LABELS, type PermissionMap, type PermissionModule } from "@/lib/permissions";
 
 interface Position {
@@ -16,6 +17,8 @@ interface Position {
 }
 
 export default function PositionsPage() {
+  const { can } = usePermissions();
+  const canManage = can("team", "manage_positions");
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Position | null>(null);
@@ -118,15 +121,17 @@ export default function PositionsPage() {
     <div className="flex flex-col min-h-full">
       <Header title="Postes" subtitle="Gérez les rôles et permissions de votre entreprise" />
       <div className="p-4 lg:p-6 max-w-7xl mx-auto w-full">
-        <div className="flex items-center justify-end mb-6">
-          <button
-            onClick={openCreate}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Nouveau poste
-          </button>
-        </div>
+        {canManage && (
+          <div className="flex items-center justify-end mb-6">
+            <button
+              onClick={openCreate}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Nouveau poste
+            </button>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {positions.map((pos, idx) => (
@@ -167,7 +172,7 @@ export default function PositionsPage() {
                 ))}
               </div>
 
-              {!pos.isOwner && (
+              {!pos.isOwner && canManage && (
                 <div className="flex items-center gap-2 pt-3 border-t border-border">
                   <button
                     onClick={() => openEdit(pos)}
