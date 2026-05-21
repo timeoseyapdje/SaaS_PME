@@ -59,7 +59,12 @@ export async function POST(request: Request) {
     }
 
     const tx = await prisma.paymentLinkTransaction.findFirst({
-      where: { transactionRef },
+      where: {
+        OR: [
+          { notchpayRef: transactionRef },
+          { transactionRef },
+        ],
+      },
       include: {
         paymentLink: {
           include: {
@@ -94,53 +99,60 @@ export async function POST(request: Request) {
     });
 
     if (newStatus === "COMPLETED") {
-      const company = tx.paymentLink.company;
-      const defaultAccount = company.bankAccounts[0];
+      // Check if payout already exists (idempotency — callback may have already processed this)
+      const existingPayout = await prisma.payout.findUnique({
+        where: { paymentLinkTransactionId: tx.id },
+      });
 
-      if (defaultAccount) {
-        // Update treasury balance
-        await prisma.bankAccount.update({
-          where: { id: defaultAccount.id },
-          data: { balance: { increment: tx.amount } },
-        });
+      if (!existingPayout) {
+        const company = tx.paymentLink.company;
+        const defaultAccount = company.bankAccounts[0];
 
-        // Attempt automatic transfer for mobile money accounts
-        const channel = MOBILE_MONEY_CHANNELS[defaultAccount.type];
-        const phone = defaultAccount.phoneNumber || defaultAccount.accountNumber;
-
-        let payoutRef: string | undefined;
-        let payoutStatus: "INITIATED" | "PROCESSING" | "FAILED" = "INITIATED";
-
-        if (channel && phone) {
-          const transfer = await initiateTransfer({
-            amount: tx.amount,
-            currency: tx.paymentLink.currency,
-            phoneNumber: phone,
-            channel,
-            description: `Reversement - ${tx.paymentLink.title}`,
-            reference: `payout-${tx.id}`,
+        if (defaultAccount) {
+          // Update treasury balance
+          await prisma.bankAccount.update({
+            where: { id: defaultAccount.id },
+            data: { balance: { increment: tx.amount } },
           });
 
-          if (transfer) {
-            payoutRef = transfer.reference;
-            payoutStatus = "PROCESSING";
-          } else {
-            payoutStatus = "FAILED";
-          }
-        }
+          // Attempt automatic transfer for mobile money accounts
+          const channel = MOBILE_MONEY_CHANNELS[defaultAccount.type];
+          const phone = defaultAccount.phoneNumber || defaultAccount.accountNumber;
 
-        await prisma.payout.create({
-          data: {
-            companyId: company.id,
-            bankAccountId: defaultAccount.id,
-            paymentLinkTransactionId: tx.id,
-            amount: tx.amount,
-            currency: tx.paymentLink.currency,
-            status: payoutStatus,
-            payoutRef: payoutRef ?? null,
-            completedAt: payoutStatus === "PROCESSING" ? null : undefined,
-          },
-        });
+          let payoutRef: string | undefined;
+          let payoutStatus: "INITIATED" | "PROCESSING" | "FAILED" = "INITIATED";
+
+          if (channel && phone) {
+            const transfer = await initiateTransfer({
+              amount: tx.amount,
+              currency: tx.paymentLink.currency,
+              phoneNumber: phone,
+              channel,
+              description: `Reversement - ${tx.paymentLink.title}`,
+              reference: `payout-${tx.id}`,
+            });
+
+            if (transfer) {
+              payoutRef = transfer.reference;
+              payoutStatus = "PROCESSING";
+            } else {
+              payoutStatus = "FAILED";
+            }
+          }
+
+          await prisma.payout.create({
+            data: {
+              companyId: company.id,
+              bankAccountId: defaultAccount.id,
+              paymentLinkTransactionId: tx.id,
+              amount: tx.amount,
+              currency: tx.paymentLink.currency,
+              status: payoutStatus,
+              payoutRef: payoutRef ?? null,
+              completedAt: payoutStatus === "PROCESSING" ? null : undefined,
+            },
+          });
+        }
       }
     }
 
