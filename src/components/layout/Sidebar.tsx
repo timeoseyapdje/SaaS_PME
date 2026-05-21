@@ -50,7 +50,7 @@ interface NavItem {
 const navigation: NavItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   {
-    name: "Produits",
+    name: "Produits & Services",
     icon: Package,
     children: [
       { name: "Catalogue", href: "/products" },
@@ -139,7 +139,7 @@ export function Sidebar() {
   const filteredNavigation = useMemo(() => {
     return navigation.filter((item) => {
       if (item.name === "Dashboard") return canAny("dashboard");
-      if (item.name === "Produits") return canAny("products");
+      if (item.name === "Produits & Services") return canAny("products");
       if (item.name === "Ventes") return canAny("orders") || canAny("payment_links");
       if (item.name === "Facturation") return canAny("invoices");
       if (item.name === "Finances") return canAny("expenses") || canAny("treasury");
@@ -156,7 +156,7 @@ export function Sidebar() {
     "Contacts",
     "Gestion",
     "Communication",
-    "Produits",
+    "Produits & Services",
     "Ventes",
   ]);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -327,7 +327,7 @@ export function Sidebar() {
       {/* Mobile hamburger button */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 w-10 h-10 rounded-xl bg-card/90 backdrop-blur-xl border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-lg"
+        className="lg:hidden fixed top-[env(safe-area-inset-top,8px)] left-3 z-50 w-10 h-10 rounded-xl bg-card/90 backdrop-blur-xl border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-lg"
       >
         <Menu className="w-5 h-5" />
       </button>

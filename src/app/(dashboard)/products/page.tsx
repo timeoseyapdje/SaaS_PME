@@ -46,7 +46,7 @@ export default function ProductsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Header title="Catalogue produits" subtitle="Gérez vos produits et votre inventaire" />
+      <Header title="Produits & Services" subtitle="Gérez vos produits, services et prestations" />
 
       {/* Stats bar */}
       {lowStockCount > 0 && (
@@ -64,7 +64,7 @@ export default function ProductsPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Rechercher un produit..."
+            placeholder="Rechercher un produit ou service..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="pl-9"
@@ -90,7 +90,7 @@ export default function ProductsPage() {
         </div>
         <Button onClick={() => router.push("/products/new")}>
           <Plus className="w-4 h-4 mr-2" />
-          Nouveau produit
+          Ajouter
         </Button>
       </div>
 
@@ -104,9 +104,9 @@ export default function ProductsPage() {
       ) : products.length === 0 ? (
         <EmptyState
           icon={Package}
-          title="Aucun produit"
-          description="Commencez par ajouter vos premiers produits à votre catalogue."
-          actionLabel="Ajouter un produit"
+          title="Aucun produit ou service"
+          description="Ajoutez vos produits, services ou prestations à votre catalogue."
+          actionLabel="Ajouter"
           onAction={() => router.push("/products/new")}
         />
       ) : view === "grid" ? (
