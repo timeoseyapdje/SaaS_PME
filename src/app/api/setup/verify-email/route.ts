@@ -7,8 +7,8 @@ export async function POST(request: Request) {
   try {
     const { email, secret } = await request.json();
 
-    const expectedSecret = process.env.SETUP_SECRET || "nkap-setup-2026";
-    if (!secret || secret !== expectedSecret) {
+    const expectedSecret = process.env.SETUP_SECRET;
+    if (!expectedSecret || !secret || secret !== expectedSecret) {
       return NextResponse.json({ error: "Secret invalide" }, { status: 401 });
     }
 

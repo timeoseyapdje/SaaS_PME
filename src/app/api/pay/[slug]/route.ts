@@ -25,8 +25,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     }
 
     const { grossAmount, feeAmount } = calculateGrossAmount(link.amount);
+    // Only expose safe fields to the public
     return NextResponse.json({
-      ...link,
+      id: link.id,
+      title: link.title,
+      description: link.description,
+      amount: link.amount,
+      currency: link.currency,
+      slug: link.slug,
+      status: link.status,
+      currentUses: link.currentUses,
+      maxUses: link.maxUses,
+      company: link.company,
+      client: link.client,
       notchpayEnabled: isNotchPayConfigured(),
       grossAmount,
       feeAmount,

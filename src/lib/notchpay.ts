@@ -105,9 +105,14 @@ export async function initiateTransfer({
 
 export function verifyWebhookSignature(payload: string, signature: string): boolean {
   const secret = process.env.NOTCHPAY_PRIVATE_KEY;
-  if (!secret) return true;
-  const expected = crypto.createHmac("sha256", secret).update(payload).digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+  if (!secret || !signature) return false;
+  try {
+    const expected = crypto.createHmac("sha256", secret).update(payload).digest("hex");
+    if (expected.length !== signature.length) return false;
+    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+  } catch {
+    return false;
+  }
 }
 
 export function generateReference(prefix: string = "NK"): string {
