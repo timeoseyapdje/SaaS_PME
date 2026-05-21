@@ -45,8 +45,9 @@ export async function POST(request: Request) {
   try {
     const rawBody = await request.text();
 
-    const signature = request.headers.get("x-notch-signature") ?? "";
-    if (signature && !verifyWebhookSignature(rawBody, signature)) {
+    const signature = request.headers.get("x-notch-signature") || request.headers.get("x-notchpay-signature") || "";
+    if (!verifyWebhookSignature(rawBody, signature)) {
+      console.error("Webhook payment-links: invalid signature");
       return NextResponse.json({ error: "Signature invalide" }, { status: 401 });
     }
 

@@ -23,12 +23,36 @@ export async function GET() {
       payments: {
         orderBy: { createdAt: "desc" },
         take: 10,
+        select: {
+          id: true,
+          amount: true,
+          currency: true,
+          paymentMethod: true,
+          status: true,
+          paidAt: true,
+          createdAt: true,
+          // Exclude: notchpayRef, transactionRef, phoneNumber
+        },
       },
     },
   });
 
+  // Strip sensitive fields from subscription
+  const safeSubscription = subscription ? {
+    id: subscription.id,
+    plan: subscription.plan,
+    status: subscription.status,
+    startDate: subscription.startDate,
+    endDate: subscription.endDate,
+    amount: subscription.amount,
+    currency: subscription.currency,
+    paymentMethod: subscription.paymentMethod,
+    autoRenew: subscription.autoRenew,
+    payments: subscription.payments,
+  } : null;
+
   return NextResponse.json({
-    subscription,
+    subscription: safeSubscription,
     plan: subscription?.plan || "STARTER",
   });
 }
