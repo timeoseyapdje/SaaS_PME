@@ -104,7 +104,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 
     if (isOnline) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
-      const callbackUrl = `${appUrl}/api/webhooks/payment-links`;
+      // Callback = user redirect after payment (GET), NOT the webhook (POST)
+      const callbackUrl = `${appUrl}/api/payments/notchpay/callback/payment-link?slug=${slug}`;
       const email = payerEmail || link.company?.email || "client@nkapcontrol.com";
 
       const notchpay = await initializePayment({
@@ -119,7 +120,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       if (notchpay) {
         await prisma.paymentLinkTransaction.update({
           where: { id: transaction.id },
-          data: { transactionRef: notchpay.reference },
+          data: {
+            notchpayRef: notchpay.reference,       // trx.xxx from NotchPay
+            transactionRef: transaction.id,          // our own merchant ref
+          },
         });
         return NextResponse.json({ checkoutUrl: notchpay.checkoutUrl });
       }
