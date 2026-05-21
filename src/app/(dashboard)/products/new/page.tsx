@@ -63,7 +63,7 @@ export default function NewProductPage() {
 
   return (
     <div className="flex flex-col gap-6 max-w-2xl mx-auto">
-      <Header title="Nouveau produit" subtitle="Ajoutez un produit à votre catalogue" />
+      <Header title="Nouveau produit / service" subtitle="Ajoutez un produit ou une prestation à votre catalogue" />
 
       <Button variant="ghost" size="sm" className="w-fit" onClick={() => router.back()}>
         <ArrowLeft className="w-4 h-4 mr-2" /> Retour
@@ -74,8 +74,8 @@ export default function NewProductPage() {
           <CardHeader><CardTitle className="text-base">Informations générales</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Nom du produit *</Label>
-              <Input value={form.name} onChange={e => set("name", e.target.value)} placeholder="Ex: Chemise en coton" required />
+              <Label>Nom *</Label>
+              <Input value={form.name} onChange={e => set("name", e.target.value)} placeholder="Ex: Consultation RH, Logo design, Sac en cuir..." required />
             </div>
             <div className="space-y-2">
               <Label>Description</Label>
@@ -83,7 +83,7 @@ export default function NewProductPage() {
                 value={form.description}
                 onChange={e => set("description", e.target.value)}
                 rows={3}
-                placeholder="Décrivez votre produit..."
+                placeholder="Décrivez votre produit ou service..."
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
@@ -108,33 +108,50 @@ export default function NewProductPage() {
               <Label>Unité</Label>
               <select
                 value={form.unit}
-                onChange={e => set("unit", e.target.value)}
+                onChange={e => {
+                  const v = e.target.value;
+                  set("unit", v);
+                  const serviceUnits = ["heure", "jour", "semaine", "mois", "forfait", "seance", "projet", "consultation"];
+                  if (serviceUnits.includes(v)) set("trackStock", false);
+                }}
                 className="w-full h-10 rounded-lg border border-border bg-background px-3 text-sm text-foreground"
               >
-                <option value="piece">Pièce</option>
-                <option value="kg">Kilogramme (kg)</option>
-                <option value="g">Gramme (g)</option>
-                <option value="litre">Litre (L)</option>
-                <option value="ml">Millilitre (ml)</option>
-                <option value="m">Mètre (m)</option>
-                <option value="boite">Boîte</option>
-                <option value="sac">Sac</option>
-                <option value="carton">Carton</option>
+                <optgroup label="Produits">
+                  <option value="piece">Pièce</option>
+                  <option value="kg">Kilogramme (kg)</option>
+                  <option value="g">Gramme (g)</option>
+                  <option value="litre">Litre (L)</option>
+                  <option value="ml">Millilitre (ml)</option>
+                  <option value="m">Mètre (m)</option>
+                  <option value="boite">Boîte</option>
+                  <option value="sac">Sac</option>
+                  <option value="carton">Carton</option>
+                </optgroup>
+                <optgroup label="Services & Prestations">
+                  <option value="heure">Heure</option>
+                  <option value="jour">Jour</option>
+                  <option value="semaine">Semaine</option>
+                  <option value="mois">Mois</option>
+                  <option value="forfait">Forfait</option>
+                  <option value="seance">Séance</option>
+                  <option value="projet">Projet</option>
+                  <option value="consultation">Consultation</option>
+                </optgroup>
               </select>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-border">
-          <CardHeader><CardTitle className="text-base">Prix</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">Tarification</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Prix de vente (XAF) *</Label>
+                <Label>Prix / Tarif (XAF) *</Label>
                 <Input type="number" min="0" value={form.price} onChange={e => set("price", e.target.value)} placeholder="0" required />
               </div>
               <div className="space-y-2">
-                <Label>Prix d&apos;achat (XAF)</Label>
+                <Label>Coût de revient (XAF)</Label>
                 <Input type="number" min="0" value={form.costPrice} onChange={e => set("costPrice", e.target.value)} placeholder="0" />
               </div>
             </div>
@@ -176,7 +193,7 @@ export default function NewProductPage() {
         <div className="flex gap-3 pb-8">
           <Button type="submit" disabled={saving}>
             {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-            Enregistrer le produit
+            Enregistrer
           </Button>
           <Button type="button" variant="outline" onClick={() => router.back()}>Annuler</Button>
         </div>

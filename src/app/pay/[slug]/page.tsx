@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { Loader2, CheckCircle2, Smartphone, Building2 } from "lucide-react";
+import { Loader2, CheckCircle2, Smartphone, Building2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -98,6 +98,12 @@ function PaymentPageContent() {
         </div>
         <h1 className="text-lg font-semibold text-foreground">Lien invalide</h1>
         <p className="text-sm text-muted-foreground">{error}</p>
+        <button
+          onClick={() => window.history.length > 1 ? window.history.back() : (window.location.href = "/")}
+          className="inline-flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-2 hover:underline"
+        >
+          <ArrowLeft className="w-4 h-4" /> Retour
+        </button>
       </div>
     </div>
   );
@@ -123,6 +129,12 @@ function PaymentPageContent() {
             <Smartphone className="w-4 h-4" /> {data.company.phone}
           </a>
         )}
+        <button
+          onClick={() => window.history.length > 1 ? window.history.back() : (window.location.href = "/")}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground font-medium mt-2 hover:text-foreground"
+        >
+          <ArrowLeft className="w-4 h-4" /> Retour
+        </button>
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ interface StockBadgeProps {
 
 export function StockBadge({ stock, threshold, trackStock }: StockBadgeProps) {
   if (!trackStock) {
-    return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">Non géré</span>;
+    return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">Service</span>;
   }
   if (stock === 0) {
     return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">Rupture</span>;

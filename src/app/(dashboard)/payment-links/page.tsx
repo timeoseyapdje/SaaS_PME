@@ -88,20 +88,39 @@ export default function PaymentLinksPage() {
 
   async function toggleStatus(link: PaymentLink) {
     const newStatus = link.status === "ACTIVE" ? "DISABLED" : "ACTIVE";
-    await fetch(`/api/payment-links/${link.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: link.title, status: newStatus }),
-    });
-    setLinks(prev => prev.map(l => l.id === link.id ? { ...l, status: newStatus } : l));
+    try {
+      const res = await fetch(`/api/payment-links/${link.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: link.title, status: newStatus }),
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        alert(d.error || "Erreur lors du changement de statut");
+        return;
+      }
+      setLinks(prev => prev.map(l => l.id === link.id ? { ...l, status: newStatus } : l));
+    } catch {
+      alert("Erreur réseau");
+    }
   }
 
   async function deleteLink(link: PaymentLink) {
     if (!confirm(`Supprimer le lien "${link.title}" ? Cette action est irréversible.`)) return;
     setDeleting(link.id);
-    await fetch(`/api/payment-links/${link.id}`, { method: "DELETE" });
-    setLinks(prev => prev.filter(l => l.id !== link.id));
-    setDeleting(null);
+    try {
+      const res = await fetch(`/api/payment-links/${link.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const d = await res.json();
+        alert(d.error || "Erreur lors de la suppression");
+        return;
+      }
+      setLinks(prev => prev.filter(l => l.id !== link.id));
+    } catch {
+      alert("Erreur réseau");
+    } finally {
+      setDeleting(null);
+    }
   }
 
   async function confirmTransaction(linkId: string, txId: string, newStatus: "COMPLETED" | "FAILED") {

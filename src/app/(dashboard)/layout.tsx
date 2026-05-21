@@ -22,11 +22,11 @@ export default async function DashboardLayout({
 
   return (
     <SessionProvider session={session}>
-      <div className="flex h-screen bg-background text-foreground overflow-hidden relative">
+      <div className="flex h-[100dvh] bg-background text-foreground overflow-hidden relative">
         <div className="absolute inset-0 bg-dot-pattern opacity-30 dark:opacity-20 pointer-events-none" />
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
         <Sidebar />
-        <div className="flex-1 ml-0 lg:ml-[288px] p-3 pt-16 lg:p-4 lg:pt-4 overflow-auto flex flex-col relative z-10">{children}</div>
+        <div className="flex-1 ml-0 lg:ml-[288px] p-3 pt-[calc(env(safe-area-inset-top,8px)+48px)] lg:p-4 lg:pt-4 overflow-y-auto flex flex-col relative z-10" style={{ WebkitOverflowScrolling: "touch" }}>{children}</div>
       </div>
       <Toaster />
       {session.user.email !== "admin@nkapcontrol.com" && <AIChatbot />}
