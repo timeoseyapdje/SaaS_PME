@@ -182,13 +182,16 @@ export async function POST(request: Request) {
       currency: "XAF",
       reference: payment.id,
       description: `Abonnement Nkap Control - Plan ${plan}`,
-      callbackUrl: `${appUrl}/api/payments/webhook`,
+      callbackUrl: `${appUrl}/api/payments/notchpay/callback?plan=${plan}`,
     });
 
     if (notchpay) {
       await prisma.payment.update({
         where: { id: payment.id },
-        data: { transactionRef: notchpay.reference },
+        data: {
+          notchpayRef: notchpay.reference,
+          transactionRef: payment.id,
+        },
       });
       return NextResponse.json({ subscription, payment, checkoutUrl: notchpay.checkoutUrl });
     }
