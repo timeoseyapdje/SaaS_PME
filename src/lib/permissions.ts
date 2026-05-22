@@ -105,7 +105,7 @@ export function createTemplatePermissions(template: PositionTemplate): Permissio
         clients: ["view", "create", "edit"],
         suppliers: ["view", "create", "edit"],
         reports: ["view", "export"],
-        payment_links: ["view", "create"],
+        payment_links: ["view", "create", "edit", "delete"],
         settings: ["view"],
         team: ["view"],
       };
