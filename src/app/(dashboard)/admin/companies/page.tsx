@@ -15,10 +15,12 @@ import {
   Zap,
   Rocket,
   UserPlus,
+  Trash2,
   X,
   Loader2,
   Eye,
   EyeOff,
+  AlertTriangle,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 
@@ -57,6 +59,12 @@ export default function AdminCompaniesPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
+  // Modal de suppression
+  const [deletingCompany, setDeletingCompany] = useState<AdminCompany | null>(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
   // Modal d'ajout d'utilisateur
   const [addingTo, setAddingTo] = useState<AdminCompany | null>(null);
   const [formName, setFormName] = useState("");
@@ -81,6 +89,38 @@ export default function AdminCompaniesPage() {
   useEffect(() => {
     fetchCompanies();
   }, [fetchCompanies]);
+
+  function openDeleteModal(company: AdminCompany) {
+    setDeletingCompany(company);
+    setDeleteConfirmName("");
+    setDeleteError("");
+  }
+
+  function closeDeleteModal() {
+    setDeletingCompany(null);
+    setDeleteConfirmName("");
+    setDeleteError("");
+  }
+
+  async function handleDeleteCompany() {
+    if (!deletingCompany || deleteConfirmName !== deletingCompany.name) return;
+    setDeleting(true);
+    setDeleteError("");
+    try {
+      const res = await fetch(`/api/admin/companies/${deletingCompany.id}`, { method: "DELETE" });
+      if (res.ok) {
+        setCompanies((prev) => prev.filter((c) => c.id !== deletingCompany.id));
+        closeDeleteModal();
+      } else {
+        const err = await res.json();
+        setDeleteError(err.error || "Erreur lors de la suppression");
+      }
+    } catch {
+      setDeleteError("Erreur réseau");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   function openAddModal(company: AdminCompany) {
     setAddingTo(company);
@@ -274,20 +314,28 @@ export default function AdminCompaniesPage() {
                     </div>
                   )}
 
-                  {/* Bouton ajouter un utilisateur */}
+                  {/* Boutons super admin */}
                   {isSuperAdmin && (
-                    <button
-                      onClick={() => openAddModal(company)}
-                      disabled={!canAdd}
-                      className={`w-full flex items-center justify-center gap-1.5 text-xs font-medium py-2 rounded-lg transition-colors ${
-                        canAdd
-                          ? "text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20"
-                          : "text-muted-foreground bg-muted border border-border cursor-not-allowed"
-                      }`}
-                    >
-                      <UserPlus className="w-3.5 h-3.5" />
-                      {canAdd ? "Ajouter un utilisateur" : `Limite atteinte (${limitLabel})`}
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openAddModal(company)}
+                        disabled={!canAdd}
+                        className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-2 rounded-lg transition-colors ${
+                          canAdd
+                            ? "text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20"
+                            : "text-muted-foreground bg-muted border border-border cursor-not-allowed"
+                        }`}
+                      >
+                        <UserPlus className="w-3.5 h-3.5" />
+                        {canAdd ? "Ajouter" : `Limite (${limitLabel})`}
+                      </button>
+                      <button
+                        onClick={() => openDeleteModal(company)}
+                        className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   )}
                 </div>
               </motion.div>
@@ -301,6 +349,80 @@ export default function AdminCompaniesPage() {
           </div>
         )}
       </div>
+
+      {/* Modal de confirmation de suppression */}
+      <AnimatePresence>
+        {deletingCompany && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={closeDeleteModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-card border border-rose-500/30 rounded-xl w-full max-w-md overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-5 border-b border-border">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+                    <AlertTriangle className="w-4 h-4 text-rose-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">Supprimer l&apos;entreprise</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">Action irréversible</p>
+                  </div>
+                </div>
+                <button onClick={closeDeleteModal} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              <div className="p-5 space-y-4">
+                <p className="text-xs text-muted-foreground">
+                  Cette action supprimera définitivement <span className="font-semibold text-foreground">{deletingCompany.name}</span> et toutes ses données (factures, clients, abonnements, etc.). Les utilisateurs seront détachés mais pas supprimés.
+                </p>
+
+                {deleteError && (
+                  <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs">
+                    {deleteError}
+                  </div>
+                )}
+
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                    Tapez <span className="font-semibold text-foreground">{deletingCompany.name}</span> pour confirmer
+                  </label>
+                  <input
+                    type="text"
+                    value={deleteConfirmName}
+                    onChange={(e) => setDeleteConfirmName(e.target.value)}
+                    placeholder={deletingCompany.name}
+                    className="w-full px-3 py-2 text-sm bg-muted border border-border rounded-lg text-foreground placeholder-muted-foreground outline-none focus:border-rose-500/50"
+                  />
+                </div>
+
+                <button
+                  onClick={handleDeleteCompany}
+                  disabled={deleteConfirmName !== deletingCompany.name || deleting}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-white bg-rose-600 hover:bg-rose-500 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {deleting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                  {deleting ? "Suppression..." : "Supprimer définitivement"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Modal d'ajout d'utilisateur */}
       <AnimatePresence>
