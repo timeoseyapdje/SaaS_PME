@@ -9,13 +9,21 @@ export async function GET(req: Request) {
   const plan = searchParams.get("plan");
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
-  const notchpayRef = trxref || merchantRef;
-  if (!notchpayRef) {
+  if (!trxref && !merchantRef) {
     return NextResponse.redirect(`${baseUrl}/subscription?status=error`);
   }
 
   try {
-    const result = await verifyPayment(notchpayRef);
+    // Prefer trxref (NotchPay's own reference). If absent, look up notchpayRef from DB.
+    let notchpayRef = trxref;
+    if (!notchpayRef && merchantRef) {
+      const dbPayment = await prisma.payment.findFirst({
+        where: { OR: [{ transactionRef: merchantRef }, { notchpayRef: merchantRef }] },
+      });
+      notchpayRef = dbPayment?.notchpayRef || merchantRef;
+    }
+
+    const result = await verifyPayment(notchpayRef!);
 
     if (result.transaction?.status === "complete") {
       const payment = await prisma.payment.findFirst({
