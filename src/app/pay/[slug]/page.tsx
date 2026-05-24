@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { Loader2, CheckCircle2, Smartphone, Building2, ArrowLeft } from "lucide-react";
+import { Loader2, CheckCircle2, Smartphone, Building2, ArrowLeft, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,11 +22,9 @@ interface PaymentLinkData {
   client?: { name: string; email?: string };
 }
 
-const PAYMENT_METHODS = [
-  { value: "MTN_MONEY", label: "MTN Mobile Money", icon: "📱", color: "border-yellow-400 bg-yellow-50 dark:bg-yellow-900/10" },
-  { value: "ORANGE_MONEY", label: "Orange Money", icon: "🍊", color: "border-orange-400 bg-orange-50 dark:bg-orange-900/10" },
-  { value: "ESPECES", label: "Especes", icon: "💵", color: "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/10" },
-  { value: "VIREMENT", label: "Virement bancaire", icon: "🏦", color: "border-blue-400 bg-blue-50 dark:bg-blue-900/10" },
+const PAYMENT_METHODS: { value: string; label: string; icon: React.ReactNode; color: string }[] = [
+  { value: "MTN_MONEY",    label: "MTN Mobile Money", icon: <img src="/mtn-money.svg"    alt="MTN"    className="w-8 h-8 object-contain" />, color: "border-yellow-400 bg-yellow-50 dark:bg-yellow-900/10" },
+  { value: "ORANGE_MONEY", label: "Orange Money",     icon: <img src="/orange-money.svg" alt="Orange" className="w-8 h-8 object-contain" />, color: "border-orange-400 bg-orange-50 dark:bg-orange-900/10" },
 ];
 
 export default function PublicPaymentPage() {
@@ -94,7 +92,7 @@ function PaymentPageContent() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="max-w-sm w-full text-center space-y-4">
         <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto">
-          <span className="text-2xl">⛔</span>
+          <XCircle className="w-8 h-8 text-red-500" />
         </div>
         <h1 className="text-lg font-semibold text-foreground">Lien invalide</h1>
         <p className="text-sm text-muted-foreground">{error}</p>
@@ -184,7 +182,7 @@ function PaymentPageContent() {
                       : "border-border hover:border-emerald-300"
                   }`}
                 >
-                  <span className="text-xl block mb-1">{m.icon}</span>
+                  <span className="block mb-1">{m.icon}</span>
                   <span className="text-xs font-medium text-foreground">{m.label}</span>
                 </button>
               ))}

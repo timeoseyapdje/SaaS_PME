@@ -49,9 +49,13 @@ export async function initializePayment({
   }
 
   const data = await res.json();
-  if (!data.authorization_url) return null;
+  const authUrl = data.authorization_url || data.transaction?.authorization_url;
+  if (!authUrl) {
+    console.error("NotchPay init: no authorization_url in response", JSON.stringify(data));
+    return null;
+  }
 
-  return { checkoutUrl: data.authorization_url, reference: data.transaction?.reference ?? reference };
+  return { checkoutUrl: authUrl, reference: data.transaction?.reference ?? reference };
 }
 
 export async function verifyPayment(reference: string): Promise<{ status: string; transaction?: { reference: string; status: string; amount: number } }> {

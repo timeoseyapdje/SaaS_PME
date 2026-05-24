@@ -25,7 +25,7 @@ const WELCOME_MESSAGE: ChatMessage = {
   id: "welcome",
   role: "assistant",
   content:
-    "Bonjour ! 👋 Je suis **Nkap AI**, votre assistant financier intelligent.\n\nJe connais vos données en temps réel : factures, dépenses, trésorerie, clients... Posez-moi n'importe quelle question sur vos finances !\n\n💡 *Essayez une des suggestions ci-dessous pour commencer.*",
+    "Bonjour ! Je suis **Nkap AI**, votre assistant financier intelligent.\n\nJe connais vos données en temps réel : factures, dépenses, trésorerie, clients... Posez-moi n'importe quelle question sur vos finances !\n\n*Essayez une des suggestions ci-dessous pour commencer.*",
   timestamp: new Date(),
 };
 

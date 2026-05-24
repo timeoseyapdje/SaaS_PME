@@ -31,6 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { Supplier, ClientType } from "@/types";
 import { Plus, Search, Edit, Trash2, Truck, Phone, Mail } from "lucide-react";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const typeLabels: Record<ClientType, string> = {
   PARTICULIER: "Particulier",
@@ -51,10 +52,12 @@ interface SupplierWithCount extends Supplier {
 }
 
 export default function SuppliersPage() {
+  const { toast } = useToast();
   const [suppliers, setSuppliers] = useState<SupplierWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [confirmDeleteSupplier, setConfirmDeleteSupplier] = useState<string | null>(null);
   const [editSupplier, setEditSupplier] = useState<SupplierWithCount | null>(
     null
   );
@@ -141,7 +144,7 @@ export default function SuppliersPage() {
         fetchSuppliers();
       } else {
         const err = await response.json();
-        alert(err.error || "Erreur");
+        toast({ title: "Erreur", description: err.error || "Erreur", variant: "destructive" });
       }
     } finally {
       setSubmitting(false);
@@ -149,7 +152,7 @@ export default function SuppliersPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Supprimer ce fournisseur ?")) return;
+    setConfirmDeleteSupplier(null);
     await fetch(`/api/suppliers?id=${id}`, { method: "DELETE" });
     fetchSuppliers();
   }
@@ -272,7 +275,7 @@ export default function SuppliersPage() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-red-400 hover:text-red-600"
-                            onClick={() => handleDelete(supplier.id)}
+                            onClick={() => setConfirmDeleteSupplier(supplier.id)}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -394,6 +397,19 @@ export default function SuppliersPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {confirmDeleteSupplier && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setConfirmDeleteSupplier(null)}>
+          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full space-y-4" onClick={e => e.stopPropagation()}>
+            <p className="text-sm font-semibold text-foreground">Supprimer ce fournisseur ?</p>
+            <p className="text-xs text-muted-foreground">Cette action est irréversible.</p>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" size="sm" onClick={() => setConfirmDeleteSupplier(null)}>Annuler</Button>
+              <Button variant="destructive" size="sm" onClick={() => handleDelete(confirmDeleteSupplier)}>Supprimer</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
