@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
-import { Users, Search, Mail, Shield, Loader2, UserMinus } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Users, Search, Mail, Shield, Loader2, UserMinus, Crown, X, AlertTriangle } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { usePermissions } from "@/hooks/usePermissions";
 
@@ -23,6 +24,7 @@ interface Position {
 }
 
 export default function TeamPage() {
+  const { data: session } = useSession();
   const { can } = usePermissions();
   const [members, setMembers] = useState<Member[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
@@ -30,6 +32,14 @@ export default function TeamPage() {
   const [search, setSearch] = useState("");
   const [changingPosition, setChangingPosition] = useState<string | null>(null);
   const [removingMember, setRemovingMember] = useState<string | null>(null);
+
+  // Transfer ownership state
+  const [transferTarget, setTransferTarget] = useState<Member | null>(null);
+  const [transferring, setTransferring] = useState(false);
+  const [transferError, setTransferError] = useState("");
+
+  const currentUserId = (session?.user as { id?: string })?.id;
+  const isOwner = members.find((m) => m.id === currentUserId)?.position?.isOwner ?? false;
 
   const fetchData = useCallback(async () => {
     try {
@@ -86,6 +96,28 @@ export default function TeamPage() {
     }
   }
 
+  async function handleTransferOwnership() {
+    if (!transferTarget) return;
+    setTransferring(true);
+    setTransferError("");
+    try {
+      const res = await fetch("/api/team/transfer-ownership", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetUserId: transferTarget.id }),
+      });
+      if (res.ok) {
+        await fetchData();
+        setTransferTarget(null);
+      } else {
+        const err = await res.json();
+        setTransferError(err.error || "Erreur lors du transfert");
+      }
+    } finally {
+      setTransferring(false);
+    }
+  }
+
   const filtered = members.filter(
     (m) =>
       (m.name || "").toLowerCase().includes(search.toLowerCase()) ||
@@ -126,7 +158,7 @@ export default function TeamPage() {
                   <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Membre</th>
                   <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Poste</th>
                   <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Depuis</th>
-                  {can("team", "manage_positions") && (
+                  {(can("team", "manage_positions") || isOwner) && (
                     <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Actions</th>
                   )}
                 </tr>
@@ -154,8 +186,12 @@ export default function TeamPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-xs font-medium px-2 py-1 rounded-full border border-border bg-muted text-foreground flex items-center gap-1 w-fit">
-                        <Shield className="w-3 h-3" />
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full border flex items-center gap-1 w-fit ${
+                        member.position?.isOwner
+                          ? "text-amber-400 bg-amber-500/10 border-amber-500/20"
+                          : "border-border bg-muted text-foreground"
+                      }`}>
+                        {member.position?.isOwner ? <Crown className="w-3 h-3" /> : <Shield className="w-3 h-3" />}
                         {member.position?.name || "Aucun poste"}
                       </span>
                     </td>
@@ -164,28 +200,43 @@ export default function TeamPage() {
                         {new Date(member.createdAt).toLocaleDateString("fr-FR")}
                       </p>
                     </td>
-                    {can("team", "manage_positions") && (
+                    {(can("team", "manage_positions") || isOwner) && (
                       <td className="px-4 py-3">
                         {member.position?.isOwner ? (
-                          <span className="text-[10px] text-muted-foreground">Propriétaire</span>
+                          <span className="text-[10px] text-amber-400/70">Propriétaire</span>
                         ) : (
                           <div className="flex items-center gap-2">
-                            {changingPosition === member.id ? (
-                              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                            ) : (
-                              <select
-                                value={member.positionId || ""}
-                                onChange={(e) => handlePositionChange(member.id, e.target.value)}
-                                className="text-xs bg-muted border border-border rounded-lg px-2 py-1.5 text-foreground outline-none focus:border-primary/50"
-                              >
-                                <option value="" disabled>Choisir un poste</option>
-                                {positions
-                                  .filter((p) => !p.isOwner)
-                                  .map((p) => (
-                                    <option key={p.id} value={p.id}>{p.name}</option>
-                                  ))}
-                              </select>
+                            {can("team", "manage_positions") && (
+                              changingPosition === member.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                              ) : (
+                                <select
+                                  value={member.positionId || ""}
+                                  onChange={(e) => handlePositionChange(member.id, e.target.value)}
+                                  className="text-xs bg-muted border border-border rounded-lg px-2 py-1.5 text-foreground outline-none focus:border-primary/50"
+                                >
+                                  <option value="" disabled>Choisir un poste</option>
+                                  {positions
+                                    .filter((p) => !p.isOwner)
+                                    .map((p) => (
+                                      <option key={p.id} value={p.id}>{p.name}</option>
+                                    ))}
+                                </select>
+                              )
                             )}
+
+                            {/* Transférer la propriété — visible uniquement au propriétaire actuel */}
+                            {isOwner && member.id !== currentUserId && (
+                              <button
+                                onClick={() => { setTransferTarget(member); setTransferError(""); }}
+                                className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-lg transition-colors"
+                                title="Transférer la propriété"
+                              >
+                                <Crown className="w-3.5 h-3.5" />
+                                Transférer
+                              </button>
+                            )}
+
                             {can("team", "remove_members") && (
                               <button
                                 onClick={() => handleRemoveMember(member.id, member.name || member.email)}
@@ -214,6 +265,74 @@ export default function TeamPage() {
           )}
         </div>
       </div>
+
+      {/* Modale de transfert de propriété */}
+      <AnimatePresence>
+        {transferTarget && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setTransferTarget(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-card border border-amber-500/30 rounded-xl w-full max-w-md overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-5 border-b border-border">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                    <Crown className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">Transférer la propriété</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">Action irréversible sans nouveau transfert</p>
+                  </div>
+                </div>
+                <button onClick={() => setTransferTarget(null)} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              <div className="p-5 space-y-4">
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                  <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-semibold text-foreground">{transferTarget.name || transferTarget.email}</span> deviendra le nouveau propriétaire avec accès total. Vous serez rétrogradé au premier poste disponible.
+                  </p>
+                </div>
+
+                {transferError && (
+                  <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs">
+                    {transferError}
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setTransferTarget(null)}
+                    className="flex-1 py-2.5 text-sm font-medium text-muted-foreground bg-muted hover:bg-muted/80 rounded-lg transition-colors"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    onClick={handleTransferOwnership}
+                    disabled={transferring}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-amber-900 bg-amber-400 hover:bg-amber-300 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {transferring ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crown className="w-4 h-4" />}
+                    {transferring ? "Transfert..." : "Confirmer le transfert"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
