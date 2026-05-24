@@ -48,6 +48,7 @@ function PaymentPageContent() {
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(urlStatus === "success");
+  const [directCharge, setDirectCharge] = useState(false);
 
   const fetchLink = useCallback(async () => {
     try {
@@ -75,6 +76,9 @@ function PaymentPageContent() {
       if (!res.ok) { setError(d.error); return; }
       if (d.checkoutUrl) {
         window.location.href = d.checkoutUrl;
+      } else if (d.directCharge) {
+        setDirectCharge(true);
+        setSuccess(true);
       } else {
         setSuccess(true);
       }
@@ -113,11 +117,13 @@ function PaymentPageContent() {
           <CheckCircle2 className="w-10 h-10 text-emerald-500" />
         </div>
         <h1 className="text-xl font-bold text-foreground">
-          {urlStatus === "success" ? "Paiement confirmé !" : "Demande envoyée !"}
+          {urlStatus === "success" ? "Paiement confirmé !" : directCharge ? "Vérifiez votre téléphone !" : "Demande envoyée !"}
         </h1>
         <p className="text-sm text-muted-foreground">
           {urlStatus === "success" ? (
             <>Votre paiement de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été effectué avec succès.</>
+          ) : directCharge ? (
+            <>Une demande de paiement de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été envoyée sur votre téléphone. Confirmez avec votre code PIN Mobile Money.</>
           ) : (
             <>Votre demande de paiement de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été enregistrée. {data?.company.name} vous contactera pour confirmer le paiement.</>
           )}
