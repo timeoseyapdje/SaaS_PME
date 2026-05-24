@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { UserPlus, Check, X, Loader2, Mail, MessageSquare, Clock } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useToast } from "@/hooks/use-toast";
 
 interface AdmissionRequest {
   id: string;
@@ -23,6 +24,7 @@ interface Position {
 
 export default function RequestsPage() {
   const { can } = usePermissions();
+  const { toast } = useToast();
   const canInvite = can("team", "invite");
   const [requests, setRequests] = useState<AdmissionRequest[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
@@ -66,7 +68,7 @@ export default function RequestsPage() {
       if (status === "APPROVED") {
         body.positionId = selectedPositions[requestId];
         if (!body.positionId) {
-          alert("Sélectionnez un poste avant d'approuver");
+          toast({ title: "Poste requis", description: "Sélectionnez un poste avant d'approuver", variant: "destructive" });
           setProcessing(null);
           return;
         }
@@ -80,7 +82,7 @@ export default function RequestsPage() {
         setRequests((prev) => prev.map((r) => (r.id === requestId ? { ...r, status } : r)));
       } else {
         const err = await res.json();
-        alert(err.error || "Erreur");
+        toast({ title: "Erreur", description: err.error || "Erreur", variant: "destructive" });
       }
     } finally {
       setProcessing(null);

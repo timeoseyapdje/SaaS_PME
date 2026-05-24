@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { StockBadge } from "@/components/products/StockBadge";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Boxes, Plus, Minus, RotateCcw, Loader2 } from "lucide-react";
+import { Boxes, Plus, Minus, RotateCcw, Loader2, AlertTriangle } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
 import { Product } from "@/types";
 
@@ -52,7 +52,7 @@ export default function InventoryPage() {
 
       {lowStockProducts.length > 0 && (
         <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-xl">
-          <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-1">⚠️ Alertes stock</p>
+          <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Alertes stock</p>
           <p className="text-sm text-amber-700 dark:text-amber-400">{lowStockProducts.length} produit{lowStockProducts.length > 1 ? "s" : ""} nécessite{lowStockProducts.length > 1 ? "nt" : ""} un réapprovisionnement.</p>
         </div>
       )}

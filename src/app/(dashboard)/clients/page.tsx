@@ -53,6 +53,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 const typeLabels: Record<ClientType, string> = {
   PARTICULIER: "Particulier",
@@ -74,12 +75,14 @@ interface ClientWithCount extends Client {
 
 export default function ClientsPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [clients, setClients] = useState<ClientWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editClient, setEditClient] = useState<ClientWithCount | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmDeleteClient, setConfirmDeleteClient] = useState<string | null>(null);
 
   const [formName, setFormName] = useState("");
   const [formEmail, setFormEmail] = useState("");
@@ -140,12 +143,12 @@ export default function ClientsPage() {
         body: JSON.stringify(body),
       });
       if (response.ok) { setShowForm(false); fetchClients(); }
-      else { const err = await response.json(); alert(err.error || "Erreur"); }
+      else { const err = await response.json(); toast({ title: "Erreur", description: err.error || "Erreur", variant: "destructive" }); }
     } finally { setSubmitting(false); }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Supprimer ce client ?")) return;
+    setConfirmDeleteClient(null);
     await fetch(`/api/clients?id=${id}`, { method: "DELETE" });
     fetchClients();
   }
@@ -334,7 +337,7 @@ export default function ClientsPage() {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-destructive focus:text-destructive"
-                              onClick={() => handleDelete(client.id)}
+                              onClick={() => setConfirmDeleteClient(client.id)}
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Supprimer
@@ -443,6 +446,19 @@ export default function ClientsPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {confirmDeleteClient && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setConfirmDeleteClient(null)}>
+          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full space-y-4" onClick={e => e.stopPropagation()}>
+            <p className="text-sm font-semibold text-foreground">Supprimer ce client ?</p>
+            <p className="text-xs text-muted-foreground">Cette action est irréversible.</p>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" size="sm" onClick={() => setConfirmDeleteClient(null)}>Annuler</Button>
+              <Button variant="destructive" size="sm" onClick={() => handleDelete(confirmDeleteClient)}>Supprimer</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
