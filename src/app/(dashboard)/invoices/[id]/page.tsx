@@ -18,16 +18,36 @@ import {
   Printer,
   Loader2,
   FileDown,
+  MessageCircle,
+  Bell,
+  BellOff,
+  XCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { exportInvoicePDF } from "@/lib/export";
+import { useToast } from "@/hooks/use-toast";
+
+function buildWhatsAppUrl(invoice: Invoice): string {
+  const client = invoice.client;
+  const message = encodeURIComponent(
+    `Bonjour ${client?.name || ""},\n\nVoici votre facture *${invoice.number}* d'un montant de ${formatCurrency(invoice.total, invoice.currency)}, échéance le ${new Date(invoice.dueDate).toLocaleDateString("fr-FR")}.\n\nMerci de votre confiance.`
+  );
+  const phone = client?.phone?.replace(/\D/g, "");
+  if (phone) {
+    const formatted = phone.startsWith("237") ? phone : `237${phone}`;
+    return `https://wa.me/${formatted}?text=${message}`;
+  }
+  return `https://wa.me/?text=${message}`;
+}
 
 export default function InvoiceDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { toast } = useToast();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -52,6 +72,27 @@ export default function InvoiceDetailPage() {
       if (response.ok) {
         const updated = await response.json();
         setInvoice(updated);
+        toast({ title: "Statut mis à jour" });
+      } else {
+        toast({ title: "Erreur", description: "Impossible de mettre à jour le statut", variant: "destructive" });
+      }
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  async function handleSendReminder() {
+    setUpdating(true);
+    try {
+      const response = await fetch(`/api/invoices/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reminderSent: true }),
+      });
+      if (response.ok) {
+        const updated = await response.json();
+        setInvoice(updated);
+        toast({ title: "Rappel enregistré", description: "Le rappel a été marqué comme envoyé" });
       }
     } finally {
       setUpdating(false);
@@ -59,9 +100,19 @@ export default function InvoiceDetailPage() {
   }
 
   async function handleDelete() {
-    if (!confirm("Voulez-vous vraiment supprimer cette facture ?")) return;
-    await fetch(`/api/invoices/${params.id}`, { method: "DELETE" });
-    router.push("/invoices");
+    setUpdating(true);
+    try {
+      const res = await fetch(`/api/invoices/${params.id}`, { method: "DELETE" });
+      if (res.ok) {
+        toast({ title: "Facture supprimée" });
+        router.push("/invoices");
+      } else {
+        toast({ title: "Erreur", description: "Impossible de supprimer", variant: "destructive" });
+      }
+    } finally {
+      setUpdating(false);
+      setConfirmDelete(false);
+    }
   }
 
   if (loading) {
@@ -93,25 +144,18 @@ export default function InvoiceDetailPage() {
 
   return (
     <div>
-      <Header
-        title={`Facture ${invoice.number}`}
-        subtitle={invoice.client?.name}
-      />
+      <Header title={`Facture ${invoice.number}`} subtitle={invoice.client?.name} />
       <div className="flex flex-col gap-5">
         {/* Action bar */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <Link href="/invoices">
             <Button variant="outline" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Retour
             </Button>
           </Link>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.print()}
-            >
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button variant="outline" size="sm" onClick={() => window.print()}>
               <Printer className="w-4 h-4 mr-2" />
               Imprimer
             </Button>
@@ -136,21 +180,34 @@ export default function InvoiceDetailPage() {
               })}
             >
               <FileDown className="w-4 h-4 mr-2" />
-              Exporter PDF
+              PDF
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-green-600 border-green-300 hover:bg-green-50"
+              onClick={() => window.open(buildWhatsAppUrl(invoice), "_blank")}
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              WhatsApp
             </Button>
             {invoice.status === "DRAFT" && (
+              <Button size="sm" variant="outline" onClick={() => updateStatus("SENT")} disabled={updating}>
+                {updating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+                Marquer envoyée
+              </Button>
+            )}
+            {invoice.status === "OVERDUE" && (
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => updateStatus("SENT")}
-                disabled={updating}
+                className={invoice.reminderSent ? "text-muted-foreground" : "text-orange-600 border-orange-300 hover:bg-orange-50"}
+                onClick={handleSendReminder}
+                disabled={updating || invoice.reminderSent}
+                title={invoice.reminderSent ? "Rappel déjà envoyé" : "Marquer le rappel comme envoyé"}
               >
-                {updating ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4 mr-2" />
-                )}
-                Marquer comme envoyée
+                {invoice.reminderSent ? <BellOff className="w-4 h-4 mr-2" /> : <Bell className="w-4 h-4 mr-2" />}
+                {invoice.reminderSent ? "Rappel envoyé" : "Envoyer rappel"}
               </Button>
             )}
             {(invoice.status === "SENT" || invoice.status === "OVERDUE") && (
@@ -160,24 +217,27 @@ export default function InvoiceDetailPage() {
                 onClick={() => updateStatus("PAID")}
                 disabled={updating}
               >
-                {updating ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                )}
-                Marquer comme payée
+                {updating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+                Marquer payée
               </Button>
             )}
             {invoice.status !== "PAID" && (
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={handleDelete}
-                disabled={updating}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Supprimer
-              </Button>
+              confirmDelete ? (
+                <div className="flex items-center gap-1">
+                  <span className="text-sm text-muted-foreground">Supprimer ?</span>
+                  <Button size="sm" variant="destructive" disabled={updating} onClick={handleDelete}>
+                    Oui
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setConfirmDelete(false)}>
+                    <XCircle className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button size="sm" variant="destructive" onClick={() => setConfirmDelete(true)} disabled={updating}>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Supprimer
+                </Button>
+              )
             )}
           </div>
         </div>
@@ -202,9 +262,7 @@ export default function InvoiceDetailPage() {
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                   Facturé à
                 </p>
-                <p className="font-semibold text-foreground">
-                  {invoice.client?.name}
-                </p>
+                <p className="font-semibold text-foreground">{invoice.client?.name}</p>
                 {invoice.client?.email && (
                   <p className="text-sm text-muted-foreground">{invoice.client.email}</p>
                 )}
@@ -213,17 +271,11 @@ export default function InvoiceDetailPage() {
                 <div className="space-y-1">
                   <div className="flex justify-end gap-4 text-sm">
                     <span className="text-muted-foreground">Date d&apos;émission:</span>
-                    <span className="font-medium">
-                      {formatDate(invoice.issueDate)}
-                    </span>
+                    <span className="font-medium">{formatDate(invoice.issueDate)}</span>
                   </div>
                   <div className="flex justify-end gap-4 text-sm">
                     <span className="text-muted-foreground">Date d&apos;échéance:</span>
-                    <span
-                      className={`font-medium ${
-                        invoice.status === "OVERDUE" ? "text-rose-600" : ""
-                      }`}
-                    >
+                    <span className={`font-medium ${invoice.status === "OVERDUE" ? "text-rose-600" : ""}`}>
                       {formatDate(invoice.dueDate)}
                     </span>
                   </div>
@@ -232,6 +284,14 @@ export default function InvoiceDetailPage() {
                       <span className="text-muted-foreground">Date de paiement:</span>
                       <span className="font-medium text-emerald-600 dark:text-emerald-400">
                         {formatDate(invoice.paidAt)}
+                      </span>
+                    </div>
+                  )}
+                  {invoice.reminderSent && invoice.reminderDate && (
+                    <div className="flex justify-end gap-4 text-sm">
+                      <span className="text-muted-foreground">Rappel envoyé:</span>
+                      <span className="font-medium text-orange-600">
+                        {formatDate(invoice.reminderDate)}
                       </span>
                     </div>
                   )}
@@ -246,18 +306,10 @@ export default function InvoiceDetailPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left pb-2 font-medium text-muted-foreground">
-                      Description
-                    </th>
-                    <th className="text-center pb-2 font-medium text-muted-foreground w-20">
-                      Qté
-                    </th>
-                    <th className="text-right pb-2 font-medium text-muted-foreground w-32">
-                      P.U. HT
-                    </th>
-                    <th className="text-right pb-2 font-medium text-muted-foreground w-32">
-                      Total HT
-                    </th>
+                    <th className="text-left pb-2 font-medium text-muted-foreground">Description</th>
+                    <th className="text-center pb-2 font-medium text-muted-foreground w-20">Qté</th>
+                    <th className="text-right pb-2 font-medium text-muted-foreground w-32">P.U. HT</th>
+                    <th className="text-right pb-2 font-medium text-muted-foreground w-32">Total HT</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -265,12 +317,8 @@ export default function InvoiceDetailPage() {
                     <tr key={item.id || index} className="border-b border-border/50">
                       <td className="py-3">{item.description}</td>
                       <td className="py-3 text-center">{item.quantity}</td>
-                      <td className="py-3 text-right">
-                        {formatCurrency(item.unitPrice, invoice.currency)}
-                      </td>
-                      <td className="py-3 text-right font-medium">
-                        {formatCurrency(item.total, invoice.currency)}
-                      </td>
+                      <td className="py-3 text-right">{formatCurrency(item.unitPrice, invoice.currency)}</td>
+                      <td className="py-3 text-right font-medium">{formatCurrency(item.total, invoice.currency)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -286,12 +334,8 @@ export default function InvoiceDetailPage() {
                 </div>
                 {invoice.applyTVA && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      TVA (19,25%)
-                    </span>
-                    <span>
-                      {formatCurrency(invoice.tvaAmount, invoice.currency)}
-                    </span>
+                    <span className="text-muted-foreground">TVA (19,25%)</span>
+                    <span>{formatCurrency(invoice.tvaAmount, invoice.currency)}</span>
                   </div>
                 )}
                 <Separator />
@@ -309,17 +353,13 @@ export default function InvoiceDetailPage() {
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                 {invoice.notes && (
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                      Notes
-                    </p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Notes</p>
                     <p className="text-sm text-muted-foreground">{invoice.notes}</p>
                   </div>
                 )}
                 {invoice.terms && (
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                      Conditions de paiement
-                    </p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Conditions de paiement</p>
                     <p className="text-sm text-muted-foreground">{invoice.terms}</p>
                   </div>
                 )}

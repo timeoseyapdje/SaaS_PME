@@ -21,8 +21,11 @@ import {
   FileText,
   Calendar,
   User,
+  FileDown,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { exportQuotePDF } from "@/lib/export";
 
 const STATUS_LABELS: Record<QuoteStatus, string> = {
   DRAFT: "Brouillon",
@@ -149,6 +152,47 @@ export default function QuoteDetailPage() {
           </Link>
 
           <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => exportQuotePDF({
+                number: quote.number,
+                issueDate: quote.issueDate,
+                validUntil: quote.validUntil,
+                status: quote.status,
+                currency: quote.currency,
+                subtotal: quote.subtotal,
+                tvaAmount: quote.tvaAmount,
+                total: quote.total,
+                applyTVA: quote.applyTVA,
+                notes: quote.notes,
+                terms: quote.terms,
+                client: client ?? undefined,
+                items: quote.items,
+                company: (quote as unknown as { company?: { name: string; email?: string | null; phone?: string | null; city?: string | null; taxId?: string | null } | null }).company ?? undefined,
+              })}
+            >
+              <FileDown className="w-4 h-4 mr-2" />
+              PDF
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-green-600 border-green-300 hover:bg-green-50"
+              onClick={() => {
+                const message = encodeURIComponent(
+                  `Bonjour ${client?.name || ""},\n\nVeuillez trouver ci-joint notre devis *${quote.number}* d'un montant de ${quote.total.toLocaleString("fr-FR")} ${quote.currency}, valable jusqu'au ${new Date(quote.validUntil).toLocaleDateString("fr-FR")}.\n\nCordialement`
+                );
+                const phone = client?.phone?.replace(/\D/g, "");
+                const url = phone
+                  ? `https://wa.me/${phone.startsWith("237") ? phone : `237${phone}`}?text=${message}`
+                  : `https://wa.me/?text=${message}`;
+                window.open(url, "_blank");
+              }}
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              WhatsApp
+            </Button>
             <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${STATUS_COLORS[quote.status as QuoteStatus]}`}>
               {STATUS_LABELS[quote.status as QuoteStatus]}
             </span>
