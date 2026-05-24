@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { initializePayment, isNotchPayConfigured, calculateGrossAmount } from "@/lib/notchpay";
+import { initializePayment, chargePayment, isNotchPayConfigured, calculateGrossAmount } from "@/lib/notchpay";
 import { sendPaymentRequestNotification } from "@/lib/email";
 
 export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
@@ -122,10 +122,23 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         await prisma.paymentLinkTransaction.update({
           where: { id: transaction.id },
           data: {
-            notchpayRef: notchpay.reference,       // trx.xxx from NotchPay
-            transactionRef: transaction.id,          // our own merchant ref
+            notchpayRef: notchpay.reference,
+            transactionRef: transaction.id,
           },
         });
+
+        // Attempt direct mobile money push — skips checkout page entirely
+        if (phoneNumber && ["MTN_MONEY", "ORANGE_MONEY"].includes(paymentMethod)) {
+          const charged = await chargePayment({
+            reference: notchpay.reference,
+            phone: phoneNumber,
+            paymentMethod: paymentMethod as "MTN_MONEY" | "ORANGE_MONEY",
+          });
+          if (charged) {
+            return NextResponse.json({ directCharge: true });
+          }
+        }
+
         return NextResponse.json({ checkoutUrl: notchpay.checkoutUrl });
       }
     }
