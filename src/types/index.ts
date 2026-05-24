@@ -147,6 +147,43 @@ export interface CreateInvoiceInput {
 }
 
 // ============================================================
+// QUOTES (DEVIS)
+// ============================================================
+
+export type QuoteStatus = "DRAFT" | "SENT" | "ACCEPTED" | "REJECTED" | "EXPIRED" | "CONVERTED";
+
+export interface QuoteItem {
+  id?: string;
+  quoteId?: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+export interface Quote {
+  id: string;
+  companyId: string;
+  clientId: string;
+  client?: Client;
+  number: string;
+  status: QuoteStatus;
+  issueDate: Date;
+  validUntil: Date;
+  currency: string;
+  subtotal: number;
+  tvaAmount: number;
+  total: number;
+  notes?: string;
+  terms?: string;
+  applyTVA: boolean;
+  convertedInvoiceId?: string;
+  items: QuoteItem[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ============================================================
 // EXPENSES & REVENUES
 // ============================================================
 
