@@ -113,6 +113,8 @@ export default function SubscriptionPage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(urlStatus === "success");
   const [error, setError] = useState(urlStatus === "error" ? "Le paiement a échoué. Veuillez réessayer." : "");
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   // Formulaire
   const [selectedPlan, setSelectedPlan] = useState("");
@@ -134,6 +136,24 @@ export default function SubscriptionPage() {
   useEffect(() => {
     fetchSubscription();
   }, [fetchSubscription]);
+
+  async function cancelSubscription() {
+    setCancelling(true);
+    try {
+      const res = await fetch("/api/subscription", { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok) {
+        setShowCancelConfirm(false);
+        fetchSubscription();
+      } else {
+        setError(data.error || "Erreur lors de la résiliation");
+      }
+    } catch {
+      setError("Une erreur est survenue");
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   async function handleSubscribe() {
     if (!selectedPlan) return;
@@ -234,21 +254,7 @@ export default function SubscriptionPage() {
                       variant="outline"
                       size="sm"
                       className="text-rose-400 border-rose-500/30 hover:bg-rose-500/10"
-                      onClick={async () => {
-                        if (!confirm("Êtes-vous sûr de vouloir résilier votre abonnement ? Vous conserverez l'accès jusqu'à la fin de la période en cours.")) return;
-                        try {
-                          const res = await fetch("/api/subscription", { method: "DELETE" });
-                          const data = await res.json();
-                          if (res.ok) {
-                            alert(data.message);
-                            fetchSubscription();
-                          } else {
-                            alert(data.error || "Erreur lors de la résiliation");
-                          }
-                        } catch {
-                          alert("Une erreur est survenue");
-                        }
-                      }}
+                      onClick={() => setShowCancelConfirm(true)}
                     >
                       Résilier
                     </Button>
@@ -433,6 +439,25 @@ export default function SubscriptionPage() {
           </Card>
         )}
       </div>
+
+      {showCancelConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowCancelConfirm(false)}>
+          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full space-y-4" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+              <p className="text-sm font-semibold text-foreground">Résilier l&apos;abonnement ?</p>
+            </div>
+            <p className="text-xs text-muted-foreground">Vous conserverez l&apos;accès jusqu&apos;à la fin de la période en cours.</p>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" size="sm" onClick={() => setShowCancelConfirm(false)} disabled={cancelling}>Annuler</Button>
+              <Button variant="destructive" size="sm" onClick={cancelSubscription} disabled={cancelling}>
+                {cancelling ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : null}
+                Confirmer
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

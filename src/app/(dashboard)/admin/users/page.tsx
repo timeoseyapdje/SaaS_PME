@@ -3,8 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
-import { Users, Search, Building2, Mail, Calendar, ShieldCheck, Loader2, Crown, Zap, Rocket, MapPin, Trash2 } from "lucide-react";
+import { Users, Search, Building2, Mail, Calendar, ShieldCheck, Loader2, Crown, Zap, Rocket, MapPin, Trash2, AlertTriangle, X } from "lucide-react";
 import { Header } from "@/components/layout/Header";
+import { useToast } from "@/hooks/use-toast";
 
 const SUPER_ADMIN_EMAIL = "admin@nkapcontrol.com";
 
@@ -19,6 +20,7 @@ interface AdminUser {
 
 export default function AdminUsersPage() {
   const { data: session } = useSession();
+  const { toast } = useToast();
   const isSuperAdmin = session?.user?.email === SUPER_ADMIN_EMAIL;
 
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -26,6 +28,7 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const [changingRole, setChangingRole] = useState<string | null>(null);
   const [deletingUser, setDeletingUser] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string; name: string } | null>(null);
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -57,7 +60,7 @@ export default function AdminUsersPage() {
         );
       } else {
         const err = await res.json();
-        alert(err.error || "Erreur lors du changement de rôle");
+        toast({ title: "Erreur", description: err.error || "Erreur lors du changement de rôle", variant: "destructive" });
       }
     } finally {
       setChangingRole(null);
@@ -65,23 +68,25 @@ export default function AdminUsersPage() {
   }
 
   async function handleDeleteUser(userId: string, userName: string) {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer "${userName}" ? Cette action est irréversible.\n\nSi c'est le dernier utilisateur de son entreprise, l'entreprise sera aussi supprimée.`)) {
+    if (!confirmDelete || confirmDelete.id !== userId) {
+      setConfirmDelete({ id: userId, name: userName });
       return;
     }
+    setConfirmDelete(null);
     setDeletingUser(userId);
     try {
-      const res = await fetch(`/api/admin/users/${userId}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
       if (res.ok) {
         const data = await res.json();
         setUsers((prev) => prev.filter((u) => u.id !== userId));
         if (data.companyDeleted) {
-          alert(`${data.message}\n\nL'entreprise associée a aussi été supprimée (0 utilisateur restant).`);
+          toast({ title: "Utilisateur supprimé", description: "L'entreprise associée a aussi été supprimée." });
+        } else {
+          toast({ title: "Utilisateur supprimé" });
         }
       } else {
         const err = await res.json();
-        alert(err.error || "Erreur lors de la suppression");
+        toast({ title: "Erreur", description: err.error || "Erreur lors de la suppression", variant: "destructive" });
       }
     } finally {
       setDeletingUser(null);
@@ -263,18 +268,32 @@ export default function AdminUsersPage() {
                                 <option value="ADMIN">ADMIN</option>
                               </select>
                             )}
-                            <button
-                              onClick={() => handleDeleteUser(user.id, user.name || user.email)}
-                              disabled={deletingUser === user.id}
-                              className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-colors disabled:opacity-50"
-                              title="Supprimer cet utilisateur"
-                            >
-                              {deletingUser === user.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="w-4 h-4" />
-                              )}
-                            </button>
+                            {confirmDelete?.id === user.id ? (
+                              <div className="flex items-center gap-1">
+                                <span className="text-[10px] text-rose-400">Confirmer ?</span>
+                                <button
+                                  onClick={() => handleDeleteUser(user.id, user.name || user.email)}
+                                  className="p-1 rounded text-rose-400 hover:bg-rose-500/20 transition-colors text-[10px] font-medium"
+                                >Oui</button>
+                                <button
+                                  onClick={() => setConfirmDelete(null)}
+                                  className="p-1 rounded text-muted-foreground hover:bg-muted transition-colors"
+                                ><X className="w-3 h-3" /></button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => handleDeleteUser(user.id, user.name || user.email)}
+                                disabled={deletingUser === user.id}
+                                className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-colors disabled:opacity-50"
+                                title="Supprimer cet utilisateur"
+                              >
+                                {deletingUser === user.id ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-4 h-4" />
+                                )}
+                              </button>
+                            )}
                           </div>
                         )}
                       </td>

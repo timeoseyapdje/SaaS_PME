@@ -20,6 +20,7 @@ import { formatCurrency } from "@/lib/currency";
 import { CAMEROON_TAX } from "@/lib/tax";
 import { Client } from "@/types";
 import { Plus, Trash2, Loader2, Save, Send } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface LineItem {
   description: string;
@@ -29,6 +30,7 @@ interface LineItem {
 
 export function InvoiceForm() {
   const router = useRouter();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [loadingClients, setLoadingClients] = useState(true);
@@ -85,11 +87,11 @@ export function InvoiceForm() {
 
   async function handleSubmit(status: "DRAFT" | "SENT") {
     if (!clientId) {
-      alert("Veuillez sélectionner un client");
+      toast({ title: "Client requis", description: "Veuillez sélectionner un client", variant: "destructive" });
       return;
     }
     if (items.some((item) => !item.description)) {
-      alert("Veuillez remplir la description de chaque ligne");
+      toast({ title: "Description manquante", description: "Veuillez remplir la description de chaque ligne", variant: "destructive" });
       return;
     }
 
@@ -115,10 +117,10 @@ export function InvoiceForm() {
         router.push(`/invoices/${invoice.id}`);
       } else {
         const err = await response.json();
-        alert(err.error || "Erreur lors de la création");
+        toast({ title: "Erreur", description: err.error || "Erreur lors de la création", variant: "destructive" });
       }
     } catch {
-      alert("Une erreur est survenue");
+      toast({ title: "Erreur", description: "Une erreur est survenue", variant: "destructive" });
     } finally {
       setLoading(false);
     }

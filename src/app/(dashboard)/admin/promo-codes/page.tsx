@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
+import { useToast } from "@/hooks/use-toast";
 
 interface PromoCode {
   id: string;
@@ -37,12 +38,14 @@ interface PromoCode {
 }
 
 export default function PromoCodesPage() {
+  const { toast } = useToast();
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [search, setSearch] = useState("");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmDeletePromo, setConfirmDeletePromo] = useState<string | null>(null);
 
   // Form state
   const [form, setForm] = useState({
@@ -119,7 +122,7 @@ export default function PromoCodesPage() {
         fetchPromoCodes();
       } else {
         const data = await res.json();
-        alert(data.error || "Erreur lors de la création");
+        toast({ title: "Erreur", description: data.error || "Erreur lors de la création", variant: "destructive" });
       }
     } finally {
       setSubmitting(false);
@@ -136,7 +139,8 @@ export default function PromoCodesPage() {
   };
 
   const deletePromo = async (id: string) => {
-    if (!confirm("Supprimer ce code promo ?")) return;
+    if (confirmDeletePromo !== id) { setConfirmDeletePromo(id); return; }
+    setConfirmDeletePromo(null);
     const res = await fetch(`/api/admin/promo-codes/${id}`, { method: "DELETE" });
     if (res.ok) fetchPromoCodes();
   };
@@ -549,13 +553,20 @@ export default function PromoCodesPage() {
                           <ToggleLeft className="w-6 h-6" />
                         )}
                       </button>
-                      <button
-                        onClick={() => deletePromo(promo.id)}
-                        className="text-muted-foreground hover:text-red-400 transition-colors"
-                        title="Supprimer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {confirmDeletePromo === promo.id ? (
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => deletePromo(promo.id)} className="text-[10px] font-medium text-rose-400 hover:text-rose-300 transition-colors">Oui</button>
+                          <button onClick={() => setConfirmDeletePromo(null)} className="text-[10px] text-muted-foreground hover:text-foreground transition-colors">Non</button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => deletePromo(promo.id)}
+                          className="text-muted-foreground hover:text-red-400 transition-colors"
+                          title="Supprimer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

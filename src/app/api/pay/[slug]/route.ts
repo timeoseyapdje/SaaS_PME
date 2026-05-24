@@ -115,6 +115,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         reference: transaction.id,
         description: link.title,
         callbackUrl,
+        phone: phoneNumber || undefined,
       });
 
       if (notchpay) {
