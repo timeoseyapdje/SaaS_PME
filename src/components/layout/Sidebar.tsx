@@ -73,6 +73,8 @@ const navigation: NavItem[] = [
     children: [
       { name: "Toutes les factures", href: "/invoices" },
       { name: "Nouvelle facture", href: "/invoices/new" },
+      { name: "Devis", href: "/devis" },
+      { name: "Nouveau devis", href: "/devis/new" },
     ],
   },
   {
@@ -141,7 +143,7 @@ export function Sidebar() {
       if (item.name === "Dashboard") return canAny("dashboard");
       if (item.name === "Produits & Services") return canAny("products");
       if (item.name === "Ventes") return canAny("orders") || canAny("payment_links");
-      if (item.name === "Facturation") return canAny("invoices");
+      if (item.name === "Facturation") return canAny("invoices") || canAny("quotes");
       if (item.name === "Finances") return canAny("expenses") || canAny("treasury");
       if (item.name === "Rapports") return canAny("reports");
       if (item.name === "Contacts") return canAny("clients") || canAny("suppliers");

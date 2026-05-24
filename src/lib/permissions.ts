@@ -1,6 +1,7 @@
 export const PERMISSION_MODULES = [
   "dashboard",
   "invoices",
+  "quotes",
   "expenses",
   "treasury",
   "products",
@@ -18,6 +19,7 @@ export type PermissionModule = (typeof PERMISSION_MODULES)[number];
 export const MODULE_ACTIONS: Record<PermissionModule, readonly string[]> = {
   dashboard: ["view"],
   invoices: ["view", "create", "edit", "delete", "send"],
+  quotes: ["view", "create", "edit", "delete", "send", "convert"],
   expenses: ["view", "create", "edit", "delete"],
   treasury: ["view", "manage"],
   products: ["view", "create", "edit", "delete"],
@@ -33,6 +35,7 @@ export const MODULE_ACTIONS: Record<PermissionModule, readonly string[]> = {
 export const MODULE_LABELS: Record<PermissionModule, string> = {
   dashboard: "Tableau de bord",
   invoices: "Facturation",
+  quotes: "Devis",
   expenses: "Dépenses & Recettes",
   treasury: "Trésorerie",
   products: "Produits",
@@ -51,6 +54,7 @@ export const ACTION_LABELS: Record<string, string> = {
   edit: "Modifier",
   delete: "Supprimer",
   send: "Envoyer",
+  convert: "Convertir en facture",
   manage: "Gérer",
   export: "Exporter",
   invite: "Inviter",
@@ -98,6 +102,7 @@ export function createTemplatePermissions(template: PositionTemplate): Permissio
       return {
         dashboard: ["view"],
         invoices: ["view", "create", "edit", "send"],
+        quotes: ["view", "create", "edit", "send"],
         expenses: ["view", "create", "edit"],
         treasury: ["view"],
         products: ["view"],
@@ -113,6 +118,7 @@ export function createTemplatePermissions(template: PositionTemplate): Permissio
       return {
         dashboard: ["view"],
         invoices: ["view"],
+        quotes: ["view"],
         expenses: ["view"],
         treasury: ["view"],
         products: ["view"],
@@ -128,6 +134,7 @@ export function createTemplatePermissions(template: PositionTemplate): Permissio
       return {
         dashboard: ["view"],
         invoices: ["view", "create", "edit", "delete", "send"],
+        quotes: ["view", "create", "edit", "delete", "send", "convert"],
         expenses: ["view", "create", "edit", "delete"],
         treasury: ["view", "manage"],
         products: ["view", "create", "edit", "delete"],
