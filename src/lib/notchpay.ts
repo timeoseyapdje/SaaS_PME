@@ -4,6 +4,17 @@ const NOTCHPAY_API = "https://api.notchpay.co";
 
 export const NOTCHPAY_FEE_RATE = 0.025;
 
+const MOBILE_CHANNELS: Record<string, "cm.mtn" | "cm.orange"> = {
+  MTN_MONEY: "cm.mtn",
+  ORANGE_MONEY: "cm.orange",
+};
+
+function formatCameroonPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("237")) return `+${digits}`;
+  return `+237${digits}`;
+}
+
 export function isNotchPayConfigured() {
   return !!process.env.NOTCHPAY_PUBLIC_KEY;
 }
@@ -56,6 +67,55 @@ export async function initializePayment({
   }
 
   return { checkoutUrl: authUrl, reference: data.transaction?.reference ?? reference };
+}
+
+/**
+ * Directly charge a mobile money wallet after initialization.
+ * This pushes a payment request to the user's phone — no checkout page needed.
+ */
+export async function chargePayment({
+  reference,
+  phone,
+  paymentMethod,
+}: {
+  reference: string;
+  phone: string;
+  paymentMethod: "MTN_MONEY" | "ORANGE_MONEY";
+}): Promise<boolean> {
+  const key = process.env.NOTCHPAY_PUBLIC_KEY;
+  if (!key) return false;
+
+  const channel = MOBILE_CHANNELS[paymentMethod];
+  if (!channel) return false;
+
+  const formattedPhone = formatCameroonPhone(phone);
+
+  try {
+    const res = await fetch(`${NOTCHPAY_API}/payments/${reference}/charge`, {
+      method: "POST",
+      headers: {
+        Authorization: key,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        channel,
+        data: { phone: formattedPhone },
+      }),
+    });
+
+    const text = await res.text();
+    if (!res.ok) {
+      console.error("NotchPay direct charge failed:", text);
+      return false;
+    }
+
+    const data = JSON.parse(text);
+    const status = data.transaction?.status || data.status;
+    return status === "pending" || status === "processing" || res.ok;
+  } catch (err) {
+    console.error("NotchPay charge error:", err);
+    return false;
+  }
 }
 
 export async function verifyPayment(reference: string): Promise<{ status: string; transaction?: { reference: string; status: string; amount: number } }> {
