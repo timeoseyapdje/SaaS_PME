@@ -110,6 +110,7 @@ model Company {
   clients            Client[]
   suppliers          Supplier[]
   invoices           Invoice[]
+  quotes             Quote[]
   expenses           Expense[]
   revenues           Revenue[]
   bankAccounts       BankAccount[]
@@ -145,6 +146,7 @@ model Client {
   updatedAt   DateTime @updatedAt
 
   invoices    Invoice[]
+  quotes      Quote[]
   orders      Order[]
   paymentLinks PaymentLink[]
 
@@ -230,6 +232,57 @@ enum InvoiceStatus {
   PAID
   OVERDUE
   CANCELLED
+}
+
+// ============================================================
+// QUOTES (DEVIS)
+// ============================================================
+
+model Quote {
+  id                 String      @id @default(cuid())
+  companyId          String
+  company            Company     @relation(fields: [companyId], references: [id])
+  clientId           String
+  client             Client      @relation(fields: [clientId], references: [id])
+  number             String
+  status             QuoteStatus @default(DRAFT)
+  issueDate          DateTime    @default(now())
+  validUntil         DateTime
+  currency           String      @default("XAF")
+  subtotal           Float       @default(0)
+  tvaAmount          Float       @default(0)
+  total              Float       @default(0)
+  notes              String?
+  terms              String?
+  applyTVA           Boolean     @default(true)
+  convertedInvoiceId String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  items              QuoteItem[]
+
+  @@map("quotes")
+}
+
+model QuoteItem {
+  id          String @id @default(cuid())
+  quoteId     String
+  quote       Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Float  @default(1)
+  unitPrice   Float
+  total       Float
+
+  @@map("quote_items")
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CONVERTED
 }
 
 // ============================================================
