@@ -43,7 +43,7 @@ export async function PATCH(
     const companyId = result.session.user.companyId;
 
     const body = await request.json();
-    const { status, items, clientId, dueDate, notes, terms, currency, applyTVA } = body;
+    const { status, items, clientId, dueDate, notes, terms, currency, applyTVA, reminderSent } = body;
 
     const existingInvoice = await prisma.invoice.findFirst({
       where: { id, companyId },
@@ -68,6 +68,10 @@ export async function PATCH(
     if (terms !== undefined) updateData.terms = terms;
     if (currency) updateData.currency = currency;
     if (applyTVA !== undefined) updateData.applyTVA = applyTVA;
+    if (reminderSent === true) {
+      updateData.reminderSent = true;
+      updateData.reminderDate = new Date();
+    }
 
     if (items && items.length > 0) {
       const subtotal = items.reduce(

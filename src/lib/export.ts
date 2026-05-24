@@ -160,6 +160,146 @@ export function exportInvoicePDF(invoice: InvoiceForPDF) {
 }
 
 // ============================================================
+// PDF Export - Devis
+// ============================================================
+
+interface QuoteForPDF {
+  number: string;
+  issueDate: string | Date;
+  validUntil: string | Date;
+  status: string;
+  currency: string;
+  subtotal: number;
+  tvaAmount: number;
+  total: number;
+  applyTVA: boolean;
+  notes?: string | null;
+  terms?: string | null;
+  client?: { name: string; email?: string | null; phone?: string | null; address?: string | null; city?: string | null } | null;
+  items: { description: string; quantity: number; unitPrice: number; total: number }[];
+  company?: { name: string; email?: string | null; phone?: string | null; city?: string | null; taxId?: string | null } | null;
+}
+
+export function exportQuotePDF(quote: QuoteForPDF) {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  doc.setFontSize(22);
+  doc.setFont("helvetica", "bold");
+  doc.text("DEVIS", 20, 25);
+
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(59, 130, 246);
+  doc.text(quote.number, 20, 33);
+
+  doc.setTextColor(100, 100, 100);
+  doc.setFontSize(10);
+  doc.text(`Statut: ${quote.status}`, pageWidth - 20, 25, { align: "right" });
+
+  doc.setTextColor(0, 0, 0);
+  if (quote.company) {
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text(quote.company.name, pageWidth - 20, 35, { align: "right" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    let compY = 41;
+    if (quote.company.city) { doc.text(quote.company.city, pageWidth - 20, compY, { align: "right" }); compY += 5; }
+    if (quote.company.phone) { doc.text(quote.company.phone, pageWidth - 20, compY, { align: "right" }); compY += 5; }
+    if (quote.company.email) { doc.text(quote.company.email, pageWidth - 20, compY, { align: "right" }); compY += 5; }
+    if (quote.company.taxId) { doc.text(`NIU: ${quote.company.taxId}`, pageWidth - 20, compY, { align: "right" }); }
+  }
+
+  doc.setFontSize(9);
+  doc.setTextColor(120, 120, 120);
+  doc.text("ADRESSÉ À", 20, 50);
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.text(quote.client?.name || "Client", 20, 57);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  let clientY = 63;
+  if (quote.client?.email) { doc.text(quote.client.email, 20, clientY); clientY += 5; }
+  if (quote.client?.phone) { doc.text(quote.client.phone, 20, clientY); clientY += 5; }
+  if (quote.client?.city) { doc.text(quote.client.city, 20, clientY); clientY += 5; }
+
+  doc.setFontSize(9);
+  doc.text(`Date d'émission: ${new Date(quote.issueDate).toLocaleDateString("fr-FR")}`, 20, clientY + 3);
+  doc.text(`Valide jusqu'au: ${new Date(quote.validUntil).toLocaleDateString("fr-FR")}`, 20, clientY + 9);
+
+  let tableY = clientY + 20;
+  doc.setFillColor(243, 244, 246);
+  doc.rect(20, tableY - 5, pageWidth - 40, 8, "F");
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(100, 100, 100);
+  doc.text("Description", 22, tableY);
+  doc.text("Qté", 120, tableY, { align: "center" });
+  doc.text("P.U. HT", 150, tableY, { align: "right" });
+  doc.text("Total HT", pageWidth - 22, tableY, { align: "right" });
+
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(9);
+  tableY += 8;
+
+  for (const item of quote.items) {
+    doc.text(item.description.substring(0, 50), 22, tableY);
+    doc.text(String(item.quantity), 120, tableY, { align: "center" });
+    doc.text(formatCurrency(item.unitPrice, quote.currency), 150, tableY, { align: "right" });
+    doc.text(formatCurrency(item.total, quote.currency), pageWidth - 22, tableY, { align: "right" });
+    tableY += 7;
+    if (tableY > 260) { doc.addPage(); tableY = 20; }
+  }
+
+  tableY += 3;
+  doc.setDrawColor(220, 220, 220);
+  doc.line(100, tableY, pageWidth - 20, tableY);
+  tableY += 8;
+
+  doc.setFontSize(9);
+  doc.text("Sous-total HT", 130, tableY);
+  doc.text(formatCurrency(quote.subtotal, quote.currency), pageWidth - 22, tableY, { align: "right" });
+  tableY += 7;
+
+  if (quote.applyTVA) {
+    doc.text("TVA (19,25%)", 130, tableY);
+    doc.text(formatCurrency(quote.tvaAmount, quote.currency), pageWidth - 22, tableY, { align: "right" });
+    tableY += 7;
+  }
+
+  doc.setDrawColor(0, 0, 0);
+  doc.line(130, tableY, pageWidth - 20, tableY);
+  tableY += 7;
+
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("Total TTC", 130, tableY);
+  doc.setTextColor(59, 130, 246);
+  doc.text(formatCurrency(quote.total, quote.currency), pageWidth - 22, tableY, { align: "right" });
+
+  if (quote.notes || quote.terms) {
+    tableY += 15;
+    doc.setTextColor(100, 100, 100);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    if (quote.notes) {
+      doc.text("Notes:", 20, tableY);
+      doc.text(quote.notes.substring(0, 200), 20, tableY + 5);
+      tableY += 15;
+    }
+    if (quote.terms) {
+      doc.text("Conditions:", 20, tableY);
+      doc.text(quote.terms.substring(0, 200), 20, tableY + 5);
+    }
+  }
+
+  doc.save(`Devis_${quote.number}.pdf`);
+}
+
+// ============================================================
 // Excel Export - Tableau générique
 // ============================================================
 
