@@ -29,6 +29,7 @@ import {
   ChevronDown,
   ChevronUp,
   LayoutTemplate,
+  ReceiptText,
 } from "lucide-react";
 import Link from "next/link";
 import { exportInvoicePDF } from "@/lib/export";
@@ -107,6 +108,12 @@ export default function InvoiceDetailPage() {
   const [showSaveTemplate, setShowSaveTemplate] = useState(false);
   const [templateName, setTemplateName] = useState("");
   const [savingTemplate, setSavingTemplate] = useState(false);
+
+  // Credit note state
+  const [showCreditNoteForm, setShowCreditNoteForm] = useState(false);
+  const [creditNoteAmount, setCreditNoteAmount] = useState("");
+  const [creditNoteReason, setCreditNoteReason] = useState("");
+  const [creditNoteSubmitting, setCreditNoteSubmitting] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -319,6 +326,78 @@ export default function InvoiceDetailPage() {
     }
   }
 
+  async function handleCreateCreditNote() {
+    if (!invoice) return;
+    const amount = parseFloat(creditNoteAmount);
+    if (!creditNoteAmount || isNaN(amount) || amount <= 0) {
+      toast({ title: "Montant invalide", description: "Le montant doit être supérieur à 0", variant: "destructive" });
+      return;
+    }
+    setCreditNoteSubmitting(true);
+    try {
+      const res = await fetch("/api/credit-notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invoiceId: invoice.id,
+          clientId: invoice.clientId,
+          amount,
+          reason: creditNoteReason || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast({ title: "Avoir créé", description: `Avoir ${data.number} créé avec succès` });
+        setShowCreditNoteForm(false);
+        setCreditNoteAmount("");
+        setCreditNoteReason("");
+      } else {
+        toast({ title: "Erreur", description: data.error || "Erreur", variant: "destructive" });
+      }
+    } finally {
+      setCreditNoteSubmitting(false);
+    }
+  }
+
+  async function handleSaveAsTemplate() {
+    if (!invoice) return;
+    if (!templateName.trim()) {
+      toast({ title: "Nom requis", description: "Veuillez saisir un nom pour le modèle", variant: "destructive" });
+      return;
+    }
+    setSavingTemplate(true);
+    try {
+      const res = await fetch("/api/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: templateName.trim(),
+          type: "INVOICE",
+          notes: invoice.notes || null,
+          paymentTerms: invoice.terms || null,
+          applyTVA: invoice.applyTVA,
+          items: invoice.items.map((item) => ({
+            description: item.description,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+          })),
+        }),
+      });
+      if (res.ok) {
+        toast({ title: "Modèle sauvegardé", description: `"${templateName}" a été créé` });
+        setShowSaveTemplate(false);
+        setTemplateName("");
+      } else {
+        const err = await res.json();
+        toast({ title: "Erreur", description: err.error || "Une erreur est survenue", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Erreur", description: "Une erreur est survenue", variant: "destructive" });
+    } finally {
+      setSavingTemplate(false);
+    }
+  }
+
   if (loading) {
     return (
       <div>
@@ -433,6 +512,78 @@ export default function InvoiceDetailPage() {
               <Copy className="w-4 h-4 mr-2" />
               Dupliquer
             </Button>
+            {/* Credit note */}
+            {(invoice.status === "PAID" || invoice.status === "CANCELLED") && (
+              <div className="relative">
+                {showCreditNoteForm ? (
+                  <div className="flex items-center gap-1 border border-border rounded-lg px-3 py-1.5 bg-card shadow-sm">
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      className="border border-border rounded-md px-2 py-1 text-sm w-28 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                      placeholder="Montant XAF"
+                      value={creditNoteAmount}
+                      onChange={(e) => setCreditNoteAmount(e.target.value)}
+                      autoFocus
+                    />
+                    <input
+                      type="text"
+                      className="border border-border rounded-md px-2 py-1 text-sm w-36 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                      placeholder="Motif (optionnel)"
+                      value={creditNoteReason}
+                      onChange={(e) => setCreditNoteReason(e.target.value)}
+                    />
+                    <Button size="sm" disabled={creditNoteSubmitting} onClick={handleCreateCreditNote}>
+                      {creditNoteSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : "Créer"}
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => { setShowCreditNoteForm(false); setCreditNoteAmount(""); setCreditNoteReason(""); }}>
+                      <XCircle className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { setShowCreditNoteForm(true); setCreditNoteAmount(String(invoice.total)); }}
+                  >
+                    <ReceiptText className="w-4 h-4 mr-2" />
+                    Créer un avoir
+                  </Button>
+                )}
+              </div>
+            )}
+            {/* Save as template */}
+            <div className="relative">
+              {showSaveTemplate ? (
+                <div className="flex items-center gap-1">
+                  <input
+                    type="text"
+                    className="border border-border rounded-md px-2 py-1 text-sm w-44 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="Nom du modèle"
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleSaveAsTemplate(); if (e.key === "Escape") { setShowSaveTemplate(false); setTemplateName(""); } }}
+                    autoFocus
+                  />
+                  <Button size="sm" disabled={savingTemplate} onClick={handleSaveAsTemplate}>
+                    {savingTemplate ? <Loader2 className="w-3 h-3 animate-spin" /> : "Sauver"}
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => { setShowSaveTemplate(false); setTemplateName(""); }}>
+                    <XCircle className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSaveTemplate(true)}
+                >
+                  <LayoutTemplate className="w-4 h-4 mr-2" />
+                  Modèle
+                </Button>
+              )}
+            </div>
             {invoice.status === "DRAFT" && (
               <Button size="sm" variant="outline" onClick={() => updateStatus("SENT")} disabled={updating}>
                 {updating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}

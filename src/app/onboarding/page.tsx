@@ -76,12 +76,12 @@ const steps = [
     bg: "bg-blue-500/10",
     border: "border-blue-500/20",
     title: "Ajoutez vos clients & fournisseurs",
-    description: "Chaque client a sa fiche avec l'historique complet des factures, commandes et transactions.",
+    description: "Chaque client a sa fiche avec l'historique complet des factures, commandes et transactions. Gérez également vos fournisseurs et bons de commande.",
     actions: [
       "Renseignez nom, email, téléphone et adresse",
       "Choisissez le type : Particulier ou Entreprise",
       "Consultez l'historique complet de chaque contact",
-      "Lancez une facture ou une commande depuis la fiche client",
+      "Créez des bons de commande fournisseurs depuis la section Contacts",
     ],
     screen: (
       <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
@@ -206,12 +206,12 @@ const steps = [
     bg: "bg-rose-500/10",
     border: "border-rose-500/20",
     title: "Créez & envoyez vos factures",
-    description: "Numérotation automatique, TVA OHADA intégrée, export PDF, envoi par email ou WhatsApp en 1 clic.",
+    description: "Numérotation automatique, TVA OHADA intégrée, export PDF avec référence de paiement, envoi par email ou WhatsApp en 1 clic.",
     actions: [
       "Numérotation auto : FAC-2026-00001",
       "Sélectionnez les produits depuis votre catalogue directement dans le formulaire",
-      "Envoyez par email ou WhatsApp depuis la fiche facture",
-      "Statuts : Brouillon → Envoyée → Payée → En retard",
+      "Créez des modèles de factures réutilisables depuis la section Facturation → Modèles",
+      "Émettez des avoirs (notes de crédit) depuis Facturation → Avoirs",
     ],
     screen: (
       <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
@@ -262,12 +262,12 @@ const steps = [
     bg: "bg-violet-500/10",
     border: "border-violet-500/20",
     title: "Créez & convertissez vos devis",
-    description: "Envoyez des propositions numérotées DEV-YYYY-XXXX. Convertissez en facture d'un clic dès acceptation.",
+    description: "Envoyez des propositions numérotées DEV-YYYY-XXXX. Demandez une signature numérique directement depuis la fiche devis.",
     actions: [
       "Numérotation auto : DEV-2026-00001 avec date de validité",
       "Sélectionnez les produits directement depuis votre catalogue",
-      "Envoyez par email ou partagez via WhatsApp",
-      "Convertissez en facture en 1 clic après accord du client",
+      "Demandez la signature numérique : le client accepte ou refuse via un lien sécurisé",
+      "Convertissez en facture en 1 clic après signature ou accord du client",
     ],
     screen: (
       <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
