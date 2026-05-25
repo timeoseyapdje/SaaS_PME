@@ -22,6 +22,8 @@ import {
   Bell,
   BellOff,
   XCircle,
+  Mail,
+  Copy,
 } from "lucide-react";
 import Link from "next/link";
 import { exportInvoicePDF } from "@/lib/export";
@@ -48,6 +50,8 @@ export default function InvoiceDetailPage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [emailInput, setEmailInput] = useState<string | null>(null);
+  const [emailSending, setEmailSending] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -93,6 +97,44 @@ export default function InvoiceDetailPage() {
         const updated = await response.json();
         setInvoice(updated);
         toast({ title: "Rappel enregistré", description: "Le rappel a été marqué comme envoyé" });
+      }
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  async function handleSendEmail() {
+    setEmailSending(true);
+    try {
+      const res = await fetch("/api/email/send-invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invoiceId: params.id, recipientEmail: emailInput || undefined }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast({ title: "Email envoyé", description: data.message });
+        setEmailInput(null);
+        const updated = await fetch(`/api/invoices/${params.id}`).then((r) => r.json());
+        setInvoice(updated);
+      } else {
+        toast({ title: "Erreur", description: data.error, variant: "destructive" });
+      }
+    } finally {
+      setEmailSending(false);
+    }
+  }
+
+  async function handleDuplicate() {
+    setUpdating(true);
+    try {
+      const res = await fetch(`/api/invoices/${params.id}/duplicate`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        toast({ title: "Facture dupliquée", description: `Brouillon ${data.invoice.number} créé` });
+        router.push(`/invoices/${data.invoice.id}`);
+      } else {
+        toast({ title: "Erreur", description: data.error, variant: "destructive" });
       }
     } finally {
       setUpdating(false);
@@ -190,6 +232,37 @@ export default function InvoiceDetailPage() {
             >
               <MessageCircle className="w-4 h-4 mr-2" />
               WhatsApp
+            </Button>
+            {emailInput === null ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setEmailInput(invoice.client?.email || "")}
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                Email
+              </Button>
+            ) : (
+              <div className="flex items-center gap-1">
+                <input
+                  type="email"
+                  className="border border-border rounded-md px-2 py-1 text-sm w-44 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                  placeholder="email@client.com"
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  autoFocus
+                />
+                <Button size="sm" disabled={emailSending} onClick={handleSendEmail}>
+                  {emailSending ? <Loader2 className="w-3 h-3 animate-spin" /> : "Envoyer"}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setEmailInput(null)}>
+                  <XCircle className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+            <Button variant="outline" size="sm" disabled={updating} onClick={handleDuplicate}>
+              <Copy className="w-4 h-4 mr-2" />
+              Dupliquer
             </Button>
             {invoice.status === "DRAFT" && (
               <Button size="sm" variant="outline" onClick={() => updateStatus("SENT")} disabled={updating}>

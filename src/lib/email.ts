@@ -427,3 +427,102 @@ export async function sendPaymentConfirmedEmail({
     return { success: true };
   } catch (err) { console.error("Payment confirmed email exception:", err); return { success: false }; }
 }
+
+// ============================================================
+// EMAIL: Devis
+// ============================================================
+export async function sendQuoteEmail({
+  to,
+  clientName,
+  companyName,
+  quoteNumber,
+  amount,
+  currency,
+  validUntil,
+  items,
+  notes,
+}: {
+  to: string;
+  clientName: string;
+  companyName: string;
+  quoteNumber: string;
+  amount: number;
+  currency: string;
+  validUntil: string;
+  items: { description: string; quantity: number; unitPrice: number; total: number }[];
+  notes?: string;
+}) {
+  const itemsHtml = items
+    .map(
+      (item) => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #27272a; color: #d4d4d8; font-size: 14px;">${item.description}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #27272a; color: #a1a1aa; text-align: center; font-size: 14px;">${item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #27272a; color: #a1a1aa; text-align: right; font-size: 14px;">${item.unitPrice.toLocaleString()} ${currency}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #27272a; color: white; text-align: right; font-weight: 600; font-size: 14px;">${item.total.toLocaleString()} ${currency}</td>
+      </tr>`
+    )
+    .join("");
+
+  const html = `
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0a; border-radius: 16px; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); padding: 32px; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 24px;">${companyName}</h1>
+        <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0; font-size: 14px;">Devis ${quoteNumber}</p>
+      </div>
+      <div style="padding: 32px; color: #d4d4d8;">
+        <p style="font-size: 16px; margin: 0 0 24px;">Bonjour <strong style="color: white;">${clientName}</strong>,</p>
+        <p style="margin: 0 0 24px;">Veuillez trouver ci-dessous le détail de notre proposition commerciale.</p>
+        <table style="width: 100%; border-collapse: collapse; background: #18181b; border-radius: 12px; overflow: hidden; margin: 0 0 24px;">
+          <thead>
+            <tr style="background: #27272a;">
+              <th style="padding: 12px 10px; text-align: left; color: #71717a; font-size: 12px; text-transform: uppercase;">Description</th>
+              <th style="padding: 12px 10px; text-align: center; color: #71717a; font-size: 12px; text-transform: uppercase;">Qté</th>
+              <th style="padding: 12px 10px; text-align: right; color: #71717a; font-size: 12px; text-transform: uppercase;">Prix unit.</th>
+              <th style="padding: 12px 10px; text-align: right; color: #71717a; font-size: 12px; text-transform: uppercase;">Total</th>
+            </tr>
+          </thead>
+          <tbody>${itemsHtml}</tbody>
+        </table>
+        <div style="background: #18181b; border-radius: 12px; padding: 20px; margin: 0 0 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: #71717a; font-size: 14px;">Total TTC</span>
+            <span style="color: #3b82f6; font-weight: 700; font-size: 24px;">${amount.toLocaleString()} ${currency}</span>
+          </div>
+          <div style="margin-top: 8px;">
+            <span style="color: #71717a; font-size: 13px;">Valable jusqu'au : </span>
+            <span style="color: white; font-size: 13px;">${new Date(validUntil).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</span>
+          </div>
+        </div>
+        ${notes ? `<p style="margin: 0 0 24px; font-size: 13px; color: #a1a1aa; font-style: italic;">${notes}</p>` : ""}
+        <p style="margin: 0; font-size: 13px; color: #71717a;">Ce devis a été généré via Nkap Control.</p>
+      </div>
+      <div style="padding: 20px 32px; background: #09090b; text-align: center;">
+        <p style="color: #52525b; font-size: 12px; margin: 0;">Envoyé depuis Nkap Control</p>
+        <p style="color: #3f3f46; font-size: 11px; margin: 4px 0 0;">Cet email est envoyé automatiquement — merci de ne pas y répondre.</p>
+      </div>
+    </div>
+  `;
+
+  try {
+    const resend = getResendClient();
+    if (!resend) {
+      console.warn("Resend non configuré - email non envoyé");
+      return { success: false, error: "RESEND_API_KEY non configurée" };
+    }
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to,
+      subject: `Devis ${quoteNumber} - ${companyName}`,
+      html,
+    });
+    if (error) {
+      console.error("Quote email error:", error);
+      return { success: false, error };
+    }
+    return { success: true, data };
+  } catch (err) {
+    console.error("Quote email exception:", err);
+    return { success: false, error: err };
+  }
+}
