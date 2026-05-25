@@ -29,6 +29,7 @@ import {
   Plus,
   Link2,
   Boxes,
+  HelpCircle,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { signOut, useSession } from "next-auth/react";
@@ -109,6 +110,7 @@ const navigation: NavItem[] = [
   },
   { name: "Abonnement", href: "/subscription", icon: CreditCard },
   { name: "Paramètres", href: "/settings", icon: Settings },
+  { name: "Aide", href: "/help", icon: HelpCircle },
 ];
 
 const superAdminNavigation: NavItem[] = [
@@ -149,6 +151,7 @@ export function Sidebar() {
       if (item.name === "Contacts") return canAny("clients") || canAny("suppliers");
       if (item.name === "Équipe") return canAny("team");
       if (item.name === "Paramètres") return canAny("settings");
+      if (item.name === "Aide") return true;
       return true;
     });
   }, [canAny]);

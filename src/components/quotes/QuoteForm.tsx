@@ -19,8 +19,9 @@ import { Separator } from "@/components/ui/separator";
 import { formatCurrency } from "@/lib/currency";
 import { CAMEROON_TAX } from "@/lib/tax";
 import { Client } from "@/types";
-import { Plus, Trash2, Loader2, Save, Send } from "lucide-react";
+import { Plus, Trash2, Loader2, Save, Send, BookOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ProductPickerDialog } from "@/components/ui/product-picker-dialog";
 
 interface LineItem {
   description: string;
@@ -35,6 +36,7 @@ export function QuoteForm() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loadingClients, setLoadingClients] = useState(true);
 
+  const [pickerIndex, setPickerIndex] = useState<number | null>(null);
   const [clientId, setClientId] = useState("");
   const [validUntil, setValidUntil] = useState(() => {
     const d = new Date();
@@ -163,6 +165,16 @@ export function QuoteForm() {
             Ajouter une ligne
           </Button>
         </CardHeader>
+        <ProductPickerDialog
+          open={pickerIndex !== null}
+          onClose={() => setPickerIndex(null)}
+          onSelect={(product) => {
+            if (pickerIndex !== null) {
+              updateItem(pickerIndex, "description", product.description);
+              updateItem(pickerIndex, "unitPrice", product.unitPrice);
+            }
+          }}
+        />
         <CardContent>
           <div className="space-y-3">
             <div className="grid grid-cols-12 gap-2 text-xs font-medium text-muted-foreground px-1">
@@ -202,7 +214,17 @@ export function QuoteForm() {
                 <div className="col-span-1 text-right text-sm font-medium">
                   {formatCurrency(item.quantity * item.unitPrice, currency)}
                 </div>
-                <div className="col-span-1 flex justify-end">
+                <div className="col-span-1 flex justify-end gap-0.5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-blue-600"
+                    title="Choisir du catalogue"
+                    onClick={() => setPickerIndex(index)}
+                    type="button"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"

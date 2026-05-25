@@ -23,6 +23,7 @@ import {
   User,
   FileDown,
   MessageCircle,
+  Mail,
 } from "lucide-react";
 import Link from "next/link";
 import { exportQuotePDF } from "@/lib/export";
@@ -53,6 +54,8 @@ export default function QuoteDetailPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [emailInput, setEmailInput] = useState<string | null>(null);
+  const [emailSending, setEmailSending] = useState(false);
 
   useEffect(() => {
     fetch(`/api/quotes/${id}`)
@@ -63,6 +66,28 @@ export default function QuoteDetailPage() {
       })
       .catch(() => setLoading(false));
   }, [id]);
+
+  async function handleSendEmail() {
+    setEmailSending(true);
+    try {
+      const res = await fetch("/api/email/send-quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quoteId: id, recipientEmail: emailInput || undefined }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast({ title: "Email envoyé", description: data.message });
+        setEmailInput(null);
+        const updated = await fetch(`/api/quotes/${id}`).then((r) => r.json());
+        setQuote(updated);
+      } else {
+        toast({ title: "Erreur", description: data.error, variant: "destructive" });
+      }
+    } finally {
+      setEmailSending(false);
+    }
+  }
 
   async function handleStatusChange(status: QuoteStatus) {
     setActionLoading(true);
@@ -193,6 +218,29 @@ export default function QuoteDetailPage() {
               <MessageCircle className="w-4 h-4 mr-2" />
               WhatsApp
             </Button>
+            {emailInput === null ? (
+              <Button size="sm" variant="outline" onClick={() => setEmailInput(client?.email || "")}>
+                <Mail className="w-4 h-4 mr-2" />
+                Email
+              </Button>
+            ) : (
+              <div className="flex items-center gap-1">
+                <input
+                  type="email"
+                  className="border border-border rounded-md px-2 py-1 text-sm w-44 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                  placeholder="email@client.com"
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  autoFocus
+                />
+                <Button size="sm" disabled={emailSending} onClick={handleSendEmail}>
+                  {emailSending ? <Loader2 className="w-3 h-3 animate-spin" /> : "Envoyer"}
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setEmailInput(null)}>
+                  <XCircle className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
             <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${STATUS_COLORS[quote.status as QuoteStatus]}`}>
               {STATUS_LABELS[quote.status as QuoteStatus]}
             </span>
