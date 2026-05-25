@@ -1,36 +1,43 @@
 # Nkap Control — Gestion Financière & Commerciale pour PME
 
-Solution SaaS tout-en-un de gestion financière et commerciale, conçue spécifiquement pour les PME camerounaises et africaines. Conforme au droit OHADA et au Code Général des Impôts du Cameroun. Disponible en PWA (installable sur Android, iOS et desktop).
+Solution SaaS tout-en-un de gestion financière et commerciale, conçue spécifiquement pour les PME camerounaises et africaines. Conforme au droit OHADA et au Code Général des Impôts du Cameroun.
 
 ---
 
 ## Fonctionnalités
 
+### Facturation & Devis
+- **Factures** — Création, envoi et suivi avec TVA camerounaise (19,25%), numérotation automatique `FAC-YYYY-XXXX`, export PDF/Excel, envoi email, partage WhatsApp, duplication en 1 clic
+- **Devis** — Création de propositions commerciales `DEV-YYYY-XXXX`, flux de statuts (Brouillon → Envoyé → Accepté/Refusé → Converti), conversion en facture en 1 clic, export PDF, envoi email et WhatsApp
+- **Catalogue dans les formulaires** — Sélection de produits depuis le catalogue pour remplir automatiquement les lignes
+- **Rappels de retard** — Détection automatique des factures échues, bouton rappel avec horodatage
+- **Partage WhatsApp** — Message pré-rempli avec numéro, montant et échéance, lien direct vers la conversation du client
+
 ### Finance & Comptabilité
-- **Tableau de bord** — KPIs en temps réel (CA, dépenses, résultat net, factures impayées), graphiques revenus/dépenses 6 mois, alertes stock faible
-- **Facturation** — Création, envoi et suivi des factures avec TVA camerounaise (19,25%), numérotation automatique, export PDF/Excel
+- **Tableau de bord** — KPIs en temps réel (CA, dépenses, résultat net, factures impayées), graphiques 6 mois
 - **Dépenses & Recettes** — Enregistrement et catégorisation des flux financiers
-- **Trésorerie** — Gestion multi-comptes (Compte courant, Caisse, MTN Money, Orange Money) avec historique des reversements
+- **Trésorerie** — Gestion multi-comptes (Compte courant, Caisse, MTN Money, Orange Money)
 - **Rapports fiscaux** — Compte de résultat, bilan simplifié, synthèse TVA et IS conformes OHADA
 
 ### Commerce & Ventes
-- **Catalogue produits** — Gestion des produits et services, catégories, images, prix/coût, suivi des stocks avec seuils d'alerte
-- **Commandes** — Création de commandes, suivi de statut (Pending → Confirmed → Shipped → Delivered), déduction automatique des stocks, conversion en facture
-- **Liens de paiement** — Génération de liens partageables (MTN Money / Orange Money), page publique sans authentification, historique des transactions par lien
-- **Clients & Fournisseurs** — Gestion des contacts avec historique complet des factures et transactions
+- **Catalogue produits** — Produits et services, catégories, images, prix/coût, stocks avec seuils d'alerte
+- **Commandes** — Suivi de statut (Pending → Delivered), déduction automatique des stocks, conversion en facture
+- **Liens de paiement** — Génération de liens partageables (MTN Money / Orange Money), page publique sans authentification
 
-### Système de paiement (NotchPay)
-- **Commission automatique** — Le client paie montant + 2,5% de frais de traitement, l'entreprise reçoit exactement le montant demandé
-- **Reversements automatiques** — Dès qu'un paiement est confirmé, l'argent est transféré automatiquement vers le compte MTN/Orange par défaut de l'entreprise
-- **Webhooks sécurisés** — Vérification des signatures HMAC-SHA256 via `x-notch-signature`
-- **Historique des payouts** — Suivi du statut de chaque reversement (Initié → En cours → Effectué)
+### Paiements Mobile Money (NotchPay)
+- **Charge directe** — Le client reçoit une demande sur son téléphone et confirme avec son PIN (pas de page intermédiaire)
+- **Commission automatique** — Le client paie montant + 2,5% de frais, l'entreprise reçoit exactement le montant demandé
+- **Reversements automatiques** — Transfert automatique vers le compte MTN/Orange principal de l'entreprise
+- **Webhooks sécurisés** — Vérification HMAC-SHA256 via `x-notch-signature`
 
 ### Plateforme
-- **Nkap AI** — Assistant IA basé sur l'API Anthropic pour l'analyse financière
-- **PWA** — Application installable sur Android, iOS et desktop (mode hors-ligne partiel)
-- **Dark / Light mode** — Thème sombre, clair ou automatique
+- **Nkap AI** — Assistant IA (API Anthropic) pour l'analyse financière en temps réel
+- **Aide in-app** — FAQ complète par section + liens démarrage rapide accessible depuis la sidebar
+- **Emails transactionnels** — Envoi de factures et devis par email (Resend) avec templates HTML
+- **Dark / Light / System mode** — next-themes
 - **Multi-devises** — FCFA (XAF), Euro, Dollar US
-- **Gestion des abonnements** — Plans Starter (gratuit), Pro (3 000 FCFA/mois), Max (10 000 FCFA/mois)
+- **Gestion d'équipe** — Invitations, postes avec permissions granulaires par module
+- **Abonnements** — Plans Starter (gratuit), Pro (3 000 FCFA/mois), Max (10 000 FCFA/mois)
 
 ---
 
@@ -38,21 +45,18 @@ Solution SaaS tout-en-un de gestion financière et commerciale, conçue spécifi
 
 | Couche | Technologie |
 |--------|-------------|
-| Framework | Next.js 16 (App Router) |
-| Base de données | PostgreSQL (Neon) + Prisma ORM |
+| Framework | Next.js 15 (App Router, SSR/CSR) |
+| Base de données | PostgreSQL (Neon) + Prisma ORM v5 |
 | Authentification | NextAuth.js v5 (JWT, credentials) |
 | UI | Tailwind CSS 3 + shadcn/ui (Radix UI) |
-| Thème | next-themes (dark/light/system) |
 | Animations | Framer Motion |
 | Graphiques | Recharts 2 |
-| Validation | Zod + React Hook Form |
-| IA | Anthropic SDK (@anthropic-ai/sdk) |
-| Paiements en ligne | NotchPay (MTN Money, Orange Money) |
+| IA | Anthropic SDK (`@anthropic-ai/sdk`) |
+| Paiements | NotchPay (MTN Money, Orange Money) |
 | Abonnements | Stripe |
 | Emails | Resend |
-| PDF/Excel | jsPDF + html2canvas + ExcelJS |
-| Typage | TypeScript 5 (strict mode) |
-| PWA | Service Worker natif + Next.js manifest |
+| PDF/Excel | jsPDF + ExcelJS |
+| Typage | TypeScript 5 (strict) |
 
 ---
 
@@ -60,19 +64,19 @@ Solution SaaS tout-en-un de gestion financière et commerciale, conçue spécifi
 
 ### Prérequis
 - Node.js 20+
-- PostgreSQL 14+ (ou compte Neon)
-- Compte NotchPay (pour les paiements Mobile Money)
-- Clé API Anthropic (pour Nkap AI)
-- Compte Resend (pour les emails)
+- PostgreSQL 14+ (ou compte [Neon](https://neon.tech))
+- Compte NotchPay
+- Clé API Anthropic
+- Compte Resend
 
 ### Étapes
 
 ```bash
-# 1. Cloner le projet
+# 1. Cloner
 git clone https://github.com/timeoseyapdje/SaaS_PME.git
 cd SaaS_PME
 
-# 2. Installer les dépendances
+# 2. Dépendances
 npm install
 
 # 3. Configurer l'environnement
@@ -82,7 +86,7 @@ cp .env.example .env
 Renseigner `.env` :
 
 ```env
-# Base de données (Neon recommandé)
+# Base de données
 DATABASE_URL="postgresql://user:password@host/neondb?sslmode=require"
 DIRECT_URL="postgresql://user:password@direct-host/neondb?sslmode=require"
 
@@ -105,49 +109,37 @@ NOTCHPAY_PRIVATE_KEY="sk_..."
 RESEND_API_KEY="re_..."
 FROM_EMAIL="Nkap Control <noreply@nkapcontrol.com>"
 
-# Stripe (abonnements SaaS — optionnel)
+# Stripe (abonnements — optionnel)
 STRIPE_SECRET_KEY="sk_test_..."
 STRIPE_WEBHOOK_SECRET="whsec_..."
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
 ```
 
 ```bash
-# 4. Initialiser la base de données
-npx prisma generate
-npx prisma db push
+# 4. Base de données
+./node_modules/.bin/prisma generate
+./node_modules/.bin/prisma db push
 
-# 5. Données de démonstration (optionnel)
-npm run db:seed
-
-# 6. Démarrer
+# 5. Démarrer
 npm run dev
 ```
 
-Accès : [http://localhost:3000](http://localhost:3000)
-
-### Compte de démonstration (après seeding)
-
-| Champ | Valeur |
-|-------|--------|
-| Email | demo@nkapcontrol.cm |
-| Mot de passe | demo123456 |
+> **Important** : Toujours utiliser `./node_modules/.bin/prisma` (pas `npx prisma`) pour éviter de télécharger Prisma v7 incompatible avec la v5 du projet.
 
 ---
 
 ## Configuration NotchPay (Webhooks)
 
-### Webhook 1 — Abonnements
+### Webhook abonnements
 - **URL** : `https://votre-domaine.com/api/payments/webhook`
-- **Context** : Your account
-- **Événements** : Invoices → `payment.complete` + `payment.failed`
+- **Événements** : `payment.complete`, `payment.failed`
 
-### Webhook 2 — Liens de paiement
+### Webhook liens de paiement
 - **URL** : `https://votre-domaine.com/api/webhooks/payment-links`
-- **Context** : Quick events
-- **Événements** : Payment links → `payment.complete` + `payment.failed`
+- **Événements** : `payment.complete`, `payment.failed`
 
-### Configuration compte de reversement
-Dans l'app → **Trésorerie** → créer un compte **MTN Money** ou **Orange Money** → saisir le numéro de téléphone → cocher **Compte principal**.
+### Compte de reversement
+Dans l'app → **Trésorerie** → créer un compte **MTN Money** ou **Orange Money** → saisir le numéro → cocher **Compte principal**.
 
 ---
 
@@ -156,46 +148,51 @@ Dans l'app → **Trésorerie** → créer un compte **MTN Money** ou **Orange Mo
 ```
 src/
 ├── app/
-│   ├── (auth)/                    # Login, Register, Forgot password
+│   ├── (auth)/                    # Login, Register, Forgot/Reset password
 │   ├── (dashboard)/               # Pages protégées
-│   │   ├── dashboard/             # Tableau de bord KPIs
+│   │   ├── dashboard/             # KPIs + graphiques + alertes
 │   │   ├── invoices/              # Factures (liste, création, détail)
+│   │   ├── devis/                 # Devis (liste, création, détail)
 │   │   ├── expenses/              # Dépenses & Recettes
 │   │   ├── treasury/              # Trésorerie + historique reversements
 │   │   ├── clients/               # Clients
 │   │   ├── suppliers/             # Fournisseurs
 │   │   ├── products/              # Catalogue, catégories, inventaire
 │   │   ├── orders/                # Commandes
-│   │   ├── payment-links/         # Liens de paiement + transactions par lien
+│   │   ├── payment-links/         # Liens de paiement + transactions
 │   │   ├── reports/               # Rapports fiscaux OHADA
+│   │   ├── help/                  # Aide & documentation in-app
 │   │   ├── settings/              # Paramètres entreprise & compte
 │   │   ├── subscription/          # Abonnement & facturation
+│   │   ├── team/                  # Membres, postes, demandes
 │   │   └── admin/                 # Administration plateforme
-│   ├── api/                       # Routes API REST
-│   │   ├── pay/[slug]/            # Endpoint public lien de paiement
-│   │   ├── webhooks/payment-links/# Webhook NotchPay liens de paiement
-│   │   ├── payments/webhook/      # Webhook NotchPay abonnements
-│   │   ├── payouts/               # Historique reversements
+│   ├── api/
+│   │   ├── quotes/                # CRUD devis + conversion en facture
+│   │   ├── invoices/              # CRUD factures + mark-overdue + duplicate
+│   │   ├── email/                 # send-invoice + send-quote
+│   │   ├── pay/[slug]/            # Page publique de paiement
+│   │   ├── webhooks/              # Webhooks NotchPay
 │   │   └── ...
-│   ├── manifest.ts                # Web App Manifest (PWA)
-│   ├── onboarding/                # Guide de démarrage
-│   ├── pay/[slug]/                # Page publique de paiement
-│   └── help/                      # Centre d'aide
+│   └── pay/[slug]/                # Page publique de paiement Mobile Money
 ├── components/
-│   ├── ui/                        # Composants shadcn/ui
-│   ├── layout/                    # Sidebar, Header
-│   └── PWARegister.tsx            # Enregistrement Service Worker
+│   ├── ui/                        # Composants shadcn/ui + product-picker-dialog
+│   ├── invoices/                  # InvoiceForm, InvoiceTable, InvoiceStatusBadge
+│   ├── quotes/                    # QuoteForm
+│   └── layout/                   # Sidebar, Header
 ├── lib/
-│   ├── notchpay.ts                # Intégration NotchPay (paiements + transferts)
-│   ├── auth.ts                    # Configuration NextAuth
-│   ├── currency.ts                # Formatage devises
-│   └── tax.ts                     # Calculs fiscaux OHADA
-└── types/                         # Types TypeScript
+│   ├── notchpay.ts               # Intégration NotchPay (init + charge directe + transferts)
+│   ├── email.ts                  # Templates email (factures, devis, abonnements...)
+│   ├── export.ts                 # exportInvoicePDF + exportQuotePDF + Excel/CSV
+│   ├── permissions.ts            # Modules, actions, templates de rôles
+│   ├── auth-permissions.ts       # requirePermission() helper
+│   ├── currency.ts               # Formatage devises
+│   └── tax.ts                    # TVA 19,25% + calculs OHADA
+├── hooks/
+│   ├── usePermissions.ts         # Hook canAny(), can()
+│   └── useChat.ts                # Hook Nkap AI chat
+└── types/index.ts                # Types TypeScript (Invoice, Quote, Client...)
 prisma/
-├── schema.prisma                  # Schéma BDD (inclut modèle Payout)
-└── seed.ts                        # Données de démonstration
-public/
-└── sw.js                          # Service Worker PWA
+└── schema.prisma                 # Schéma BDD complet
 ```
 
 ---
@@ -224,13 +221,11 @@ public/
 ## Commandes Utiles
 
 ```bash
-npm run dev          # Démarrage développement (localhost:3000)
-npm run build        # Build production (push BDD + generate + next build)
-npm run db:push      # Synchroniser le schéma Prisma → BDD
-npm run db:seed      # Peupler avec des données de démo
-npm run db:studio    # Ouvrir Prisma Studio (GUI BDD)
-npm run db:generate  # Régénérer le client Prisma
-npm run lint         # Linter ESLint
+npm run dev                              # Développement (localhost:3000)
+npm run build                            # Build production
+./node_modules/.bin/prisma generate      # Régénérer le client Prisma
+./node_modules/.bin/prisma db push       # Synchroniser le schéma → BDD
+./node_modules/.bin/prisma studio        # GUI base de données
 ```
 
 ---
