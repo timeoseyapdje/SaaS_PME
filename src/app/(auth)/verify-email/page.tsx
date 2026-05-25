@@ -50,7 +50,7 @@ function VerifyEmailContent() {
     }).catch(() => {});
     const result = await signIn("credentials", { email: e, password, redirect: false });
     if (result?.ok) {
-      router.push("/onboarding");
+      router.push("/dashboard");
     } else {
       router.push("/login");
     }
@@ -77,7 +77,7 @@ function VerifyEmailContent() {
         sessionStorage.removeItem("pending_verify");
         const result = await signIn("credentials", { email: e, password, redirect: false });
         if (result?.ok) {
-          router.push("/onboarding");
+          router.push("/dashboard");
           return;
         }
       }
