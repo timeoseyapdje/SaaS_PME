@@ -135,7 +135,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
             paymentMethod: paymentMethod as "MTN_MONEY" | "ORANGE_MONEY",
           });
           if (charged) {
-            return NextResponse.json({ directCharge: true });
+            return NextResponse.json({ directCharge: true, transactionId: transaction.id });
           }
         }
 
