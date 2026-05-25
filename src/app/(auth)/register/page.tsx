@@ -17,7 +17,6 @@ import {
 import {
   Loader2,
   AlertCircle,
-  CheckCircle2,
   ChevronLeft,
   ArrowLeft,
   Building2,
@@ -43,7 +42,6 @@ export default function RegisterPage() {
   const [mode, setMode] = useState<Mode | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
   const [pending, setPending] = useState(false);
 
   // Step 1: User info
@@ -145,8 +143,8 @@ export default function RegisterPage() {
       if (data.pending) {
         setPending(true);
       } else {
-        setSuccess(true);
-        setTimeout(() => router.push("/onboarding"), 2000);
+        sessionStorage.setItem("pending_verify", JSON.stringify({ email, password }));
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
       }
     } catch {
       setError("Une erreur est survenue. Veuillez réessayer.");
@@ -175,24 +173,6 @@ export default function RegisterPage() {
               Aller à la connexion
             </Button>
           </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (success) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute inset-0 bg-dot-pattern opacity-30 [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full bg-emerald-500/10 blur-[120px]" />
-        </div>
-        <div className="w-full max-w-md text-center relative z-10 animate-in zoom-in duration-500">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-emerald-500 rounded-full mb-6 shadow-xl shadow-emerald-500/30">
-            <CheckCircle2 className="w-10 h-10 text-white" />
-          </div>
-          <h2 className="text-3xl font-bold text-foreground mb-3 tracking-tight">Compte créé !</h2>
-          <p className="text-muted-foreground text-lg">Découvrez la plateforme en quelques étapes...</p>
         </div>
       </div>
     );
