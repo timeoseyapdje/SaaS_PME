@@ -15,7 +15,7 @@ export default function PrivacyPage() {
           Politique de Confidentialité
         </h1>
         <p className="text-sm text-muted-foreground mb-10">
-          Dernière mise à jour : 15 mai 2026
+          Dernière mise à jour : 25 mai 2026
         </p>
 
         <div className="space-y-8 text-sm leading-relaxed">
@@ -55,9 +55,10 @@ export default function PrivacyPage() {
             <h3 className="text-sm font-semibold text-foreground mt-4 mb-2">2.3 Données financières et commerciales</h3>
             <ul className="list-disc pl-5 space-y-1">
               <li>Factures émises et reçues</li>
+              <li>Devis et propositions commerciales (numéros DEV-YYYY-XXXX, statuts, montants)</li>
               <li>Dépenses et revenus</li>
               <li>Soldes des comptes bancaires et mobile money</li>
-              <li>Informations sur les clients et fournisseurs</li>
+              <li>Informations sur les clients et fournisseurs (nom, email, téléphone, adresse)</li>
               <li>Catalogue produits et catégories (prix, coûts, stocks)</li>
               <li>Commandes et leur statut (En attente, Confirmé, Livré, etc.)</li>
               <li>Historique des mouvements de stock</li>
@@ -86,7 +87,9 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-5 space-y-1.5 mt-2">
               <li>Fournir et améliorer les services de la plateforme</li>
               <li>Gérer votre compte et votre abonnement</li>
-              <li>Générer vos factures, rapports et déclarations fiscales</li>
+              <li>Générer vos factures, devis, rapports et déclarations fiscales</li>
+              <li>Envoyer vos factures et devis par email à vos clients (via Resend) lorsque vous utilisez la fonction d&apos;envoi</li>
+              <li>Pré-remplir les messages WhatsApp avec les informations de la facture ou du devis (montant, numéro, échéance) — aucune donnée n&apos;est transmise à WhatsApp sans action explicite de votre part</li>
               <li>Fournir les analyses de l&apos;assistant Nkap AI</li>
               <li>Envoyer des notifications relatives à votre compte (emails transactionnels)</li>
               <li>Assurer le support client</li>
