@@ -25,7 +25,10 @@ import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/currency";
 import { formatDate } from "@/lib/utils";
 import { Expense } from "@/types";
-import { Plus, TrendingDown, TrendingUp, Trash2, Download } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Plus, TrendingDown, TrendingUp, Trash2, Download, Upload, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { exportToExcel, exportToCSV, formatExpensesForExport, formatRevenuesForExport } from "@/lib/export";
 import {
   DropdownMenu,
@@ -62,6 +65,39 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
   ORANGE_MONEY: "Orange Money",
   CARTE_BANCAIRE: "Carte",
 };
+
+interface CsvRow {
+  [key: string]: string;
+}
+
+interface ImportResult {
+  imported: number;
+  errors: string[];
+}
+
+function parseCSV(text: string): CsvRow[] {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim());
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+  return lines.slice(1).map((line) => {
+    const values = line.split(",").map((v) => v.trim().replace(/^"|"$/g, ""));
+    const row: CsvRow = {};
+    headers.forEach((h, i) => { row[h] = values[i] || ""; });
+    return row;
+  });
+}
+
+function downloadExpenseTemplate() {
+  const headers = "Description,Montant,Date,Categorie,ModePaiement,Notes";
+  const example = "Loyer bureau,150000,2026-01-01,LOYER,VIREMENT,";
+  const blob = new Blob([headers + "\n" + example], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "modele_depenses.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 function RevenueForm({
   onSuccess,
@@ -172,12 +208,18 @@ function RevenueForm({
 }
 
 export default function ExpensesPage() {
+  const { toast } = useToast();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [revenues, setRevenues] = useState<Revenue[]>([]);
   const [loadingExpenses, setLoadingExpenses] = useState(true);
   const [loadingRevenues, setLoadingRevenues] = useState(true);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showRevenueForm, setShowRevenueForm] = useState(false);
+
+  const [showImport, setShowImport] = useState(false);
+  const [csvRows, setCsvRows] = useState<CsvRow[]>([]);
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
 
   const fetchExpenses = useCallback(async () => {
     setLoadingExpenses(true);

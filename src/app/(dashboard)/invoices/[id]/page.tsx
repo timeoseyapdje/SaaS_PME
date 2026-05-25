@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { InvoiceStatusBadge } from "@/components/invoices/InvoiceStatusBadge";
 import { formatCurrency } from "@/lib/currency";
 import { formatDate } from "@/lib/utils";
-import { Invoice, InvoiceStatus } from "@/types";
+import { Invoice, InvoicePayment, InvoiceStatus } from "@/types";
 import {
   ArrowLeft,
   Send,
@@ -24,10 +24,24 @@ import {
   XCircle,
   Mail,
   Copy,
+  Plus,
+  RefreshCw,
+  ChevronDown,
+  ChevronUp,
+  LayoutTemplate,
 } from "lucide-react";
 import Link from "next/link";
 import { exportInvoicePDF } from "@/lib/export";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function buildWhatsAppUrl(invoice: Invoice): string {
   const client = invoice.client;
@@ -42,6 +56,26 @@ function buildWhatsAppUrl(invoice: Invoice): string {
   return `https://wa.me/?text=${message}`;
 }
 
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  ESPECES: "Espèces",
+  VIREMENT: "Virement",
+  CHEQUE: "Chèque",
+  MTN_MONEY: "MTN Money",
+  ORANGE_MONEY: "Orange Money",
+  CARTE_BANCAIRE: "Carte bancaire",
+  NOTCHPAY: "NotchPay",
+};
+
+const RECURRENCE_LABELS: Record<string, string> = {
+  MONTHLY: "Mensuelle",
+  QUARTERLY: "Trimestrielle",
+  YEARLY: "Annuelle",
+};
+
+function formatAmount(amount: number): string {
+  return new Intl.NumberFormat("fr-FR").format(amount) + " XAF";
+}
+
 export default function InvoiceDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -52,6 +86,27 @@ export default function InvoiceDetailPage() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [emailInput, setEmailInput] = useState<string | null>(null);
   const [emailSending, setEmailSending] = useState(false);
+
+  // Payment section state
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("ESPECES");
+  const [paymentDate, setPaymentDate] = useState(
+    () => new Date().toISOString().split("T")[0]
+  );
+  const [paymentReference, setPaymentReference] = useState("");
+  const [paymentNote, setPaymentNote] = useState("");
+  const [paymentSubmitting, setPaymentSubmitting] = useState(false);
+  const [confirmDeletePayment, setConfirmDeletePayment] = useState<string | null>(null);
+  const [deletingPayment, setDeletingPayment] = useState(false);
+
+  // Recurring section state
+  const [generatingNext, setGeneratingNext] = useState(false);
+
+  // Save as template state
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [savingTemplate, setSavingTemplate] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -157,6 +212,113 @@ export default function InvoiceDetailPage() {
     }
   }
 
+  async function handleAddPayment() {
+    const amount = parseFloat(paymentAmount);
+    if (!paymentAmount || isNaN(amount) || amount <= 0) {
+      toast({ title: "Montant invalide", description: "Le montant doit être supérieur à 0", variant: "destructive" });
+      return;
+    }
+
+    setPaymentSubmitting(true);
+    try {
+      const res = await fetch(`/api/invoices/${params.id}/payments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount,
+          method: paymentMethod,
+          paidAt: paymentDate,
+          reference: paymentReference || undefined,
+          note: paymentNote || undefined,
+        }),
+      });
+
+      if (res.ok) {
+        toast({ title: "Paiement enregistré" });
+        setShowPaymentForm(false);
+        setPaymentAmount("");
+        setPaymentMethod("ESPECES");
+        setPaymentDate(new Date().toISOString().split("T")[0]);
+        setPaymentReference("");
+        setPaymentNote("");
+        const updated = await fetch(`/api/invoices/${params.id}`).then((r) => r.json());
+        setInvoice(updated);
+      } else {
+        const data = await res.json();
+        toast({ title: "Erreur", description: data.error, variant: "destructive" });
+      }
+    } finally {
+      setPaymentSubmitting(false);
+    }
+  }
+
+  async function handleDeletePayment(paymentId: string) {
+    setDeletingPayment(true);
+    try {
+      const res = await fetch(
+        `/api/invoices/${params.id}/payments?paymentId=${paymentId}`,
+        { method: "DELETE" }
+      );
+      if (res.ok) {
+        toast({ title: "Paiement supprimé" });
+        setConfirmDeletePayment(null);
+        const updated = await fetch(`/api/invoices/${params.id}`).then((r) => r.json());
+        setInvoice(updated);
+      } else {
+        const data = await res.json();
+        toast({ title: "Erreur", description: data.error, variant: "destructive" });
+      }
+    } finally {
+      setDeletingPayment(false);
+    }
+  }
+
+  async function handleGenerateNextInvoice() {
+    if (!invoice) return;
+    setGeneratingNext(true);
+    try {
+      const dupRes = await fetch(`/api/invoices/${params.id}/duplicate`, { method: "POST" });
+      if (!dupRes.ok) {
+        const err = await dupRes.json();
+        toast({ title: "Erreur", description: err.error, variant: "destructive" });
+        return;
+      }
+      const { invoice: newInvoice } = await dupRes.json();
+
+      const nextDueDate = invoice.nextDueDate
+        ? new Date(invoice.nextDueDate)
+        : (() => {
+            const d = new Date();
+            if (invoice.recurrenceInterval === "MONTHLY") d.setMonth(d.getMonth() + 1);
+            else if (invoice.recurrenceInterval === "QUARTERLY") d.setMonth(d.getMonth() + 3);
+            else if (invoice.recurrenceInterval === "YEARLY") d.setFullYear(d.getFullYear() + 1);
+            else d.setDate(d.getDate() + 30);
+            return d;
+          })();
+
+      const patchRes = await fetch(`/api/invoices/${newInvoice.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dueDate: nextDueDate.toISOString().split("T")[0],
+        }),
+      });
+
+      if (patchRes.ok) {
+        toast({
+          title: "Facture récurrente générée",
+          description: `Brouillon ${newInvoice.number} créé`,
+        });
+        router.push(`/invoices/${newInvoice.id}`);
+      } else {
+        toast({ title: "Facture créée", description: `Brouillon ${newInvoice.number} — impossible de mettre à jour la date` });
+        router.push(`/invoices/${newInvoice.id}`);
+      }
+    } finally {
+      setGeneratingNext(false);
+    }
+  }
+
   if (loading) {
     return (
       <div>
@@ -183,6 +345,13 @@ export default function InvoiceDetailPage() {
       </div>
     );
   }
+
+  const payments: InvoicePayment[] = invoice.payments ?? [];
+  const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+  const remaining = Math.max(0, invoice.total - totalPaid);
+  const progressPercent = invoice.total > 0 ? Math.min(100, (totalPaid / invoice.total) * 100) : 0;
+  const showPaymentsSection =
+    invoice.status === "SENT" || invoice.status === "OVERDUE" || invoice.status === "PAID";
 
   return (
     <div>
@@ -325,7 +494,15 @@ export default function InvoiceDetailPage() {
                   {invoice.number}
                 </p>
               </div>
-              <InvoiceStatusBadge status={invoice.status} />
+              <div className="flex items-center gap-2 flex-wrap justify-end">
+                <InvoiceStatusBadge status={invoice.status} />
+                {invoice.isRecurring && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 border border-violet-200 dark:border-violet-700">
+                    <RefreshCw className="w-3 h-3" />
+                    Récurrente
+                  </span>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -365,6 +542,22 @@ export default function InvoiceDetailPage() {
                       <span className="text-muted-foreground">Rappel envoyé:</span>
                       <span className="font-medium text-orange-600">
                         {formatDate(invoice.reminderDate)}
+                      </span>
+                    </div>
+                  )}
+                  {invoice.isRecurring && invoice.recurrenceInterval && (
+                    <div className="flex justify-end gap-4 text-sm">
+                      <span className="text-muted-foreground">Récurrence:</span>
+                      <span className="font-medium text-violet-600">
+                        {RECURRENCE_LABELS[invoice.recurrenceInterval] ?? invoice.recurrenceInterval}
+                      </span>
+                    </div>
+                  )}
+                  {invoice.isRecurring && invoice.nextDueDate && (
+                    <div className="flex justify-end gap-4 text-sm">
+                      <span className="text-muted-foreground">Prochaine échéance:</span>
+                      <span className="font-medium">
+                        {formatDate(invoice.nextDueDate)}
                       </span>
                     </div>
                   )}
@@ -440,6 +633,305 @@ export default function InvoiceDetailPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Recurring invoice section */}
+        {invoice.isRecurring && (
+          <Card className="border-violet-200 dark:border-violet-800">
+            <CardContent className="pt-5">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-violet-100 dark:bg-violet-900/30">
+                    <RefreshCw className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Facture récurrente</p>
+                    <p className="text-xs text-muted-foreground">
+                      {invoice.recurrenceInterval
+                        ? RECURRENCE_LABELS[invoice.recurrenceInterval] ?? invoice.recurrenceInterval
+                        : "Intervalle non défini"}
+                      {invoice.nextDueDate && (
+                        <> — Prochaine échéance : <span className="font-medium">{formatDate(invoice.nextDueDate)}</span></>
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-violet-300 text-violet-700 hover:bg-violet-50 dark:border-violet-700 dark:text-violet-400"
+                  onClick={handleGenerateNextInvoice}
+                  disabled={generatingNext}
+                >
+                  {generatingNext ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                  )}
+                  Générer la prochaine facture
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Payments section */}
+        {showPaymentsSection && (
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-base">Paiements reçus</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Acomptes et paiements partiels
+                  </p>
+                </div>
+                {invoice.status !== "PAID" && !showPaymentForm && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowPaymentForm(true)}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Ajouter un acompte
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Progress bar */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    Reçu :{" "}
+                    <span className="font-semibold text-emerald-600">
+                      {formatAmount(totalPaid)}
+                    </span>
+                  </span>
+                  <span className="text-muted-foreground">
+                    Total : <span className="font-semibold">{formatAmount(invoice.total)}</span>
+                  </span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
+                  <div
+                    className="h-2.5 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${progressPercent}%`,
+                      backgroundColor: progressPercent >= 100 ? "#10b981" : "#3b82f6",
+                    }}
+                  />
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-sm font-medium">
+                    Solde restant :{" "}
+                    <span className={remaining === 0 ? "text-emerald-600" : "text-rose-600"}>
+                      {formatAmount(remaining)}
+                    </span>
+                  </p>
+                  <span className="text-xs text-muted-foreground">
+                    {progressPercent.toFixed(0)}% réglé
+                  </span>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Payments list */}
+              {payments.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-3">
+                  Aucun paiement enregistré pour cette facture.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {payments.map((payment) => (
+                    <div
+                      key={payment.id}
+                      className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-1.5 h-8 rounded-full bg-emerald-500 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold text-sm text-emerald-700 dark:text-emerald-400">
+                              {formatAmount(payment.amount)}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {PAYMENT_METHOD_LABELS[payment.method] ?? payment.method}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(payment.paidAt).toLocaleDateString("fr-FR")}
+                            </span>
+                          </div>
+                          {(payment.reference || payment.note) && (
+                            <p className="text-xs text-muted-foreground truncate mt-0.5">
+                              {payment.reference && <span>Réf: {payment.reference}</span>}
+                              {payment.reference && payment.note && " — "}
+                              {payment.note}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-shrink-0 ml-2">
+                        {confirmDeletePayment === payment.id ? (
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-muted-foreground">Supprimer ?</span>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="h-7 px-2 text-xs"
+                              disabled={deletingPayment}
+                              onClick={() => handleDeletePayment(payment.id)}
+                            >
+                              {deletingPayment ? <Loader2 className="w-3 h-3 animate-spin" /> : "Oui"}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2"
+                              onClick={() => setConfirmDeletePayment(null)}
+                            >
+                              <XCircle className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0 text-muted-foreground hover:text-red-500"
+                            onClick={() => setConfirmDeletePayment(payment.id)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add payment form */}
+              {showPaymentForm && (
+                <div className="border border-border rounded-lg p-4 space-y-4 bg-muted/20">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium text-sm">Nouveau paiement</p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 w-7 p-0"
+                      onClick={() => setShowPaymentForm(false)}
+                    >
+                      <ChevronUp className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="paymentAmount" className="text-xs">
+                        Montant (XAF) *
+                      </Label>
+                      <Input
+                        id="paymentAmount"
+                        type="number"
+                        min="1"
+                        step="100"
+                        placeholder={`Max: ${formatAmount(remaining)}`}
+                        value={paymentAmount}
+                        onChange={(e) => setPaymentAmount(e.target.value)}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="paymentMethod" className="text-xs">
+                        Méthode de paiement *
+                      </Label>
+                      <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="paymentDate" className="text-xs">
+                        Date du paiement *
+                      </Label>
+                      <Input
+                        id="paymentDate"
+                        type="date"
+                        value={paymentDate}
+                        onChange={(e) => setPaymentDate(e.target.value)}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="paymentReference" className="text-xs">
+                        Référence (optionnel)
+                      </Label>
+                      <Input
+                        id="paymentReference"
+                        placeholder="N° de transaction, chèque..."
+                        value={paymentReference}
+                        onChange={(e) => setPaymentReference(e.target.value)}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label htmlFor="paymentNote" className="text-xs">
+                        Note (optionnel)
+                      </Label>
+                      <Input
+                        id="paymentNote"
+                        placeholder="Informations complémentaires..."
+                        value={paymentNote}
+                        onChange={(e) => setPaymentNote(e.target.value)}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-end gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setShowPaymentForm(false)}
+                      disabled={paymentSubmitting}
+                    >
+                      Annuler
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="bg-emerald-600 hover:bg-emerald-700"
+                      onClick={handleAddPayment}
+                      disabled={paymentSubmitting}
+                    >
+                      {paymentSubmitting ? (
+                        <Loader2 className="w-3 h-3 mr-1.5 animate-spin" />
+                      ) : (
+                        <Plus className="w-3 h-3 mr-1.5" />
+                      )}
+                      Enregistrer le paiement
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {invoice.status !== "PAID" && !showPaymentForm && payments.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowPaymentForm(true)}
+                >
+                  <ChevronDown className="w-4 h-4 mr-2" />
+                  Ajouter un autre paiement
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

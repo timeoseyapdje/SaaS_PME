@@ -107,6 +107,17 @@ export interface InvoiceItem {
   total: number;
 }
 
+export interface InvoicePayment {
+  id: string;
+  invoiceId: string;
+  amount: number;
+  method: PaymentMethod;
+  paidAt: Date;
+  reference?: string | null;
+  note?: string | null;
+  createdAt: Date;
+}
+
 export interface Invoice {
   id: string;
   companyId: string;
@@ -128,6 +139,10 @@ export interface Invoice {
   reminderSent: boolean;
   reminderDate?: Date;
   items: InvoiceItem[];
+  payments?: InvoicePayment[];
+  isRecurring?: boolean;
+  recurrenceInterval?: string | null;
+  nextDueDate?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -178,6 +193,8 @@ export interface Quote {
   terms?: string;
   applyTVA: boolean;
   convertedInvoiceId?: string;
+  signedAt?: Date | string | null;
+  signatureToken?: string | null;
   items: QuoteItem[];
   createdAt: Date;
   updatedAt: Date;
@@ -214,7 +231,8 @@ export type PaymentMethod =
   | "CHEQUE"
   | "MTN_MONEY"
   | "ORANGE_MONEY"
-  | "CARTE_BANCAIRE";
+  | "CARTE_BANCAIRE"
+  | "NOTCHPAY";
 
 export type PaymentStatus = "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
 

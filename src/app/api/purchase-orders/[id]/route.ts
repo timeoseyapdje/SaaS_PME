@@ -9,24 +9,23 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const result = await requirePermission("invoices", "view");
+    const result = await requirePermission("expenses", "view");
     if (isNextResponse(result)) return result;
     const companyId = result.session.user.companyId;
 
-    const invoice = await prisma.invoice.findFirst({
+    const purchaseOrder = await prisma.purchaseOrder.findFirst({
       where: { id, companyId },
       include: {
-        client: true,
+        supplier: true,
         items: true,
-        payments: { orderBy: { paidAt: "asc" } },
       },
     });
 
-    if (!invoice) {
-      return NextResponse.json({ error: "Facture non trouvée" }, { status: 404 });
+    if (!purchaseOrder) {
+      return NextResponse.json({ error: "Bon de commande non trouvé" }, { status: 404 });
     }
 
-    return NextResponse.json(invoice);
+    return NextResponse.json(purchaseOrder);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
@@ -39,81 +38,69 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const result = await requirePermission("invoices", "edit");
+    const result = await requirePermission("expenses", "edit");
     if (isNextResponse(result)) return result;
     const companyId = result.session.user.companyId;
 
     const body = await request.json();
-    const { status, items, clientId, dueDate, notes, terms, currency, applyTVA, reminderSent } = body;
+    const { status, notes, expectedAt, supplierId, applyTVA, items } = body;
 
-    const existingInvoice = await prisma.invoice.findFirst({
-      where: { id, companyId },
-    });
-
-    if (!existingInvoice) {
-      return NextResponse.json({ error: "Facture non trouvée" }, { status: 404 });
+    const existing = await prisma.purchaseOrder.findFirst({ where: { id, companyId } });
+    if (!existing) {
+      return NextResponse.json({ error: "Bon de commande non trouvé" }, { status: 404 });
     }
 
     const updateData: Record<string, unknown> = {};
-
-    if (status) {
-      updateData.status = status;
-      if (status === "PAID") {
-        updateData.paidAt = new Date();
-      }
-    }
-
-    if (clientId) updateData.clientId = clientId;
-    if (dueDate) updateData.dueDate = new Date(dueDate);
+    if (status !== undefined) updateData.status = status;
     if (notes !== undefined) updateData.notes = notes;
-    if (terms !== undefined) updateData.terms = terms;
-    if (currency) updateData.currency = currency;
+    if (expectedAt !== undefined) updateData.expectedAt = expectedAt ? new Date(expectedAt) : null;
+    if (supplierId !== undefined) updateData.supplierId = supplierId || null;
     if (applyTVA !== undefined) updateData.applyTVA = applyTVA;
-    if (reminderSent === true) {
-      updateData.reminderSent = true;
-      updateData.reminderDate = new Date();
-    }
 
     if (items && items.length > 0) {
-      const subtotal = items.reduce(
+      const totalHT = items.reduce(
         (sum: number, item: { quantity: number; unitPrice: number }) =>
           sum + item.quantity * item.unitPrice,
         0
       );
       const { tva, total } = calculateInvoiceTotal(
-        subtotal,
-        applyTVA ?? existingInvoice.applyTVA
+        totalHT,
+        applyTVA !== undefined ? applyTVA : existing.applyTVA
       );
-      updateData.subtotal = subtotal;
-      updateData.tvaAmount = tva;
-      updateData.total = total;
+      updateData.totalHT = totalHT;
+      updateData.totalTVA = tva;
+      updateData.totalTTC = total;
 
-      // Delete existing items and recreate
-      await prisma.invoiceItem.deleteMany({ where: { invoiceId: id } });
-      await prisma.invoiceItem.createMany({
+      await prisma.purchaseOrderItem.deleteMany({ where: { purchaseOrderId: id } });
+      await prisma.purchaseOrderItem.createMany({
         data: items.map(
           (item: {
             description: string;
             quantity: number;
             unitPrice: number;
+            unit?: string;
           }) => ({
-            invoiceId: id,
+            purchaseOrderId: id,
             description: item.description,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
+            unit: item.unit || null,
             total: item.quantity * item.unitPrice,
           })
         ),
       });
     }
 
-    const invoice = await prisma.invoice.update({
+    const purchaseOrder = await prisma.purchaseOrder.update({
       where: { id },
       data: updateData,
-      include: { client: true, items: true, payments: { orderBy: { paidAt: "asc" } } },
+      include: {
+        supplier: true,
+        items: true,
+      },
     });
 
-    return NextResponse.json(invoice);
+    return NextResponse.json(purchaseOrder);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
@@ -126,20 +113,23 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const result = await requirePermission("invoices", "delete");
+    const result = await requirePermission("expenses", "delete");
     if (isNextResponse(result)) return result;
     const companyId = result.session.user.companyId;
 
-    const invoice = await prisma.invoice.findFirst({
-      where: { id, companyId },
-    });
-
-    if (!invoice) {
-      return NextResponse.json({ error: "Facture non trouvée" }, { status: 404 });
+    const purchaseOrder = await prisma.purchaseOrder.findFirst({ where: { id, companyId } });
+    if (!purchaseOrder) {
+      return NextResponse.json({ error: "Bon de commande non trouvé" }, { status: 404 });
     }
 
-    await prisma.invoice.delete({ where: { id } });
+    if (!["DRAFT", "CANCELLED"].includes(purchaseOrder.status)) {
+      return NextResponse.json(
+        { error: "Seuls les bons de commande en brouillon ou annulés peuvent être supprimés" },
+        { status: 400 }
+      );
+    }
 
+    await prisma.purchaseOrder.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);

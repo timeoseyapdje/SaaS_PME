@@ -45,6 +45,10 @@ import {
   MoreHorizontal,
   TrendingUp,
   Building2,
+  Upload,
+  Download,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -73,6 +77,39 @@ interface ClientWithCount extends Client {
   _count?: { invoices: number; orders?: number };
 }
 
+interface CsvRow {
+  [key: string]: string;
+}
+
+interface ImportResult {
+  imported: number;
+  errors: string[];
+}
+
+function parseCSV(text: string): CsvRow[] {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim());
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+  return lines.slice(1).map((line) => {
+    const values = line.split(",").map((v) => v.trim().replace(/^"|"$/g, ""));
+    const row: CsvRow = {};
+    headers.forEach((h, i) => { row[h] = values[i] || ""; });
+    return row;
+  });
+}
+
+function downloadTemplate() {
+  const headers = "Nom,Email,Telephone,Adresse,Ville,Type,Notes";
+  const example = "Acme Sarl,contact@acme.cm,+237600000000,Rue 123,Yaoundé,ENTREPRISE,Client régulier";
+  const blob = new Blob([headers + "\n" + example], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "modele_clients.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function ClientsPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -83,6 +120,11 @@ export default function ClientsPage() {
   const [editClient, setEditClient] = useState<ClientWithCount | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [confirmDeleteClient, setConfirmDeleteClient] = useState<string | null>(null);
+
+  const [showImport, setShowImport] = useState(false);
+  const [csvRows, setCsvRows] = useState<CsvRow[]>([]);
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
 
   const [formName, setFormName] = useState("");
   const [formEmail, setFormEmail] = useState("");
@@ -153,6 +195,45 @@ export default function ClientsPage() {
     fetchClients();
   }
 
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      const rows = parseCSV(text);
+      setCsvRows(rows);
+      setImportResult(null);
+    };
+    reader.readAsText(file);
+  }
+
+  async function handleImport() {
+    if (csvRows.length === 0) return;
+    setImporting(true);
+    try {
+      const res = await fetch("/api/clients/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rows: csvRows }),
+      });
+      const data: ImportResult = await res.json();
+      setImportResult(data);
+      if (data.imported > 0) {
+        fetchClients();
+        toast({ title: `${data.imported} client(s) importé(s)` });
+      }
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  function closeImport() {
+    setShowImport(false);
+    setCsvRows([]);
+    setImportResult(null);
+  }
+
   // KPI stats
   const totalClients = clients.length;
   const entreprises = clients.filter(c => c.type === "ENTREPRISE").length;
@@ -211,6 +292,10 @@ export default function ClientsPage() {
               className="pl-9"
             />
           </div>
+          <Button variant="outline" onClick={() => { setShowImport(true); setCsvRows([]); setImportResult(null); }}>
+            <Upload className="w-4 h-4 mr-2" />
+            Importer CSV
+          </Button>
           <Button onClick={openAddForm}>
             <Plus className="w-4 h-4 mr-2" />
             Nouveau client
@@ -459,6 +544,89 @@ export default function ClientsPage() {
           </div>
         </div>
       )}
+
+      {/* CSV Import Dialog */}
+      <Dialog open={showImport} onOpenChange={(open) => { if (!open) closeImport(); }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Importer des clients depuis un CSV</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" onClick={downloadTemplate}>
+                <Download className="w-4 h-4 mr-2" />
+                Télécharger le modèle CSV
+              </Button>
+              <span className="text-xs text-muted-foreground">Colonnes : Nom, Email, Telephone, Adresse, Ville, Type, Notes</span>
+            </div>
+            <div>
+              <Label className="mb-2 block">Sélectionner un fichier CSV</Label>
+              <input
+                type="file"
+                accept=".csv"
+                className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-muted file:text-foreground hover:file:bg-muted/80 cursor-pointer"
+                onChange={handleFileChange}
+              />
+            </div>
+
+            {csvRows.length > 0 && !importResult && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-foreground">{csvRows.length} ligne(s) détectée(s) — Aperçu (5 premières)</p>
+                <div className="overflow-x-auto rounded-lg border border-border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50">
+                        {Object.keys(csvRows[0]).map((h) => (
+                          <TableHead key={h} className="text-xs font-semibold">{h}</TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {csvRows.slice(0, 5).map((row, i) => (
+                        <TableRow key={i}>
+                          {Object.values(row).map((v, j) => (
+                            <TableCell key={j} className="text-xs text-muted-foreground truncate max-w-[120px]">{v || "—"}</TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
+
+            {importResult && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm font-medium text-emerald-600">
+                  <CheckCircle2 className="w-4 h-4" />
+                  {importResult.imported} client(s) importé(s) avec succès
+                </div>
+                {importResult.errors.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-sm font-medium text-amber-600">
+                      <AlertCircle className="w-4 h-4" />
+                      {importResult.errors.length} erreur(s)
+                    </div>
+                    <ul className="text-xs text-muted-foreground space-y-0.5 max-h-32 overflow-y-auto">
+                      {importResult.errors.map((e, i) => <li key={i}>{e}</li>)}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={closeImport}>Fermer</Button>
+              {csvRows.length > 0 && !importResult && (
+                <Button onClick={handleImport} disabled={importing}>
+                  {importing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Importer {csvRows.length} client(s)
+                </Button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

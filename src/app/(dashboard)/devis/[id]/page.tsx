@@ -24,6 +24,9 @@ import {
   FileDown,
   MessageCircle,
   Mail,
+  PenLine,
+  Copy,
+  Check,
 } from "lucide-react";
 import Link from "next/link";
 import { exportQuotePDF } from "@/lib/export";
@@ -56,6 +59,9 @@ export default function QuoteDetailPage() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [emailInput, setEmailInput] = useState<string | null>(null);
   const [emailSending, setEmailSending] = useState(false);
+  const [signLoading, setSignLoading] = useState(false);
+  const [signLink, setSignLink] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetch(`/api/quotes/${id}`)
@@ -129,6 +135,29 @@ export default function QuoteDetailPage() {
       toast({ title: "Erreur", description: "Impossible de supprimer", variant: "destructive" });
     }
     setActionLoading(false);
+  }
+
+  async function handleSignRequest() {
+    setSignLoading(true);
+    try {
+      const res = await fetch(`/api/quotes/${id}/sign-request`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setSignLink(data.signingUrl);
+        toast({ title: "Lien de signature généré", description: "Copiez et partagez ce lien avec votre client" });
+      } else {
+        toast({ title: "Erreur", description: data.error, variant: "destructive" });
+      }
+    } finally {
+      setSignLoading(false);
+    }
+  }
+
+  async function copySignLink() {
+    if (!signLink) return;
+    await navigator.clipboard.writeText(signLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   if (loading) {
@@ -241,6 +270,19 @@ export default function QuoteDetailPage() {
                 </Button>
               </div>
             )}
+            {(quote.status === "DRAFT" || quote.status === "SENT") && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-violet-600 border-violet-300 hover:bg-violet-50"
+                disabled={signLoading}
+                onClick={handleSignRequest}
+              >
+                {signLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <PenLine className="w-4 h-4 mr-2" />}
+                Demander signature
+              </Button>
+            )}
+
             <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${STATUS_COLORS[quote.status as QuoteStatus]}`}>
               {STATUS_LABELS[quote.status as QuoteStatus]}
             </span>
@@ -314,6 +356,52 @@ export default function QuoteDetailPage() {
             )}
           </div>
         </div>
+
+        {/* Signing link panel */}
+        {signLink && (
+          <div className="bg-violet-50 dark:bg-violet-900/10 border border-violet-200 dark:border-violet-800 rounded-xl p-4">
+            <p className="text-sm font-semibold text-violet-700 dark:text-violet-400 mb-2">Lien de signature généré</p>
+            <div className="flex items-center gap-2">
+              <input
+                readOnly
+                value={signLink}
+                className="flex-1 text-xs bg-white dark:bg-background border border-border rounded-lg px-3 py-2 font-mono text-muted-foreground focus:outline-none"
+              />
+              <Button size="sm" variant="outline" className="shrink-0" onClick={copySignLink}>
+                {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="shrink-0 text-green-600 border-green-300 hover:bg-green-50"
+                onClick={() => {
+                  const msg = encodeURIComponent(`Bonjour ${client?.name || ""},\n\nMerci de signer notre devis *${quote.number}* en cliquant sur ce lien :\n${signLink}\n\nCordialement`);
+                  const phone = client?.phone?.replace(/\D/g, "");
+                  const url = phone
+                    ? `https://wa.me/${phone.startsWith("237") ? phone : `237${phone}`}?text=${msg}`
+                    : `https://wa.me/?text=${msg}`;
+                  window.open(url, "_blank");
+                }}
+              >
+                <MessageCircle className="w-4 h-4" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">Ce lien permet à votre client d&apos;accepter ou refuser le devis directement depuis son appareil.</p>
+          </div>
+        )}
+
+        {/* Signed indicator */}
+        {(quote as unknown as { signedAt?: string | null }).signedAt && (
+          <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Devis signé électroniquement</p>
+              <p className="text-xs text-muted-foreground">
+                Accepté le {new Date((quote as unknown as { signedAt: string }).signedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Info cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

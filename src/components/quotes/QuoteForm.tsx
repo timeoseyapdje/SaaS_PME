@@ -19,9 +19,25 @@ import { Separator } from "@/components/ui/separator";
 import { formatCurrency } from "@/lib/currency";
 import { CAMEROON_TAX } from "@/lib/tax";
 import { Client } from "@/types";
-import { Plus, Trash2, Loader2, Save, Send, BookOpen } from "lucide-react";
+import { Plus, Trash2, Loader2, Save, Send, BookOpen, LayoutTemplate, ChevronDown, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ProductPickerDialog } from "@/components/ui/product-picker-dialog";
+
+interface TemplateItem {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  unit?: string | null;
+}
+
+interface Template {
+  id: string;
+  name: string;
+  notes?: string | null;
+  paymentTerms?: string | null;
+  applyTVA: boolean;
+  items: TemplateItem[];
+}
 
 interface LineItem {
   description: string;
@@ -37,6 +53,12 @@ export function QuoteForm() {
   const [loadingClients, setLoadingClients] = useState(true);
 
   const [pickerIndex, setPickerIndex] = useState<number | null>(null);
+
+  // Template picker state
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+
   const [clientId, setClientId] = useState("");
   const [validUntil, setValidUntil] = useState(() => {
     const d = new Date();
@@ -58,6 +80,36 @@ export function QuoteForm() {
       })
       .catch(() => setLoadingClients(false));
   }, []);
+
+  async function openTemplatePicker() {
+    setShowTemplatePicker(true);
+    if (templates.length > 0) return;
+    setLoadingTemplates(true);
+    try {
+      const res = await fetch("/api/templates?type=QUOTE");
+      if (res.ok) {
+        const data = await res.json();
+        setTemplates(Array.isArray(data) ? data : []);
+      }
+    } finally {
+      setLoadingTemplates(false);
+    }
+  }
+
+  function applyTemplate(template: Template) {
+    setItems(
+      template.items.map((item) => ({
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+      }))
+    );
+    if (template.notes) setNotes(template.notes);
+    if (template.paymentTerms) setTerms(template.paymentTerms);
+    setApplyTVA(template.applyTVA);
+    setShowTemplatePicker(false);
+    toast({ title: "Modèle chargé", description: `"${template.name}" a été appliqué` });
+  }
 
   const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
   const tva = applyTVA ? subtotal * CAMEROON_TAX.TVA_RATE : 0;
@@ -112,6 +164,64 @@ export function QuoteForm() {
 
   return (
     <div className="space-y-6">
+      {/* Template picker */}
+      <div className="flex items-center justify-end relative">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={openTemplatePicker}
+          className="flex items-center gap-2"
+        >
+          <LayoutTemplate className="w-4 h-4" />
+          Charger un modèle
+          <ChevronDown className="w-3.5 h-3.5 ml-0.5" />
+        </Button>
+        {showTemplatePicker && (
+          <>
+            <div className="fixed inset-0 z-30" onClick={() => setShowTemplatePicker(false)} />
+            <div className="absolute right-0 top-9 z-40 w-80 bg-card border border-border rounded-xl shadow-lg overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                <span className="text-sm font-semibold">Modèles de devis</span>
+                <button onClick={() => setShowTemplatePicker(false)} className="text-muted-foreground hover:text-foreground">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="max-h-72 overflow-y-auto">
+                {loadingTemplates ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : templates.length === 0 ? (
+                  <div className="text-center py-8 text-sm text-muted-foreground">
+                    <LayoutTemplate className="w-6 h-6 mx-auto mb-2 opacity-40" />
+                    Aucun modèle de devis
+                  </div>
+                ) : (
+                  templates.map((template) => {
+                    const sub = template.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+                    return (
+                      <button
+                        key={template.id}
+                        type="button"
+                        onClick={() => applyTemplate(template)}
+                        className="w-full text-left px-4 py-3 hover:bg-muted/60 transition-colors border-b border-border/50 last:border-0"
+                      >
+                        <p className="text-sm font-medium text-foreground">{template.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {template.items.length} ligne{template.items.length > 1 ? "s" : ""} —{" "}
+                          {formatCurrency(sub, "XAF")}
+                        </p>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Informations générales</CardTitle>
