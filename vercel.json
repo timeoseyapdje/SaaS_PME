@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/cleanup-inactive?secret=${CRON_SECRET}",
       "schedule": "0 3 1 * *"
+    },
+    {
+      "path": "/api/cron/send-reminders?secret=${CRON_SECRET}",
+      "schedule": "0 8 * * *"
     }
   ]
 }

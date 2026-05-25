@@ -5,35 +5,33 @@ import { requirePermission, isNextResponse } from "@/lib/auth-permissions";
 
 export async function GET(request: Request) {
   try {
-    const result = await requirePermission("invoices", "view");
+    const result = await requirePermission("expenses", "view");
     if (isNextResponse(result)) return result;
     const companyId = result.session.user.companyId;
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
-    const clientId = searchParams.get("clientId");
     const search = searchParams.get("search");
 
     const where: Record<string, unknown> = { companyId };
     if (status && status !== "ALL") where.status = status;
-    if (clientId) where.clientId = clientId;
     if (search) {
       where.OR = [
         { number: { contains: search, mode: "insensitive" } },
-        { client: { name: { contains: search, mode: "insensitive" } } },
+        { supplier: { name: { contains: search, mode: "insensitive" } } },
       ];
     }
 
-    const invoices = await prisma.invoice.findMany({
+    const purchaseOrders = await prisma.purchaseOrder.findMany({
       where,
       include: {
-        client: { select: { id: true, name: true, email: true } },
+        supplier: { select: { id: true, name: true, email: true, phone: true } },
         items: true,
       },
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(invoices);
+    return NextResponse.json(purchaseOrders);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
@@ -42,68 +40,82 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const result = await requirePermission("invoices", "create");
+    const result = await requirePermission("expenses", "create");
     if (isNextResponse(result)) return result;
     const companyId = result.session.user.companyId;
 
     const body = await request.json();
-    const { clientId, dueDate, items, notes, terms, currency, applyTVA, status, isRecurring, recurrenceInterval, nextDueDate } = body;
+    const { supplierId, notes, expectedAt, applyTVA, items } = body;
 
-    if (!clientId || !dueDate || !items || items.length === 0) {
+    if (!items || items.length === 0) {
       return NextResponse.json(
-        { error: "Données manquantes: clientId, dueDate et items sont requis" },
+        { error: "Au moins un article est requis" },
         { status: 400 }
       );
     }
 
-    // Auto-generate invoice number
-    const count = await prisma.invoice.count({ where: { companyId } });
-    const year = new Date().getFullYear();
-    const number = `FAC-${year}-${String(count + 1).padStart(4, "0")}`;
+    for (const item of items) {
+      if (!item.description || item.description.trim() === "") {
+        return NextResponse.json(
+          { error: "Chaque article doit avoir une description" },
+          { status: 400 }
+        );
+      }
+      if (item.quantity <= 0 || item.unitPrice < 0) {
+        return NextResponse.json(
+          { error: "Quantité et prix unitaire invalides" },
+          { status: 400 }
+        );
+      }
+    }
 
-    const subtotal = items.reduce(
+    const count = await prisma.purchaseOrder.count({ where: { companyId } });
+    const year = new Date().getFullYear();
+    const number = `BC-${year}-${String(count + 1).padStart(4, "0")}`;
+
+    const totalHT = items.reduce(
       (sum: number, item: { quantity: number; unitPrice: number }) =>
         sum + item.quantity * item.unitPrice,
       0
     );
-    const { tva, total } = calculateInvoiceTotal(subtotal, applyTVA ?? true);
+    const { tva, total } = calculateInvoiceTotal(totalHT, applyTVA ?? true);
 
-    const invoice = await prisma.invoice.create({
+    const purchaseOrder = await prisma.purchaseOrder.create({
       data: {
         companyId,
-        clientId,
+        supplierId: supplierId || null,
         number,
-        status: status || "DRAFT",
-        dueDate: new Date(dueDate),
-        currency: currency || "XAF",
-        subtotal,
-        tvaAmount: tva,
-        total,
+        status: "DRAFT",
+        notes: notes || null,
+        expectedAt: expectedAt ? new Date(expectedAt) : null,
         applyTVA: applyTVA ?? true,
-        notes,
-        terms,
-        isRecurring: isRecurring ?? false,
-        recurrenceInterval: isRecurring ? (recurrenceInterval || null) : null,
-        nextDueDate: isRecurring && nextDueDate ? new Date(nextDueDate) : null,
+        totalHT,
+        totalTVA: tva,
+        totalTTC: total,
         items: {
           create: items.map(
             (item: {
               description: string;
               quantity: number;
               unitPrice: number;
+              unit?: string;
             }) => ({
               description: item.description,
               quantity: item.quantity,
               unitPrice: item.unitPrice,
+              unit: item.unit || null,
               total: item.quantity * item.unitPrice,
             })
           ),
         },
       },
-      include: { client: true, items: true },
+      include: {
+        supplier: { select: { id: true, name: true, email: true, phone: true } },
+        items: true,
+      },
     });
 
-    return NextResponse.json(invoice, { status: 201 });
+    return NextResponse.json(purchaseOrder, { status: 201 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

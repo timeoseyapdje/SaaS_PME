@@ -220,6 +220,240 @@ export async function GET(request: Request) {
       });
     }
 
+    if (type === "tva-detail") {
+      // Detailed TVA data with monthly breakdown
+      const [sentPaidInvoices, allExpenses] = await Promise.all([
+        prisma.invoice.findMany({
+          where: {
+            companyId,
+            status: { in: ["SENT", "PAID"] },
+            issueDate: { gte: startOfYear, lte: endOfYear },
+          },
+          select: {
+            subtotal: true,
+            tvaAmount: true,
+            applyTVA: true,
+            issueDate: true,
+            paidAt: true,
+            status: true,
+          },
+        }),
+        prisma.expense.findMany({
+          where: {
+            companyId,
+            date: { gte: startOfYear, lte: endOfYear },
+          },
+          select: { amount: true, date: true },
+        }),
+      ]);
+
+      const tvaRate = CAMEROON_TAX.TVA_RATE;
+
+      const tvaCollectee = sentPaidInvoices.reduce(
+        (sum, inv) => sum + inv.tvaAmount,
+        0
+      );
+      const totalExpensesForTVA = allExpenses.reduce(
+        (sum, e) => sum + e.amount,
+        0
+      );
+      const tvaDeductible = calculateTVA(totalExpensesForTVA);
+      const tvaSolde = tvaCollectee - tvaDeductible;
+
+      // Monthly breakdown
+      const monthlyTVA = [];
+      for (let m = 0; m < 12; m++) {
+        const monthStart = new Date(year, m, 1);
+        const monthEnd = new Date(year, m + 1, 0, 23, 59, 59);
+        const monthLabel = monthStart.toLocaleDateString("fr-FR", { month: "long" });
+
+        const monthInvoices = sentPaidInvoices.filter((inv) => {
+          const d = inv.issueDate;
+          return d >= monthStart && d <= monthEnd;
+        });
+        const monthExpenses = allExpenses.filter((e) => {
+          return e.date >= monthStart && e.date <= monthEnd;
+        });
+
+        const mCollectee = monthInvoices.reduce((sum, inv) => sum + inv.tvaAmount, 0);
+        const mExpAmt = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+        const mDeductible = calculateTVA(mExpAmt);
+
+        monthlyTVA.push({
+          period: monthLabel,
+          tvaCollectee: mCollectee,
+          tvaDeductible: mDeductible,
+          solde: mCollectee - mDeductible,
+        });
+      }
+
+      return NextResponse.json({
+        type: "tva-detail",
+        period: year,
+        tvaRate: tvaRate * 100,
+        tvaCollectee,
+        tvaDeductible,
+        tvaSolde,
+        monthlyBreakdown: monthlyTVA,
+      });
+    }
+
+    if (type === "is-detail") {
+      // IS detail with full breakdown
+      const [paidInvoices, otherRevenues, allExpenses] = await Promise.all([
+        prisma.invoice.aggregate({
+          where: {
+            companyId,
+            status: "PAID",
+            paidAt: { gte: startOfYear, lte: endOfYear },
+          },
+          _sum: { subtotal: true },
+        }),
+        prisma.revenue.aggregate({
+          where: { companyId, date: { gte: startOfYear, lte: endOfYear } },
+          _sum: { amount: true },
+        }),
+        prisma.expense.aggregate({
+          where: { companyId, date: { gte: startOfYear, lte: endOfYear } },
+          _sum: { amount: true },
+        }),
+      ]);
+
+      const chiffreAffaires =
+        (paidInvoices._sum.subtotal || 0) + (otherRevenues._sum.amount || 0);
+      const chargesDeductibles = allExpenses._sum.amount || 0;
+      const resultatNet = chiffreAffaires - chargesDeductibles;
+      const tauxIS = CAMEROON_TAX.IS_RATE;
+      const isEstime = resultatNet > 0 ? resultatNet * tauxIS : 0;
+
+      return NextResponse.json({
+        type: "is-detail",
+        period: year,
+        chiffreAffaires,
+        chargesDeductibles,
+        resultatNet,
+        tauxIS: tauxIS * 100,
+        isEstime,
+      });
+    }
+
+    if (type === "cashflow-forecast") {
+      // Cash flow forecast for next 90 days
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const end90 = new Date(today);
+      end90.setDate(end90.getDate() + 90);
+
+      // Unpaid invoices with future due dates (SENT or OVERDUE)
+      const pendingInvoices = await prisma.invoice.findMany({
+        where: {
+          companyId,
+          status: { in: ["SENT", "OVERDUE"] },
+          dueDate: { gte: today, lte: end90 },
+        },
+        select: {
+          id: true,
+          number: true,
+          total: true,
+          dueDate: true,
+          status: true,
+          client: { select: { name: true } },
+        },
+        orderBy: { dueDate: "asc" },
+      });
+
+      // Recurring expenses: fetch last 3 months and compute monthly average
+      const threeMonthsAgo = new Date(today);
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+      const recentExpenses = await prisma.expense.aggregate({
+        where: {
+          companyId,
+          date: { gte: threeMonthsAgo, lte: today },
+        },
+        _sum: { amount: true },
+        _count: true,
+      });
+
+      const totalRecentExpenses = recentExpenses._sum.amount || 0;
+      const monthlyExpenseAvg = totalRecentExpenses / 3;
+      const weeklyExpenseAvg = monthlyExpenseAvg / 4.33;
+
+      // Build weekly buckets (13 weeks covers 91 days)
+      const weeks: Array<{
+        weekLabel: string;
+        weekStart: string;
+        weekEnd: string;
+        entrees: number;
+        sorties: number;
+        invoices: Array<{ id: string; number: string; client: string; amount: number; dueDate: string }>;
+      }> = [];
+
+      for (let w = 0; w < 13; w++) {
+        const weekStart = new Date(today);
+        weekStart.setDate(weekStart.getDate() + w * 7);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        weekEnd.setHours(23, 59, 59, 999);
+
+        if (weekStart > end90) break;
+
+        const effectiveEnd = weekEnd > end90 ? end90 : weekEnd;
+
+        const weekInvoices = pendingInvoices.filter((inv) => {
+          return inv.dueDate >= weekStart && inv.dueDate <= effectiveEnd;
+        });
+
+        const entrees = weekInvoices.reduce((sum, inv) => sum + inv.total, 0);
+
+        const weekNum = w + 1;
+        const weekLabel = `Sem. ${weekNum} (${weekStart.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })})`;
+
+        weeks.push({
+          weekLabel,
+          weekStart: weekStart.toISOString().split("T")[0],
+          weekEnd: effectiveEnd.toISOString().split("T")[0],
+          entrees,
+          sorties: weeklyExpenseAvg,
+          invoices: weekInvoices.map((inv) => ({
+            id: inv.id,
+            number: inv.number,
+            client: inv.client?.name || "—",
+            amount: inv.total,
+            dueDate: inv.dueDate.toISOString().split("T")[0],
+          })),
+        });
+      }
+
+      // Add cumulative running total
+      let cumulative = 0;
+      const weeksWithCumulative = weeks.map((w) => {
+        cumulative += w.entrees - w.sorties;
+        return { ...w, cumulatif: cumulative };
+      });
+
+      // Raw inflows list
+      const rawInflows = pendingInvoices.map((inv) => ({
+        id: inv.id,
+        number: inv.number,
+        client: inv.client?.name || "—",
+        amount: inv.total,
+        dueDate: inv.dueDate.toISOString().split("T")[0],
+        status: inv.status,
+      }));
+
+      return NextResponse.json({
+        type: "cashflow-forecast",
+        generatedAt: today.toISOString(),
+        forecastEnd: end90.toISOString(),
+        monthlyExpenseAvg,
+        weeklyExpenseAvg,
+        totalExpectedInflows: pendingInvoices.reduce((sum, inv) => sum + inv.total, 0),
+        rawInflows,
+        weeklyData: weeksWithCumulative,
+      });
+    }
+
     return NextResponse.json({ error: "Type de rapport inconnu" }, { status: 400 });
   } catch (error) {
     console.error(error);

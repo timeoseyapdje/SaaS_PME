@@ -3,9 +3,11 @@
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Loader2, Mail, CheckCircle2, RefreshCw } from "lucide-react";
+import { Loader2, Mail, CheckCircle2, RefreshCw, Clock, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+const CODE_TTL = 30 * 60; // 30 minutes in seconds
 
 function VerifyEmailContent() {
   const router = useRouter();
@@ -17,19 +19,39 @@ function VerifyEmailContent() {
   const [resending, setResending] = useState(false);
   const [error, setError] = useState("");
   const [resent, setResent] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(CODE_TTL);
   const didAutoSkip = useRef(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  function startTimer() {
+    setTimeLeft(CODE_TTL);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) {
+          clearInterval(timerRef.current!);
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+  }
+
+  useEffect(() => {
+    startTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // If Resend is not configured, the API returns emailSent:false — auto-verify and continue
   useEffect(() => {
     if (!email || didAutoSkip.current) return;
-    // Check if we should skip verification (no email service)
     fetch("/api/email/verify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     }).then(r => r.json()).then(d => {
       if (d.emailSent === false) {
-        // No email service — auto-verify and sign in
         didAutoSkip.current = true;
         autoSignIn();
       }
@@ -42,7 +64,6 @@ function VerifyEmailContent() {
     if (!stored) { router.push("/login"); return; }
     const { email: e, password } = JSON.parse(stored);
     sessionStorage.removeItem("pending_verify");
-    // Mark email as verified without code (no email service fallback)
     await fetch("/api/email/verify", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -59,6 +80,7 @@ function VerifyEmailContent() {
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
     if (code.length !== 6) { setError("Entrez les 6 chiffres du code."); return; }
+    if (timeLeft === 0) { setError("Le code a expiré. Renvoyez un nouveau code."); return; }
     setError("");
     setLoading(true);
     try {
@@ -70,7 +92,6 @@ function VerifyEmailContent() {
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Code invalide ou expiré."); return; }
 
-      // Auto sign-in using stored credentials
       const stored = sessionStorage.getItem("pending_verify");
       if (stored) {
         const { email: e, password } = JSON.parse(stored);
@@ -81,7 +102,6 @@ function VerifyEmailContent() {
           return;
         }
       }
-      // Fallback if credentials not stored (e.g. page was refreshed)
       router.push("/login");
     } catch {
       setError("Erreur réseau. Veuillez réessayer.");
@@ -101,11 +121,17 @@ function VerifyEmailContent() {
         body: JSON.stringify({ email }),
       });
       setResent(true);
+      startTimer();
       setTimeout(() => setResent(false), 4000);
     } finally {
       setResending(false);
     }
   }
+
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  const isExpired = timeLeft === 0;
+  const isUrgent = timeLeft > 0 && timeLeft <= 5 * 60;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -123,6 +149,20 @@ function VerifyEmailContent() {
           <p className="text-sm font-semibold text-foreground">{email}</p>
         </div>
 
+        {/* Countdown timer */}
+        <div className={`flex items-center justify-center gap-2 text-sm font-medium px-4 py-2.5 rounded-xl border ${
+          isExpired
+            ? "bg-destructive/10 border-destructive/20 text-destructive"
+            : isUrgent
+            ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+            : "bg-muted border-border text-muted-foreground"
+        }`}>
+          {isExpired
+            ? <><AlertTriangle className="w-4 h-4" /> Code expiré — renvoyez-en un nouveau</>
+            : <><Clock className="w-4 h-4" /> Code valide encore {minutes}:{seconds.toString().padStart(2, "0")}</>
+          }
+        </div>
+
         <form onSubmit={handleVerify} className="space-y-4 text-left">
           <Input
             type="text"
@@ -133,11 +173,12 @@ function VerifyEmailContent() {
             onChange={e => setCode(e.target.value.replace(/\D/g, ""))}
             className="text-center text-3xl tracking-[0.6em] font-bold h-14"
             autoFocus
+            disabled={isExpired}
           />
           {error && (
             <p className="text-sm text-destructive bg-destructive/10 px-4 py-3 rounded-lg text-center">{error}</p>
           )}
-          <Button type="submit" className="w-full h-12 text-base" disabled={loading || code.length !== 6}>
+          <Button type="submit" className="w-full h-12 text-base" disabled={loading || code.length !== 6 || isExpired}>
             {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <CheckCircle2 className="w-5 h-5 mr-2" />}
             Confirmer et continuer
           </Button>
@@ -151,8 +192,11 @@ function VerifyEmailContent() {
             className="text-sm text-emerald-600 dark:text-emerald-400 font-medium hover:underline flex items-center gap-1 mx-auto"
           >
             {resending ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-            {resent ? "Code renvoyé !" : "Renvoyer le code"}
+            {resent ? "Code renvoyé ! Vérifiez Gmail." : "Renvoyer le code"}
           </button>
+          <p className="text-xs text-muted-foreground">
+            Ouvrez Gmail dans un autre onglet — le code est valable 30 minutes.
+          </p>
         </div>
       </div>
     </div>
