@@ -156,6 +156,28 @@ export function exportInvoicePDF(invoice: InvoiceForPDF) {
     }
   }
 
+  // Payment reference box (bottom right)
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const boxW = 70;
+  const boxH = 22;
+  const boxX = pageWidth - 20 - boxW;
+  const boxY = pageHeight - 20 - boxH;
+  doc.setDrawColor(16, 185, 129); // emerald
+  doc.setFillColor(240, 253, 244); // emerald-50
+  doc.roundedRect(boxX, boxY, boxW, boxH, 2, 2, "FD");
+  doc.setFontSize(6);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(5, 150, 105); // emerald-600
+  doc.text("RÉFÉRENCE DE PAIEMENT", boxX + 3, boxY + 5);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0, 0, 0);
+  doc.text(invoice.number, boxX + 3, boxY + 12);
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(80, 80, 80);
+  doc.text(formatCurrency(invoice.total, invoice.currency), boxX + 3, boxY + 18);
+
   doc.save(`Facture_${invoice.number}.pdf`);
 }
 

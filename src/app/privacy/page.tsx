@@ -54,8 +54,10 @@ export default function PrivacyPage() {
 
             <h3 className="text-sm font-semibold text-foreground mt-4 mb-2">2.3 Données financières et commerciales</h3>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Factures émises et reçues</li>
-              <li>Devis et propositions commerciales (numéros DEV-YYYY-XXXX, statuts, montants)</li>
+              <li>Factures émises et avoirs (notes de crédit)</li>
+              <li>Devis et propositions commerciales (numéros DEV-YYYY-XXXX, statuts, montants, date et token de signature)</li>
+              <li>Modèles de documents (factures et devis)</li>
+              <li>Bons de commande fournisseurs</li>
               <li>Dépenses et revenus</li>
               <li>Soldes des comptes bancaires et mobile money</li>
               <li>Informations sur les clients et fournisseurs (nom, email, téléphone, adresse)</li>
@@ -63,6 +65,13 @@ export default function PrivacyPage() {
               <li>Commandes et leur statut (En attente, Confirmé, Livré, etc.)</li>
               <li>Historique des mouvements de stock</li>
               <li>Liens de paiement générés et transactions associées</li>
+            </ul>
+
+            <h3 className="text-sm font-semibold text-foreground mt-4 mb-2">2.3bis Données de signature numérique</h3>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Token de signature unique (à usage unique, supprimé après utilisation)</li>
+              <li>Date et heure d&apos;acceptation ou de refus d&apos;un devis</li>
+              <li>Ces données sont liées au devis et conservées tant que le devis existe dans le système</li>
             </ul>
 
             <h3 className="text-sm font-semibold text-foreground mt-4 mb-2">2.4 Données de paiement</h3>
@@ -87,8 +96,9 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-5 space-y-1.5 mt-2">
               <li>Fournir et améliorer les services de la plateforme</li>
               <li>Gérer votre compte et votre abonnement</li>
-              <li>Générer vos factures, devis, rapports et déclarations fiscales</li>
+              <li>Générer vos factures, avoirs, devis, modèles, bons de commande, rapports et déclarations fiscales</li>
               <li>Envoyer vos factures et devis par email à vos clients (via Resend) lorsque vous utilisez la fonction d&apos;envoi</li>
+              <li>Générer des liens de signature numérique à usage unique pour vos devis</li>
               <li>Pré-remplir les messages WhatsApp avec les informations de la facture ou du devis (montant, numéro, échéance) — aucune donnée n&apos;est transmise à WhatsApp sans action explicite de votre part</li>
               <li>Fournir les analyses de l&apos;assistant Nkap AI</li>
               <li>Envoyer des notifications relatives à votre compte (emails transactionnels)</li>
@@ -140,6 +150,7 @@ export default function PrivacyPage() {
               <li>Les comptes dont le poste ne dispose que de permissions de lecture et inactifs depuis <strong className="text-foreground">6 mois</strong> sont automatiquement supprimés (notification envoyée 30 jours avant)</li>
               <li>En cas de suppression de compte, les données sont effacées dans un délai de 30 jours</li>
               <li>Les données de paiement sont conservées 5 ans conformément aux obligations légales</li>
+              <li>Les tokens de signature numérique sont supprimés immédiatement après utilisation (acceptation ou refus). La date de signature (<em>signedAt</em>) est conservée tant que le devis existe</li>
             </ul>
           </section>
 
