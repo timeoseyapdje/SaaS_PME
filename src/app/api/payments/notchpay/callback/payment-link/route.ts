@@ -112,7 +112,12 @@ export async function GET(req: Request) {
         }
       }
 
-      return NextResponse.redirect(`${baseUrl}/pay/${slug}?status=success`);
+      const confirmedParams = new URLSearchParams({
+        amount: String(transaction?.amount ?? ""),
+        currency: transaction?.paymentLink.currency ?? "XAF",
+        title: transaction?.paymentLink.title ?? "",
+      });
+      return NextResponse.redirect(`${baseUrl}/pay/${slug}/confirmed?${confirmedParams.toString()}`);
     }
 
     return NextResponse.redirect(`${baseUrl}/pay/${slug}?status=pending`);

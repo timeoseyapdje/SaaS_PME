@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { Loader2, CheckCircle2, Smartphone, Building2, ArrowLeft, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,7 @@ export default function PublicPaymentPage() {
 function PaymentPageContent() {
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const slug = params.slug as string;
   const urlStatus = searchParams.get("status");
   const [data, setData] = useState<PaymentLinkData | null>(null);
@@ -49,6 +50,8 @@ function PaymentPageContent() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(urlStatus === "success");
   const [directCharge, setDirectCharge] = useState(false);
+  const [transactionId, setTransactionId] = useState<string | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchLink = useCallback(async () => {
     try {
@@ -60,6 +63,37 @@ function PaymentPageContent() {
   }, [slug]);
 
   useEffect(() => { fetchLink(); }, [fetchLink]);
+
+  useEffect(() => {
+    if (!directCharge || !transactionId) return;
+    let attempts = 0;
+    pollRef.current = setInterval(async () => {
+      attempts++;
+      if (attempts > 100) { clearInterval(pollRef.current!); return; }
+      try {
+        const res = await fetch(`/api/pay/${slug}/status?txId=${transactionId}`);
+        if (!res.ok) return;
+        const d = await res.json();
+        if (d.status === "COMPLETED") {
+          clearInterval(pollRef.current!);
+          const params = new URLSearchParams({
+            amount: String(d.amount ?? ""),
+            currency: d.currency ?? "XAF",
+            title: d.title ?? "",
+            phone: phone || "",
+          });
+          router.push(`/pay/${slug}/confirmed?${params.toString()}`);
+        } else if (d.status === "FAILED") {
+          clearInterval(pollRef.current!);
+          setError("Le paiement a échoué. Veuillez réessayer.");
+          setSuccess(false);
+          setDirectCharge(false);
+          setTransactionId(null);
+        }
+      } catch { /* ignore network errors during polling */ }
+    }, 3000);
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+  }, [directCharge, transactionId, slug, phone, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -77,6 +111,7 @@ function PaymentPageContent() {
       if (d.checkoutUrl) {
         window.location.href = d.checkoutUrl;
       } else if (d.directCharge) {
+        setTransactionId(d.transactionId ?? null);
         setDirectCharge(true);
         setSuccess(true);
       } else {
@@ -123,11 +158,17 @@ function PaymentPageContent() {
           {urlStatus === "success" ? (
             <>Votre paiement de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été effectué avec succès.</>
           ) : directCharge ? (
-            <>Une demande de paiement de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été envoyée sur votre téléphone. Confirmez avec votre code PIN Mobile Money.</>
+            <>Une demande de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été envoyée sur votre téléphone par NotchPay. Approuvez avec votre code PIN Mobile Money.</>
           ) : (
-            <>Votre demande de paiement de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été enregistrée. {data?.company.name} vous contactera pour confirmer le paiement.</>
+            <>Votre demande de paiement de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été enregistrée.</>
           )}
         </p>
+        {directCharge && (
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            En attente de votre confirmation…
+          </div>
+        )}
         {data?.company.phone && (
           <a href={`tel:${data.company.phone}`} className="inline-flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 font-medium">
             <Smartphone className="w-4 h-4" /> {data.company.phone}
@@ -205,7 +246,7 @@ function PaymentPageContent() {
                 placeholder="6XX XXX XXX"
                 required
               />
-              <p className="text-xs text-muted-foreground">Le marchand initiera le paiement sur ce numéro.</p>
+              <p className="text-xs text-muted-foreground">NotchPay enverra une demande de paiement sur ce numéro. Approuvez avec votre code PIN Mobile Money.</p>
             </div>
           )}
 

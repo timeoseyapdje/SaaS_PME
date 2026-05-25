@@ -111,6 +111,7 @@ export default function TreasuryPage() {
   const [formBankName, setFormBankName] = useState("");
   const [formBalance, setFormBalance] = useState("0");
   const [formPhone, setFormPhone] = useState("");
+  const [formIsDefault, setFormIsDefault] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
 
   const fetchAccounts = useCallback(async () => {
@@ -147,6 +148,7 @@ export default function TreasuryPage() {
     setFormBankName("");
     setFormBalance("0");
     setFormPhone("");
+    setFormIsDefault(false);
     setShowForm(true);
   }
 
@@ -157,6 +159,7 @@ export default function TreasuryPage() {
     setFormBankName(account.bankName || "");
     setFormBalance(String(account.balance));
     setFormPhone((account as BankAccount & { phoneNumber?: string }).phoneNumber || "");
+    setFormIsDefault(account.isDefault || false);
     setShowForm(true);
   }
 
@@ -170,6 +173,7 @@ export default function TreasuryPage() {
         bankName: formBankName || null,
         balance: parseFloat(formBalance),
         phoneNumber: ["MTN_MONEY", "ORANGE_MONEY"].includes(formType) ? formPhone || null : null,
+        isDefault: formIsDefault,
       };
       if (editAccount) {
         await fetch("/api/treasury", {
@@ -377,6 +381,21 @@ export default function TreasuryPage() {
                 onChange={(e) => setFormBalance(e.target.value)}
               />
             </div>
+            <label className="flex items-start gap-3 p-3 rounded-xl border border-border hover:bg-muted/50 cursor-pointer transition-colors">
+              <input
+                type="checkbox"
+                checked={formIsDefault}
+                onChange={(e) => setFormIsDefault(e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-emerald-500"
+              />
+              <div>
+                <p className="text-sm font-medium text-foreground">Compte principal</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Les reversements automatiques (Mobile Money) seront envoyés sur ce compte.
+                  Un seul compte peut être principal à la fois.
+                </p>
+              </div>
+            </label>
             <div className="flex justify-end gap-3">
               <Button
                 type="button"
