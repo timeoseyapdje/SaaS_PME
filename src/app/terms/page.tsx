@@ -15,7 +15,7 @@ export default function TermsPage() {
           Conditions Générales d&apos;Utilisation
         </h1>
         <p className="text-sm text-muted-foreground mb-10">
-          Dernière mise à jour : 15 mai 2026
+          Dernière mise à jour : 25 mai 2026
         </p>
 
         <div className="space-y-8 text-sm leading-relaxed">
@@ -40,7 +40,7 @@ export default function TermsPage() {
               <li><strong className="text-foreground">Utilisateur</strong> : toute personne physique ou morale créant un compte sur la Plateforme</li>
               <li><strong className="text-foreground">Entreprise</strong> : l&apos;entité commerciale associée au compte Utilisateur</li>
               <li><strong className="text-foreground">Abonnement</strong> : le plan souscrit par l&apos;Utilisateur (Starter, Pro ou Max)</li>
-              <li><strong className="text-foreground">Contenu</strong> : toute donnée saisie par l&apos;Utilisateur (factures, dépenses, clients, produits, commandes, liens de paiement, etc.)</li>
+              <li><strong className="text-foreground">Contenu</strong> : toute donnée saisie par l&apos;Utilisateur (factures, devis, dépenses, clients, produits, commandes, liens de paiement, etc.)</li>
             </ul>
           </section>
 
@@ -167,6 +167,20 @@ export default function TermsPage() {
           </section>
 
           <section>
+            <h2 className="text-lg font-semibold text-foreground mb-3">11bis. Envoi de Documents & Partage</h2>
+            <p>
+              La plateforme permet à l&apos;Utilisateur d&apos;envoyer ses factures et devis par email via le service Resend,
+              et de les partager par WhatsApp via un lien généré automatiquement. En utilisant ces fonctionnalités :
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 mt-2">
+              <li>L&apos;Utilisateur est responsable de l&apos;exactitude des adresses email et numéros de téléphone des destinataires</li>
+              <li>L&apos;adresse email expéditeur par défaut est <strong className="text-foreground">noreply@nkapcontrol.com</strong></li>
+              <li>Les liens WhatsApp utilisent le numéro de téléphone associé à la fiche client — il appartient à l&apos;Utilisateur de s&apos;assurer de son exactitude</li>
+              <li>Nkap Control n&apos;est pas responsable des messages non délivrés ou des litiges liés aux informations transmises</li>
+            </ul>
+          </section>
+
+          <section>
             <h2 className="text-lg font-semibold text-foreground mb-3">12. Postes et Permissions</h2>
             <p>
               Nkap Control utilise un système de <strong className="text-foreground">postes hiérarchiques</strong> avec
@@ -180,7 +194,7 @@ export default function TermsPage() {
             </ul>
             <p className="mt-3">
               Chaque poste définit des permissions spécifiques pour chaque module : tableau de bord, factures,
-              dépenses, trésorerie, produits, commandes, clients, fournisseurs, rapports, liens de paiement,
+              devis, dépenses, trésorerie, produits, commandes, clients, fournisseurs, rapports, liens de paiement,
               paramètres et équipe.
             </p>
             <p className="mt-2">
