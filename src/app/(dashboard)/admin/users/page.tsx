@@ -176,7 +176,7 @@ export default function AdminUsersPage() {
             <thead>
               <tr className="border-b border-border">
                 <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Utilisateur</th>
-                <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Rôle</th>
+                <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3 w-40">Rôle</th>
                 <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Entreprise</th>
                 <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Abonnement</th>
                 <th className="text-left text-xs font-medium text-muted-foreground px-4 py-3">Inscription</th>
@@ -219,7 +219,7 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs font-medium px-2 py-1 rounded-full border ${roleBadge(user.role)}`}>
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full border whitespace-nowrap ${roleBadge(user.role)}`}>
                         {ROLE_LABELS[user.role] || user.role}
                       </span>
                     </td>
