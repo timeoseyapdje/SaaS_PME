@@ -100,6 +100,12 @@ export default function AdminUsersPage() {
       (u.company?.name || "").toLowerCase().includes(search.toLowerCase())
   );
 
+  const ROLE_LABELS: Record<string, string> = {
+    ADMIN: "Super Admin",
+    ACCOUNTANT: "Membre entreprise",
+    VIEWER: "Visiteur",
+  };
+
   const roleBadge = (role: string) => {
     const styles: Record<string, string> = {
       ADMIN: "bg-rose-500/10 text-rose-400 border-rose-500/20",
@@ -144,7 +150,7 @@ export default function AdminUsersPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         {[
           { label: "Total", value: users.length, color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
-          { label: "Admins", value: users.filter((u) => u.role === "ADMIN").length, color: "text-rose-400", bg: "bg-rose-500/10 border-rose-500/20" },
+          { label: "Super Admins", value: users.filter((u) => u.role === "ADMIN").length, color: "text-rose-400", bg: "bg-rose-500/10 border-rose-500/20" },
           { label: "Avec entreprise", value: users.filter((u) => u.company).length, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
           { label: "Abonnés Pro/Max", value: users.filter((u) => u.company?.plan === "PRO" || u.company?.plan === "MAX").length, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
         ].map((stat) => (
@@ -214,7 +220,7 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span className={`text-xs font-medium px-2 py-1 rounded-full border ${roleBadge(user.role)}`}>
-                        {user.role}
+                        {ROLE_LABELS[user.role] || user.role}
                       </span>
                     </td>
                     <td className="px-4 py-3">
@@ -263,9 +269,9 @@ export default function AdminUsersPage() {
                                 onChange={(e) => handleRoleChange(user.id, e.target.value)}
                                 className="text-xs bg-muted border border-border rounded-lg px-2 py-1.5 text-foreground outline-none focus:border-primary/50 cursor-pointer"
                               >
-                                <option value="VIEWER">VIEWER</option>
-                                <option value="ACCOUNTANT">ACCOUNTANT</option>
-                                <option value="ADMIN">ADMIN</option>
+                                <option value="VIEWER">VIEWER — Visiteur</option>
+                                <option value="ACCOUNTANT">ACCOUNTANT — Membre entreprise</option>
+                                <option value="ADMIN">ADMIN — Super administrateur</option>
                               </select>
                             )}
                             {confirmDelete?.id === user.id ? (

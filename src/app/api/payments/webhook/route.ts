@@ -47,7 +47,7 @@ export async function POST(request: Request) {
           include: {
             company: {
               include: {
-                users: { where: { role: "ADMIN" }, select: { email: true, name: true }, take: 1 },
+                users: { where: { position: { isOwner: true } }, select: { email: true, name: true }, take: 1 },
               },
             },
           },

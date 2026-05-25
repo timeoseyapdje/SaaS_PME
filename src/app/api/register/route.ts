@@ -92,7 +92,7 @@ export async function POST(request: Request) {
             name: data.userName,
             email: data.email,
             password: hashedPassword,
-            role: "ADMIN",
+            role: "ACCOUNTANT",
             companyId: company.id,
             positionId: ownerPosition.id,
           },
