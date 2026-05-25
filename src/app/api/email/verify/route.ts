@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const expires = new Date(Date.now() + 15 * 60 * 1000);
+    const expires = new Date(Date.now() + 30 * 60 * 1000);
 
     await prisma.verificationToken.deleteMany({ where: { identifier: email } });
     await prisma.verificationToken.create({ data: { identifier: email, token: code, expires } });
