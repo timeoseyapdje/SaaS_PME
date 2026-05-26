@@ -38,11 +38,23 @@ async function getAuthToken(): Promise<string | null> {
       body: JSON.stringify({ public_apikey: publicKey, private_secretkey: privateKey }),
     });
     if (!res.ok) {
-      console.error("getMIpay auth failed:", await res.text());
+      console.error("getMIpay auth failed:", res.status, await res.text());
       return null;
     }
     const data = await res.json();
-    return data.access_token || data.token || null;
+    // Support various response shapes: flat or nested under data/result
+    const token =
+      data.access_token ||
+      data.token ||
+      data.data?.access_token ||
+      data.data?.token ||
+      data.result?.access_token ||
+      data.result?.token ||
+      null;
+    if (!token) {
+      console.error("getMIpay auth: no token in response", JSON.stringify(data));
+    }
+    return token;
   } catch (err) {
     console.error("getMIpay auth error:", err);
     return null;
@@ -101,17 +113,28 @@ export async function initiatePayIn({
     });
 
     if (!res.ok) {
-      console.error("getMIpay payin failed:", await res.text());
+      console.error("getMIpay payin failed:", res.status, await res.text());
       return null;
     }
 
     const data = await res.json();
-    if (!data.success) {
-      console.error("getMIpay payin error:", data.message);
+    const isSuccess = data.success === true || data.status === "success" || data.code === 200 || String(data.code) === "200";
+    if (!isSuccess) {
+      console.error("getMIpay payin error:", data.message || data.error, JSON.stringify(data));
       return null;
     }
 
-    return { transactionReference: data.data?.transaction_reference };
+    const txRef =
+      data.data?.transaction_reference ||
+      data.transaction_reference ||
+      data.data?.reference ||
+      data.reference ||
+      null;
+    if (!txRef) {
+      console.error("getMIpay payin: no transaction reference in response", JSON.stringify(data));
+      return null;
+    }
+    return { transactionReference: txRef };
   } catch (err) {
     console.error("getMIpay payin error:", err);
     return null;
@@ -164,17 +187,28 @@ export async function initiatePayOut({
     });
 
     if (!res.ok) {
-      console.error("getMIpay payout failed:", await res.text());
+      console.error("getMIpay payout failed:", res.status, await res.text());
       return null;
     }
 
     const data = await res.json();
-    if (!data.success) {
-      console.error("getMIpay payout error:", data.message);
+    const isSuccess = data.success === true || data.status === "success" || data.code === 200 || String(data.code) === "200";
+    if (!isSuccess) {
+      console.error("getMIpay payout error:", data.message || data.error, JSON.stringify(data));
       return null;
     }
 
-    return { transactionReference: data.data?.transaction_reference };
+    const txRef =
+      data.data?.transaction_reference ||
+      data.transaction_reference ||
+      data.data?.reference ||
+      data.reference ||
+      null;
+    if (!txRef) {
+      console.error("getMIpay payout: no transaction reference in response", JSON.stringify(data));
+      return null;
+    }
+    return { transactionReference: txRef };
   } catch (err) {
     console.error("getMIpay payout error:", err);
     return null;
