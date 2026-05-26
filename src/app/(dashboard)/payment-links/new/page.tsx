@@ -54,9 +54,10 @@ export default function NewPaymentLinkPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-lg mx-auto">
+    <div className="flex flex-col min-h-full">
       <Header title="Nouveau lien de paiement" subtitle="Créez un lien à partager avec votre client" />
-      <Button variant="ghost" size="sm" className="w-fit" onClick={() => router.back()}>
+      <div className="p-4 lg:p-6 max-w-3xl mx-auto w-full">
+      <Button variant="ghost" size="sm" className="w-fit mb-4" onClick={() => router.back()}>
         <ArrowLeft className="w-4 h-4 mr-2" /> Retour
       </Button>
 
@@ -113,6 +114,7 @@ export default function NewPaymentLinkPage() {
           <Button type="button" variant="outline" onClick={() => router.back()}>Annuler</Button>
         </div>
       </form>
+      </div>
     </div>
   );
 }
