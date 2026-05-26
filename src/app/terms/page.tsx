@@ -15,7 +15,7 @@ export default function TermsPage() {
           Conditions Générales d&apos;Utilisation
         </h1>
         <p className="text-sm text-muted-foreground mb-10">
-          Dernière mise à jour : 15 mai 2026
+          Dernière mise à jour : 25 mai 2026
         </p>
 
         <div className="space-y-8 text-sm leading-relaxed">
@@ -40,7 +40,7 @@ export default function TermsPage() {
               <li><strong className="text-foreground">Utilisateur</strong> : toute personne physique ou morale créant un compte sur la Plateforme</li>
               <li><strong className="text-foreground">Entreprise</strong> : l&apos;entité commerciale associée au compte Utilisateur</li>
               <li><strong className="text-foreground">Abonnement</strong> : le plan souscrit par l&apos;Utilisateur (Starter, Pro ou Max)</li>
-              <li><strong className="text-foreground">Contenu</strong> : toute donnée saisie par l&apos;Utilisateur (factures, dépenses, clients, produits, commandes, liens de paiement, etc.)</li>
+              <li><strong className="text-foreground">Contenu</strong> : toute donnée saisie par l&apos;Utilisateur (factures, avoirs, devis, modèles de documents, dépenses, clients, fournisseurs, bons de commande, produits, commandes, liens de paiement, signatures numériques, etc.)</li>
             </ul>
           </section>
 
@@ -167,6 +167,45 @@ export default function TermsPage() {
           </section>
 
           <section>
+            <h2 className="text-lg font-semibold text-foreground mb-3">11bis. Bons de Commande, Modèles & Avoirs</h2>
+            <p>
+              La plateforme permet la gestion de documents commerciaux complémentaires :
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 mt-2">
+              <li><strong className="text-foreground">Bons de commande fournisseurs</strong> : l&apos;Utilisateur peut créer et suivre des bons de commande adressés à ses fournisseurs. Ces documents n&apos;ont pas de valeur juridique contraignante en dehors de l&apos;accord des parties</li>
+              <li><strong className="text-foreground">Modèles de documents</strong> : l&apos;Utilisateur peut créer des modèles réutilisables pour ses factures et devis. Ces modèles appartiennent exclusivement à l&apos;entreprise qui les crée</li>
+              <li><strong className="text-foreground">Avoirs (notes de crédit)</strong> : les avoirs générés par la plateforme constituent des documents comptables. L&apos;Utilisateur est responsable de leur exactitude et de leur conformité fiscale</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-3">11ter. Signatures Numériques</h2>
+            <p>
+              Nkap Control propose une fonctionnalité de <strong className="text-foreground">signature numérique des devis</strong> permettant au destinataire d&apos;accepter ou refuser un devis via un lien sécurisé à usage unique.
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 mt-2">
+              <li>Le lien de signature est valable jusqu&apos;à utilisation ou régénération</li>
+              <li>L&apos;acceptation via ce lien constitue un accord commercial entre les parties mais ne remplace pas une signature électronique qualifiée au sens juridique strict</li>
+              <li>La date et l&apos;heure d&apos;acceptation ou de refus sont enregistrées automatiquement</li>
+              <li>L&apos;Utilisateur est responsable de partager le lien uniquement avec le destinataire légitime du devis</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-3">11quater. Envoi de Documents & Partage</h2>
+            <p>
+              La plateforme permet à l&apos;Utilisateur d&apos;envoyer ses factures et devis par email via le service Resend,
+              et de les partager par WhatsApp via un lien généré automatiquement. En utilisant ces fonctionnalités :
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 mt-2">
+              <li>L&apos;Utilisateur est responsable de l&apos;exactitude des adresses email et numéros de téléphone des destinataires</li>
+              <li>L&apos;adresse email expéditeur par défaut est <strong className="text-foreground">noreply@nkapcontrol.com</strong></li>
+              <li>Les liens WhatsApp utilisent le numéro de téléphone associé à la fiche client — il appartient à l&apos;Utilisateur de s&apos;assurer de son exactitude</li>
+              <li>Nkap Control n&apos;est pas responsable des messages non délivrés ou des litiges liés aux informations transmises</li>
+            </ul>
+          </section>
+
+          <section>
             <h2 className="text-lg font-semibold text-foreground mb-3">12. Postes et Permissions</h2>
             <p>
               Nkap Control utilise un système de <strong className="text-foreground">postes hiérarchiques</strong> avec
@@ -180,7 +219,7 @@ export default function TermsPage() {
             </ul>
             <p className="mt-3">
               Chaque poste définit des permissions spécifiques pour chaque module : tableau de bord, factures,
-              dépenses, trésorerie, produits, commandes, clients, fournisseurs, rapports, liens de paiement,
+              devis, dépenses, trésorerie, produits, commandes, clients, fournisseurs, rapports, liens de paiement,
               paramètres et équipe.
             </p>
             <p className="mt-2">

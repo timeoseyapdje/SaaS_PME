@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     const companyId = result.session.user.companyId;
 
     const body = await request.json();
-    const { clientId, dueDate, items, notes, terms, currency, applyTVA } = body;
+    const { clientId, dueDate, items, notes, terms, currency, applyTVA, status, isRecurring, recurrenceInterval, nextDueDate } = body;
 
     if (!clientId || !dueDate || !items || items.length === 0) {
       return NextResponse.json(
@@ -73,6 +73,7 @@ export async function POST(request: Request) {
         companyId,
         clientId,
         number,
+        status: status || "DRAFT",
         dueDate: new Date(dueDate),
         currency: currency || "XAF",
         subtotal,
@@ -81,6 +82,9 @@ export async function POST(request: Request) {
         applyTVA: applyTVA ?? true,
         notes,
         terms,
+        isRecurring: isRecurring ?? false,
+        recurrenceInterval: isRecurring ? (recurrenceInterval || null) : null,
+        nextDueDate: isRecurring && nextDueDate ? new Date(nextDueDate) : null,
         items: {
           create: items.map(
             (item: {

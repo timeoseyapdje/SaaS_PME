@@ -59,8 +59,9 @@ const METHOD_LABELS: Record<string, string> = {
 
 function MethodIcon({ method }: { method: string }) {
   const cls = "w-4 h-4";
-  if (method === "MTN_MONEY" || method === "ORANGE_MONEY") return <Smartphone className={cls} />;
-  if (method === "VIREMENT") return <Building2 className={cls} />;
+  if (method === "MTN_MONEY")    return <img src="/mtn-money.svg"    alt="MTN"    className="w-5 h-5 object-contain" />;
+  if (method === "ORANGE_MONEY") return <img src="/orange-money.svg" alt="Orange" className="w-5 h-5 object-contain" />;
+  if (method === "VIREMENT")     return <Building2 className={cls} />;
   if (method === "CARTE_BANCAIRE") return <CreditCard className={cls} />;
   return <Banknote className={cls} />;
 }

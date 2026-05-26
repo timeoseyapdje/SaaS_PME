@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Shield, Plus, Trash2, Edit2, X, Loader2, Check, Users } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useToast } from "@/hooks/use-toast";
 import { PERMISSION_MODULES, MODULE_ACTIONS, MODULE_LABELS, ACTION_LABELS, type PermissionMap, type PermissionModule } from "@/lib/permissions";
 
 interface Position {
@@ -18,6 +19,7 @@ interface Position {
 
 export default function PositionsPage() {
   const { can } = usePermissions();
+  const { toast } = useToast();
   const canManage = can("team", "manage_positions");
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,6 +27,7 @@ export default function PositionsPage() {
   const [creating, setCreating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [confirmDeletePos, setConfirmDeletePos] = useState<string | null>(null);
 
   const [formName, setFormName] = useState("");
   const [formDesc, setFormDesc] = useState("");
@@ -86,7 +89,7 @@ export default function PositionsPage() {
         fetchPositions();
       } else {
         const err = await res.json();
-        alert(err.error || "Erreur");
+        toast({ title: "Erreur", description: err.error || "Erreur", variant: "destructive" });
       }
     } finally {
       setSubmitting(false);
@@ -94,7 +97,8 @@ export default function PositionsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Supprimer ce poste ?")) return;
+    if (confirmDeletePos !== id) { setConfirmDeletePos(id); return; }
+    setConfirmDeletePos(null);
     setDeleting(id);
     try {
       const res = await fetch(`/api/positions/${id}`, { method: "DELETE" });
@@ -102,7 +106,7 @@ export default function PositionsPage() {
         setPositions((prev) => prev.filter((p) => p.id !== id));
       } else {
         const err = await res.json();
-        alert(err.error || "Erreur");
+        toast({ title: "Erreur", description: err.error || "Erreur", variant: "destructive" });
       }
     } finally {
       setDeleting(null);
@@ -180,13 +184,20 @@ export default function PositionsPage() {
                   >
                     <Edit2 className="w-3 h-3" />Modifier
                   </button>
-                  <button
-                    onClick={() => handleDelete(pos.id)}
-                    disabled={deleting === pos.id || pos._count.users > 0}
-                    className="flex items-center justify-center gap-1.5 text-xs font-medium py-2 px-3 rounded-lg text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {deleting === pos.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
-                  </button>
+                  {confirmDeletePos === pos.id ? (
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => handleDelete(pos.id)} className="text-[10px] font-medium py-2 px-2 rounded-lg text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors">Oui</button>
+                      <button onClick={() => setConfirmDeletePos(null)} className="text-[10px] font-medium py-2 px-2 rounded-lg text-muted-foreground bg-muted hover:bg-muted/80 border border-border transition-colors">Non</button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleDelete(pos.id)}
+                      disabled={deleting === pos.id || pos._count.users > 0}
+                      className="flex items-center justify-center gap-1.5 text-xs font-medium py-2 px-3 rounded-lg text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {deleting === pos.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                    </button>
+                  )}
                 </div>
               )}
             </motion.div>

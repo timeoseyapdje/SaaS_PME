@@ -25,7 +25,10 @@ import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/currency";
 import { formatDate } from "@/lib/utils";
 import { Expense } from "@/types";
-import { Plus, TrendingDown, TrendingUp, Trash2, Download } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Plus, TrendingDown, TrendingUp, Trash2, Download, Upload, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { exportToExcel, exportToCSV, formatExpensesForExport, formatRevenuesForExport } from "@/lib/export";
 import {
   DropdownMenu,
@@ -62,6 +65,39 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
   ORANGE_MONEY: "Orange Money",
   CARTE_BANCAIRE: "Carte",
 };
+
+interface CsvRow {
+  [key: string]: string;
+}
+
+interface ImportResult {
+  imported: number;
+  errors: string[];
+}
+
+function parseCSV(text: string): CsvRow[] {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim());
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+  return lines.slice(1).map((line) => {
+    const values = line.split(",").map((v) => v.trim().replace(/^"|"$/g, ""));
+    const row: CsvRow = {};
+    headers.forEach((h, i) => { row[h] = values[i] || ""; });
+    return row;
+  });
+}
+
+function downloadExpenseTemplate() {
+  const headers = "Description,Montant,Date,Categorie,ModePaiement,Notes";
+  const example = "Loyer bureau,150000,2026-01-01,LOYER,VIREMENT,";
+  const blob = new Blob([headers + "\n" + example], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "modele_depenses.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 function RevenueForm({
   onSuccess,
@@ -172,12 +208,18 @@ function RevenueForm({
 }
 
 export default function ExpensesPage() {
+  const { toast } = useToast();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [revenues, setRevenues] = useState<Revenue[]>([]);
   const [loadingExpenses, setLoadingExpenses] = useState(true);
   const [loadingRevenues, setLoadingRevenues] = useState(true);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showRevenueForm, setShowRevenueForm] = useState(false);
+
+  const [showImport, setShowImport] = useState(false);
+  const [csvRows, setCsvRows] = useState<CsvRow[]>([]);
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
 
   const fetchExpenses = useCallback(async () => {
     setLoadingExpenses(true);
@@ -216,6 +258,45 @@ export default function ExpensesPage() {
     if (!confirm("Supprimer cette recette ?")) return;
     await fetch(`/api/revenues?id=${id}`, { method: "DELETE" });
     fetchRevenues();
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      const rows = parseCSV(text);
+      setCsvRows(rows);
+      setImportResult(null);
+    };
+    reader.readAsText(file);
+  }
+
+  async function handleImport() {
+    if (csvRows.length === 0) return;
+    setImporting(true);
+    try {
+      const res = await fetch("/api/expenses/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rows: csvRows }),
+      });
+      const data: ImportResult = await res.json();
+      setImportResult(data);
+      if (data.imported > 0) {
+        fetchExpenses();
+        toast({ title: `${data.imported} dépense(s) importée(s)` });
+      }
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  function closeImport() {
+    setShowImport(false);
+    setCsvRows([]);
+    setImportResult(null);
   }
 
   const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
@@ -270,6 +351,10 @@ export default function ExpensesPage() {
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="text-base">Liste des dépenses</CardTitle>
                   <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => { setShowImport(true); setCsvRows([]); setImportResult(null); }}>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Importer CSV
+                    </Button>
                     {expenses.length > 0 && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -432,6 +517,89 @@ export default function ExpensesPage() {
             }}
             onCancel={() => setShowRevenueForm(false)}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* CSV Import Dialog */}
+      <Dialog open={showImport} onOpenChange={(open) => { if (!open) closeImport(); }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Importer des dépenses depuis un CSV</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" onClick={downloadExpenseTemplate}>
+                <Download className="w-4 h-4 mr-2" />
+                Télécharger le modèle CSV
+              </Button>
+              <span className="text-xs text-muted-foreground">Colonnes : Description, Montant, Date, Categorie, ModePaiement, Notes</span>
+            </div>
+            <div>
+              <Label className="mb-2 block">Sélectionner un fichier CSV</Label>
+              <input
+                type="file"
+                accept=".csv"
+                className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-muted file:text-foreground hover:file:bg-muted/80 cursor-pointer"
+                onChange={handleFileChange}
+              />
+            </div>
+
+            {csvRows.length > 0 && !importResult && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-foreground">{csvRows.length} ligne(s) détectée(s) — Aperçu (5 premières)</p>
+                <div className="overflow-x-auto rounded-lg border border-border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50">
+                        {Object.keys(csvRows[0]).map((h) => (
+                          <TableHead key={h} className="text-xs font-semibold">{h}</TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {csvRows.slice(0, 5).map((row, i) => (
+                        <TableRow key={i}>
+                          {Object.values(row).map((v, j) => (
+                            <TableCell key={j} className="text-xs text-muted-foreground truncate max-w-[120px]">{v || "—"}</TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
+
+            {importResult && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm font-medium text-emerald-600">
+                  <CheckCircle2 className="w-4 h-4" />
+                  {importResult.imported} dépense(s) importée(s) avec succès
+                </div>
+                {importResult.errors.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-sm font-medium text-amber-600">
+                      <AlertCircle className="w-4 h-4" />
+                      {importResult.errors.length} erreur(s)
+                    </div>
+                    <ul className="text-xs text-muted-foreground space-y-0.5 max-h-32 overflow-y-auto">
+                      {importResult.errors.map((e, i) => <li key={i}>{e}</li>)}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={closeImport}>Fermer</Button>
+              {csvRows.length > 0 && !importResult && (
+                <Button onClick={handleImport} disabled={importing}>
+                  {importing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Importer {csvRows.length} dépense(s)
+                </Button>
+              )}
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

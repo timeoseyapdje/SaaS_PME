@@ -29,6 +29,9 @@ import {
   Plus,
   Link2,
   Boxes,
+  HelpCircle,
+  LayoutTemplate,
+  RotateCcw,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { signOut, useSession } from "next-auth/react";
@@ -73,6 +76,10 @@ const navigation: NavItem[] = [
     children: [
       { name: "Toutes les factures", href: "/invoices" },
       { name: "Nouvelle facture", href: "/invoices/new" },
+      { name: "Avoirs", href: "/credit-notes" },
+      { name: "Modèles", href: "/templates" },
+      { name: "Devis", href: "/devis" },
+      { name: "Nouveau devis", href: "/devis/new" },
     ],
   },
   {
@@ -94,6 +101,7 @@ const navigation: NavItem[] = [
     children: [
       { name: "Clients", href: "/clients" },
       { name: "Fournisseurs", href: "/suppliers" },
+      { name: "Bons de commande", href: "/purchase-orders" },
     ],
   },
   {
@@ -107,6 +115,7 @@ const navigation: NavItem[] = [
   },
   { name: "Abonnement", href: "/subscription", icon: CreditCard },
   { name: "Paramètres", href: "/settings", icon: Settings },
+  { name: "Aide", href: "/help", icon: HelpCircle },
 ];
 
 const superAdminNavigation: NavItem[] = [
@@ -141,12 +150,13 @@ export function Sidebar() {
       if (item.name === "Dashboard") return canAny("dashboard");
       if (item.name === "Produits & Services") return canAny("products");
       if (item.name === "Ventes") return canAny("orders") || canAny("payment_links");
-      if (item.name === "Facturation") return canAny("invoices");
+      if (item.name === "Facturation") return canAny("invoices") || canAny("quotes");
       if (item.name === "Finances") return canAny("expenses") || canAny("treasury");
       if (item.name === "Rapports") return canAny("reports");
-      if (item.name === "Contacts") return canAny("clients") || canAny("suppliers");
+      if (item.name === "Contacts") return canAny("clients") || canAny("suppliers") || canAny("expenses");
       if (item.name === "Équipe") return canAny("team");
       if (item.name === "Paramètres") return canAny("settings");
+      if (item.name === "Aide") return true;
       return true;
     });
   }, [canAny]);

@@ -110,6 +110,7 @@ model Company {
   clients            Client[]
   suppliers          Supplier[]
   invoices           Invoice[]
+  quotes             Quote[]
   expenses           Expense[]
   revenues           Revenue[]
   bankAccounts       BankAccount[]
@@ -120,6 +121,9 @@ model Company {
   orders             Order[]
   paymentLinks       PaymentLink[]
   payouts            Payout[]
+  invoiceTemplates   InvoiceTemplate[]
+  creditNotes        CreditNote[]
+  purchaseOrders     PurchaseOrder[]
 
   @@map("companies")
 }
@@ -145,8 +149,10 @@ model Client {
   updatedAt   DateTime @updatedAt
 
   invoices    Invoice[]
+  quotes      Quote[]
   orders      Order[]
   paymentLinks PaymentLink[]
+  creditNotes CreditNote[]
 
   @@map("clients")
 }
@@ -167,7 +173,8 @@ model Supplier {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  expenses    Expense[]
+  expenses       Expense[]
+  purchaseOrders PurchaseOrder[]
 
   @@map("suppliers")
 }
@@ -208,6 +215,11 @@ model Invoice {
   updatedAt     DateTime      @updatedAt
 
   items         InvoiceItem[]
+  payments      InvoicePayment[]
+  creditNotes   CreditNote[]
+  isRecurring        Boolean   @default(false)
+  recurrenceInterval String?   // MONTHLY, QUARTERLY, YEARLY
+  nextDueDate        DateTime?
 
   @@map("invoices")
 }
@@ -230,6 +242,59 @@ enum InvoiceStatus {
   PAID
   OVERDUE
   CANCELLED
+}
+
+// ============================================================
+// QUOTES (DEVIS)
+// ============================================================
+
+model Quote {
+  id                 String      @id @default(cuid())
+  companyId          String
+  company            Company     @relation(fields: [companyId], references: [id])
+  clientId           String
+  client             Client      @relation(fields: [clientId], references: [id])
+  number             String
+  status             QuoteStatus @default(DRAFT)
+  issueDate          DateTime    @default(now())
+  validUntil         DateTime
+  currency           String      @default("XAF")
+  subtotal           Float       @default(0)
+  tvaAmount          Float       @default(0)
+  total              Float       @default(0)
+  notes              String?
+  terms              String?
+  applyTVA           Boolean     @default(true)
+  convertedInvoiceId String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  items              QuoteItem[]
+  signedAt           DateTime?
+  signatureToken     String?   @unique
+
+  @@map("quotes")
+}
+
+model QuoteItem {
+  id          String @id @default(cuid())
+  quoteId     String
+  quote       Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Float  @default(1)
+  unitPrice   Float
+  total       Float
+
+  @@map("quote_items")
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CONVERTED
 }
 
 // ============================================================
@@ -754,4 +819,114 @@ model Payout {
   createdAt                DateTime                @default(now())
 
   @@map("payouts")
+}
+
+// ============================================================
+// INVOICE PAYMENTS (ACOMPTES / PAIEMENTS PARTIELS)
+// ============================================================
+
+model InvoicePayment {
+  id          String        @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount      Float
+  method      PaymentMethod @default(ESPECES)
+  paidAt      DateTime      @default(now())
+  reference   String?
+  note        String?
+  createdAt   DateTime      @default(now())
+
+  @@map("invoice_payments")
+}
+
+// ============================================================
+// INVOICE / QUOTE TEMPLATES (MODÈLES)
+// ============================================================
+
+model InvoiceTemplate {
+  id           String                @id @default(cuid())
+  companyId    String
+  company      Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name         String
+  type         String                @default("INVOICE") // INVOICE or QUOTE
+  notes        String?
+  paymentTerms String?
+  applyTVA     Boolean               @default(true)
+  items        InvoiceTemplateItem[]
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  @@map("invoice_templates")
+}
+
+model InvoiceTemplateItem {
+  id          String          @id @default(cuid())
+  templateId  String
+  template    InvoiceTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Float           @default(1)
+  unitPrice   Float
+  unit        String?
+
+  @@map("invoice_template_items")
+}
+
+// ============================================================
+// CREDIT NOTES (AVOIRS)
+// ============================================================
+
+model CreditNote {
+  id          String    @id @default(cuid())
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  invoiceId   String?
+  invoice     Invoice?  @relation(fields: [invoiceId], references: [id])
+  clientId    String?
+  client      Client?   @relation(fields: [clientId], references: [id])
+  number      String    // AV-YYYY-XXXX
+  amount      Float
+  reason      String?
+  status      String    @default("ISSUED") // ISSUED, APPLIED
+  issuedAt    DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+
+  @@map("credit_notes")
+}
+
+// ============================================================
+// PURCHASE ORDERS (BONS DE COMMANDE FOURNISSEURS)
+// ============================================================
+
+model PurchaseOrder {
+  id          String              @id @default(cuid())
+  companyId   String
+  company     Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  supplierId  String?
+  supplier    Supplier?           @relation(fields: [supplierId], references: [id])
+  number      String              // BC-YYYY-XXXX
+  status      String              @default("DRAFT") // DRAFT, SENT, RECEIVED, CANCELLED
+  notes       String?
+  expectedAt  DateTime?
+  totalHT     Float               @default(0)
+  totalTVA    Float               @default(0)
+  totalTTC    Float               @default(0)
+  applyTVA    Boolean             @default(true)
+  items       PurchaseOrderItem[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(cuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  description     String
+  quantity        Float         @default(1)
+  unitPrice       Float
+  unit            String?
+  total           Float
+
+  @@map("purchase_order_items")
 }

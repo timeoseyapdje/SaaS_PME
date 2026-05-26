@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+<<<<<<< HEAD
 import { initiatePayIn, isGetMiPayConfigured, calculateGrossAmount } from "@/lib/getmipay";
+=======
+import { initializePayment, chargePayment, isNotchPayConfigured, calculateGrossAmount } from "@/lib/notchpay";
+>>>>>>> main
 import { sendPaymentRequestNotification } from "@/lib/email";
 
 export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
@@ -112,20 +116,44 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         customerName: payerName || undefined,
         customerEmail: payerEmail || undefined,
         callbackUrl,
+<<<<<<< HEAD
         paymentMethod: paymentMethod as "MTN_MONEY" | "ORANGE_MONEY",
         reference: transaction.id,
+=======
+        phone: phoneNumber || undefined,
+>>>>>>> main
       });
 
       if (result) {
         await prisma.paymentLinkTransaction.update({
           where: { id: transaction.id },
           data: {
+<<<<<<< HEAD
             notchpayRef: result.transactionReference,
+=======
+            notchpayRef: notchpay.reference,
+>>>>>>> main
             transactionRef: transaction.id,
           },
         });
 
+<<<<<<< HEAD
         return NextResponse.json({ directCharge: true, transactionId: transaction.id });
+=======
+        // Attempt direct mobile money push — skips checkout page entirely
+        if (phoneNumber && ["MTN_MONEY", "ORANGE_MONEY"].includes(paymentMethod)) {
+          const charged = await chargePayment({
+            reference: notchpay.reference,
+            phone: phoneNumber,
+            paymentMethod: paymentMethod as "MTN_MONEY" | "ORANGE_MONEY",
+          });
+          if (charged) {
+            return NextResponse.json({ directCharge: true, transactionId: transaction.id });
+          }
+        }
+
+        return NextResponse.json({ checkoutUrl: notchpay.checkoutUrl });
+>>>>>>> main
       }
 
       return NextResponse.json({ error: "Erreur lors de l'initiation du paiement Mobile Money" }, { status: 500 });

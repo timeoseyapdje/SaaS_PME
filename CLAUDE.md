@@ -85,6 +85,7 @@ Company
 | `/api/quotes/[id]/convert` | POST | Convertit en facture (FAC-YYYY-XXXX) |
 | `/api/email/send-invoice` | POST | Envoie la facture par email (Resend) |
 | `/api/email/send-quote` | POST | Envoie le devis par email (Resend) |
+<<<<<<< HEAD
 | `/api/pay/[slug]` | POST | Initie paiement getMIpay (USSD push) |
 | `/api/payments/getmipay` | POST | Init abonnement getMIpay |
 | `/api/payments/getmipay/callback` | GET | Callback abonnement |
@@ -116,6 +117,33 @@ GETMIPAY_PUBLIC_KEY     // pour auth + payin
 GETMIPAY_PRIVATE_KEY    // pour auth + payout
 GETMIPAY_MTN_SERVICE_ID     // ID service MTN
 GETMIPAY_ORANGE_SERVICE_ID  // ID service Orange
+=======
+| `/api/pay/[slug]` | POST | Initialise + charge directe NotchPay |
+| `/api/payments/notchpay/webhook` | POST | Webhook paiements abonnements |
+| `/api/webhooks/payment-links` | POST | Webhook NotchPay liens de paiement |
+
+---
+
+## NotchPay — Points Critiques
+
+```typescript
+// CORRECT: le checkoutUrl est dans data.transaction.authorization_url
+const authUrl = data.authorization_url || data.transaction?.authorization_url;
+
+// Charge directe (pas de redirect) — préférer ceci
+await chargePayment({ reference, phone, paymentMethod: "MTN_MONEY" });
+// → POST /payments/{reference}/charge avec { channel: "cm.mtn", data: { phone: "+237XXXXXXXXX" } }
+
+// Formatage téléphone Cameroun
+function formatCameroonPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  return digits.startsWith("237") ? `+${digits}` : `+237${digits}`;
+}
+
+// Variables d'environnement
+NOTCHPAY_PUBLIC_KEY  // pour init + charge
+NOTCHPAY_PRIVATE_KEY // pour transferts + signature webhook
+>>>>>>> main
 ```
 
 ---

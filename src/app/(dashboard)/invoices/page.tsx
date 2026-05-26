@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-import { Plus, Search, Download } from "lucide-react";
+import { Plus, Search, Download, AlertTriangle } from "lucide-react";
 import { Invoice, InvoiceStatus } from "@/types";
 import { formatCurrency } from "@/lib/currency";
 import { exportToExcel, exportToCSV, formatInvoicesForExport } from "@/lib/export";
@@ -24,8 +24,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 export default function InvoicesPage() {
+  const { toast } = useToast();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -63,9 +65,24 @@ export default function InvoicesPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Supprimer cette facture ?")) return;
     await fetch(`/api/invoices/${id}`, { method: "DELETE" });
     fetchInvoices();
+  }
+
+  async function handleMarkOverdue() {
+    const res = await fetch("/api/invoices/mark-overdue", { method: "POST" });
+    const data = await res.json();
+    if (res.ok) {
+      toast({
+        title: "Retards mis à jour",
+        description: data.updated > 0
+          ? `${data.updated} facture(s) marquée(s) en retard`
+          : "Aucune facture en retard trouvée",
+      });
+      fetchInvoices();
+    } else {
+      toast({ title: "Erreur", description: "Impossible de mettre à jour", variant: "destructive" });
+    }
   }
 
   // Stats
@@ -147,6 +164,10 @@ export default function InvoicesPage() {
             </DropdownMenuContent>
           </DropdownMenu>
         )}
+        <Button variant="outline" onClick={handleMarkOverdue} title="Vérifier et marquer les factures envoyées dont la date d'échéance est dépassée">
+          <AlertTriangle className="w-4 h-4 mr-2 text-orange-500" />
+          Vérifier retards
+        </Button>
         <Link href="/invoices/new">
           <Button>
             <Plus className="w-4 h-4 mr-2" />

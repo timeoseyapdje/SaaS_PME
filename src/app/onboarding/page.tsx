@@ -17,6 +17,7 @@ import {
   ChevronRight,
   UserCog,
   UserPlus,
+  BookOpen,
 } from "lucide-react";
 
 /* ─── Données des étapes ─── */
@@ -75,12 +76,12 @@ const steps = [
     bg: "bg-blue-500/10",
     border: "border-blue-500/20",
     title: "Ajoutez vos clients & fournisseurs",
-    description: "Chaque client a sa fiche avec l'historique complet des factures, commandes et transactions.",
+    description: "Chaque client a sa fiche avec l'historique complet des factures, commandes et transactions. Gérez également vos fournisseurs et bons de commande.",
     actions: [
       "Renseignez nom, email, téléphone et adresse",
       "Choisissez le type : Particulier ou Entreprise",
       "Consultez l'historique complet de chaque contact",
-      "Lancez une facture ou une commande depuis la fiche client",
+      "Créez des bons de commande fournisseurs depuis la section Contacts",
     ],
     screen: (
       <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
@@ -205,12 +206,12 @@ const steps = [
     bg: "bg-rose-500/10",
     border: "border-rose-500/20",
     title: "Créez & envoyez vos factures",
-    description: "Numérotation automatique, TVA OHADA intégrée, export PDF professionnel, envoi direct par email.",
+    description: "Numérotation automatique, TVA OHADA intégrée, export PDF avec référence de paiement, envoi par email ou WhatsApp en 1 clic.",
     actions: [
       "Numérotation auto : FAC-2026-00001",
-      "Lignes produits/services avec TVA 19,25%",
-      "Export PDF avec logo entreprise",
-      "Statuts : Brouillon → Envoyée → Payée → En retard",
+      "Sélectionnez les produits depuis votre catalogue directement dans le formulaire",
+      "Créez des modèles de factures réutilisables depuis la section Facturation → Modèles",
+      "Émettez des avoirs (notes de crédit) depuis Facturation → Avoirs",
     ],
     screen: (
       <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
@@ -256,6 +257,54 @@ const steps = [
   },
   {
     number: "06",
+    icon: BookOpen,
+    color: "text-violet-400",
+    bg: "bg-violet-500/10",
+    border: "border-violet-500/20",
+    title: "Créez & convertissez vos devis",
+    description: "Envoyez des propositions numérotées DEV-YYYY-XXXX. Demandez une signature numérique directement depuis la fiche devis.",
+    actions: [
+      "Numérotation auto : DEV-2026-00001 avec date de validité",
+      "Sélectionnez les produits directement depuis votre catalogue",
+      "Demandez la signature numérique : le client accepte ou refuse via un lien sécurisé",
+      "Convertissez en facture en 1 clic après signature ou accord du client",
+    ],
+    screen: (
+      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
+        <div className="flex items-center justify-between mb-1">
+          <div>
+            <div className="h-2.5 w-24 bg-white/70 rounded mb-1" />
+            <div className="h-1.5 w-16 bg-muted-foreground/30 rounded" />
+          </div>
+          <div className="h-5 w-14 bg-violet-500/30 border border-violet-500/30 rounded-full" />
+        </div>
+        <div className="flex-1 bg-card/60 border border-border rounded-xl p-2 flex flex-col gap-1.5">
+          <div className="flex justify-between text-[8px] text-muted-foreground pb-1 border-b border-border">
+            <span>Description</span><span>Qté</span><span>Total</span>
+          </div>
+          {["Audit financier", "Formation", "Conseil"].map((item, i) => (
+            <div key={i} className="flex items-center gap-1 h-5">
+              <div className="flex-1 h-1.5 bg-muted-foreground/20 rounded" />
+              <div className="h-1.5 w-4 bg-muted-foreground/20 rounded" />
+              <div className="h-1.5 w-10 bg-muted-foreground/30 rounded" />
+            </div>
+          ))}
+          <div className="mt-auto pt-1.5 border-t border-border space-y-1">
+            <div className="flex justify-between">
+              <div className="h-1.5 w-12 bg-muted-foreground/20 rounded" />
+              <div className="h-1.5 w-14 bg-emerald-500/60 rounded" />
+            </div>
+          </div>
+        </div>
+        <div className="h-6 bg-violet-600/30 border border-violet-500/30 rounded-lg flex items-center justify-center gap-1">
+          <ArrowRight className="w-2.5 h-2.5 text-violet-400" />
+          <div className="h-1.5 w-20 bg-violet-400/50 rounded" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    number: "07",
     icon: Link2,
     color: "text-cyan-400",
     bg: "bg-cyan-500/10",
@@ -299,7 +348,7 @@ const steps = [
     ),
   },
   {
-    number: "07",
+    number: "08",
     icon: Landmark,
     color: "text-teal-400",
     bg: "bg-teal-500/10",
@@ -343,7 +392,7 @@ const steps = [
     ),
   },
   {
-    number: "08",
+    number: "09",
     icon: BarChart3,
     color: "text-emerald-400",
     bg: "bg-emerald-500/10",
@@ -387,7 +436,7 @@ const steps = [
     ),
   },
   {
-    number: "09",
+    number: "10",
     icon: UserCog,
     color: "text-indigo-400",
     bg: "bg-indigo-500/10",
@@ -428,7 +477,7 @@ const steps = [
     ),
   },
   {
-    number: "10",
+    number: "11",
     icon: UserPlus,
     color: "text-pink-400",
     bg: "bg-pink-500/10",
@@ -534,7 +583,7 @@ export default function OnboardingPage() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-foreground text-xs font-medium mb-6">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Guide de démarrage — 10 étapes
+            Guide de démarrage — 11 étapes
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground mb-4 leading-tight">
             Bienvenue sur{" "}
@@ -543,7 +592,7 @@ export default function OnboardingPage() {
             </span>
           </h1>
           <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
-            Suivez ces 10 étapes pour maîtriser la plateforme et tirer le meilleur de votre outil de gestion.
+            Suivez ces 11 étapes pour maîtriser la plateforme et tirer le meilleur de votre outil de gestion.
           </p>
         </motion.div>
       </section>

@@ -183,6 +183,10 @@ export async function POST(request: Request) {
       reference: payment.id,
       description: `Abonnement Nkap Control - Plan ${plan}`,
       callbackUrl: `${appUrl}/api/payments/notchpay/callback?plan=${plan}`,
+<<<<<<< HEAD
+=======
+      phone: phoneNumber || undefined,
+>>>>>>> main
     });
 
     if (notchpay) {

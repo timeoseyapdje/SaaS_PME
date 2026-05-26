@@ -19,7 +19,25 @@ import { Separator } from "@/components/ui/separator";
 import { formatCurrency } from "@/lib/currency";
 import { CAMEROON_TAX } from "@/lib/tax";
 import { Client } from "@/types";
-import { Plus, Trash2, Loader2, Save, Send } from "lucide-react";
+import { Plus, Trash2, Loader2, Save, Send, BookOpen, LayoutTemplate, ChevronDown, ChevronUp, X, RefreshCw } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { ProductPickerDialog } from "@/components/ui/product-picker-dialog";
+
+interface TemplateItem {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  unit?: string | null;
+}
+
+interface Template {
+  id: string;
+  name: string;
+  notes?: string | null;
+  paymentTerms?: string | null;
+  applyTVA: boolean;
+  items: TemplateItem[];
+}
 
 interface LineItem {
   description: string;
@@ -29,9 +47,21 @@ interface LineItem {
 
 export function InvoiceForm() {
   const router = useRouter();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [loadingClients, setLoadingClients] = useState(true);
+  const [pickerIndex, setPickerIndex] = useState<number | null>(null);
+
+  // Template picker state
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+
+  // Advanced / recurring state
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceInterval, setRecurrenceInterval] = useState("MONTHLY");
 
   // Form state
   const [clientId, setClientId] = useState("");
@@ -57,6 +87,36 @@ export function InvoiceForm() {
       })
       .catch(() => setLoadingClients(false));
   }, []);
+
+  async function openTemplatePicker() {
+    setShowTemplatePicker(true);
+    if (templates.length > 0) return;
+    setLoadingTemplates(true);
+    try {
+      const res = await fetch("/api/templates?type=INVOICE");
+      if (res.ok) {
+        const data = await res.json();
+        setTemplates(Array.isArray(data) ? data : []);
+      }
+    } finally {
+      setLoadingTemplates(false);
+    }
+  }
+
+  function applyTemplate(template: Template) {
+    setItems(
+      template.items.map((item) => ({
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+      }))
+    );
+    if (template.notes) setNotes(template.notes);
+    if (template.paymentTerms) setTerms(template.paymentTerms);
+    setApplyTVA(template.applyTVA);
+    setShowTemplatePicker(false);
+    toast({ title: "Modèle chargé", description: `"${template.name}" a été appliqué` });
+  }
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.quantity * item.unitPrice,
@@ -85,29 +145,42 @@ export function InvoiceForm() {
 
   async function handleSubmit(status: "DRAFT" | "SENT") {
     if (!clientId) {
-      alert("Veuillez sélectionner un client");
+      toast({ title: "Client requis", description: "Veuillez sélectionner un client", variant: "destructive" });
       return;
     }
     if (items.some((item) => !item.description)) {
-      alert("Veuillez remplir la description de chaque ligne");
+      toast({ title: "Description manquante", description: "Veuillez remplir la description de chaque ligne", variant: "destructive" });
       return;
     }
 
     setLoading(true);
     try {
+      const payload: Record<string, unknown> = {
+        clientId,
+        dueDate,
+        currency,
+        applyTVA,
+        notes,
+        terms,
+        items,
+        status,
+      };
+
+      if (isRecurring) {
+        payload.isRecurring = true;
+        payload.recurrenceInterval = recurrenceInterval;
+
+        const nextDate = new Date(dueDate);
+        if (recurrenceInterval === "MONTHLY") nextDate.setMonth(nextDate.getMonth() + 1);
+        else if (recurrenceInterval === "QUARTERLY") nextDate.setMonth(nextDate.getMonth() + 3);
+        else if (recurrenceInterval === "YEARLY") nextDate.setFullYear(nextDate.getFullYear() + 1);
+        payload.nextDueDate = nextDate.toISOString();
+      }
+
       const response = await fetch("/api/invoices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientId,
-          dueDate,
-          currency,
-          applyTVA,
-          notes,
-          terms,
-          items,
-          status,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -115,10 +188,10 @@ export function InvoiceForm() {
         router.push(`/invoices/${invoice.id}`);
       } else {
         const err = await response.json();
-        alert(err.error || "Erreur lors de la création");
+        toast({ title: "Erreur", description: err.error || "Erreur lors de la création", variant: "destructive" });
       }
     } catch {
-      alert("Une erreur est survenue");
+      toast({ title: "Erreur", description: "Une erreur est survenue", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -126,6 +199,64 @@ export function InvoiceForm() {
 
   return (
     <div className="space-y-6">
+      {/* Template picker */}
+      <div className="flex items-center justify-end relative">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={openTemplatePicker}
+          className="flex items-center gap-2"
+        >
+          <LayoutTemplate className="w-4 h-4" />
+          Charger un modèle
+          <ChevronDown className="w-3.5 h-3.5 ml-0.5" />
+        </Button>
+        {showTemplatePicker && (
+          <>
+            <div className="fixed inset-0 z-30" onClick={() => setShowTemplatePicker(false)} />
+            <div className="absolute right-0 top-9 z-40 w-80 bg-card border border-border rounded-xl shadow-lg overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                <span className="text-sm font-semibold">Modèles de facture</span>
+                <button onClick={() => setShowTemplatePicker(false)} className="text-muted-foreground hover:text-foreground">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="max-h-72 overflow-y-auto">
+                {loadingTemplates ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : templates.length === 0 ? (
+                  <div className="text-center py-8 text-sm text-muted-foreground">
+                    <LayoutTemplate className="w-6 h-6 mx-auto mb-2 opacity-40" />
+                    Aucun modèle de facture
+                  </div>
+                ) : (
+                  templates.map((template) => {
+                    const sub = template.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+                    return (
+                      <button
+                        key={template.id}
+                        type="button"
+                        onClick={() => applyTemplate(template)}
+                        className="w-full text-left px-4 py-3 hover:bg-muted/60 transition-colors border-b border-border/50 last:border-0"
+                      >
+                        <p className="text-sm font-medium text-foreground">{template.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {template.items.length} ligne{template.items.length > 1 ? "s" : ""} —{" "}
+                          {formatCurrency(sub, "XAF")}
+                        </p>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
       {/* Header info */}
       <Card>
         <CardHeader>
@@ -186,6 +317,16 @@ export function InvoiceForm() {
             Ajouter une ligne
           </Button>
         </CardHeader>
+        <ProductPickerDialog
+          open={pickerIndex !== null}
+          onClose={() => setPickerIndex(null)}
+          onSelect={(product) => {
+            if (pickerIndex !== null) {
+              updateItem(pickerIndex, "description", product.description);
+              updateItem(pickerIndex, "unitPrice", product.unitPrice);
+            }
+          }}
+        />
         <CardContent>
           <div className="space-y-3">
             {/* Header row */}
@@ -236,7 +377,17 @@ export function InvoiceForm() {
                 <div className="col-span-1 text-right text-sm font-medium">
                   {formatCurrency(item.quantity * item.unitPrice, currency)}
                 </div>
-                <div className="col-span-1 flex justify-end">
+                <div className="col-span-1 flex justify-end gap-0.5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-blue-600"
+                    title="Choisir du catalogue"
+                    onClick={() => setPickerIndex(index)}
+                    type="button"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -316,6 +467,67 @@ export function InvoiceForm() {
             />
           </div>
         </CardContent>
+      </Card>
+
+      {/* Advanced options — Recurring */}
+      <Card>
+        <CardHeader
+          className="pb-3 cursor-pointer select-none"
+          onClick={() => setShowAdvanced((v) => !v)}
+        >
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base text-muted-foreground">Options avancées</CardTitle>
+            {showAdvanced ? (
+              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            )}
+          </div>
+        </CardHeader>
+        {showAdvanced && (
+          <CardContent className="space-y-4 pt-0">
+            <Separator />
+            {/* Recurring toggle */}
+            <div className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/20">
+              <Checkbox
+                id="isRecurring"
+                checked={isRecurring}
+                onCheckedChange={(checked) => setIsRecurring(checked as boolean)}
+                className="mt-0.5"
+              />
+              <div className="flex-1 min-w-0">
+                <Label htmlFor="isRecurring" className="flex items-center gap-2 cursor-pointer font-medium text-sm">
+                  <RefreshCw className="w-4 h-4 text-violet-600" />
+                  Facture récurrente
+                </Label>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Activez pour générer automatiquement les prochaines factures selon un intervalle.
+                </p>
+              </div>
+            </div>
+
+            {isRecurring && (
+              <div className="space-y-2 pl-7">
+                <Label htmlFor="recurrenceInterval" className="text-sm">
+                  Intervalle de récurrence
+                </Label>
+                <Select value={recurrenceInterval} onValueChange={setRecurrenceInterval}>
+                  <SelectTrigger id="recurrenceInterval" className="w-60">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MONTHLY">Mensuelle (chaque mois)</SelectItem>
+                    <SelectItem value="QUARTERLY">Trimestrielle (tous les 3 mois)</SelectItem>
+                    <SelectItem value="YEARLY">Annuelle (chaque année)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  La prochaine facture sera automatiquement datée en fonction de cet intervalle.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        )}
       </Card>
 
       {/* Action buttons */}

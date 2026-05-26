@@ -8,11 +8,12 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
   Plus, Link2, Copy, Check, ExternalLink, ToggleLeft,
-  Trash2, ChevronDown, ChevronUp, CheckCircle2, XCircle, Clock, Smartphone, Building2,
+  Trash2, ChevronDown, ChevronUp, CheckCircle2, XCircle, Clock, Smartphone, Building2, Loader2,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useToast } from "@/hooks/use-toast";
 
 interface Transaction {
   id: string;
@@ -61,12 +62,14 @@ const TX_STATUS_CONFIG: Record<string, { label: string; className: string; Icon:
 
 export default function PaymentLinksPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [links, setLinks] = useState<PaymentLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [confirmDeleteLink, setConfirmDeleteLink] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/payment-links")
@@ -96,28 +99,29 @@ export default function PaymentLinksPage() {
       });
       if (!res.ok) {
         const d = await res.json();
-        alert(d.error || "Erreur lors du changement de statut");
+        toast({ title: "Erreur", description: d.error || "Erreur lors du changement de statut", variant: "destructive" });
         return;
       }
       setLinks(prev => prev.map(l => l.id === link.id ? { ...l, status: newStatus } : l));
     } catch {
-      alert("Erreur réseau");
+      toast({ title: "Erreur réseau", variant: "destructive" });
     }
   }
 
   async function deleteLink(link: PaymentLink) {
-    if (!confirm(`Supprimer le lien "${link.title}" ? Cette action est irréversible.`)) return;
+    if (confirmDeleteLink !== link.id) { setConfirmDeleteLink(link.id); return; }
+    setConfirmDeleteLink(null);
     setDeleting(link.id);
     try {
       const res = await fetch(`/api/payment-links/${link.id}`, { method: "DELETE" });
       if (!res.ok) {
         const d = await res.json();
-        alert(d.error || "Erreur lors de la suppression");
+        toast({ title: "Erreur", description: d.error || "Erreur lors de la suppression", variant: "destructive" });
         return;
       }
       setLinks(prev => prev.filter(l => l.id !== link.id));
     } catch {
-      alert("Erreur réseau");
+      toast({ title: "Erreur réseau", variant: "destructive" });
     } finally {
       setDeleting(null);
     }
@@ -226,15 +230,24 @@ export default function PaymentLinksPage() {
                         <ToggleLeft className="w-3 h-3 mr-1" />
                         {link.status === "ACTIVE" ? "Désactiver" : "Activer"}
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => deleteLink(link)}
-                        disabled={deleting === link.id}
-                        className="shrink-0 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      >
-                        <Trash2 className="w-3 h-3 mr-1" /> Supprimer
-                      </Button>
+                      {confirmDeleteLink === link.id ? (
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Button size="sm" variant="ghost" onClick={() => deleteLink(link)} disabled={deleting === link.id} className="h-7 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">
+                            {deleting === link.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Confirmer"}
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setConfirmDeleteLink(null)} className="h-7 text-xs text-muted-foreground">Annuler</Button>
+                        </div>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => deleteLink(link)}
+                          disabled={deleting === link.id}
+                          className="shrink-0 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" /> Supprimer
+                        </Button>
+                      )}
                       {link.transactions.length > 0 && (
                         <Button
                           size="sm"

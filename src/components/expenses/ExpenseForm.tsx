@@ -15,6 +15,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
 import { Supplier } from "@/types";
+import { useToast } from "@/hooks/use-toast";
 
 interface ExpenseFormProps {
   onSuccess: () => void;
@@ -46,6 +47,7 @@ const PAYMENT_METHODS = [
 ];
 
 export function ExpenseForm({ onSuccess, onCancel }: ExpenseFormProps) {
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
@@ -92,10 +94,10 @@ export function ExpenseForm({ onSuccess, onCancel }: ExpenseFormProps) {
         onSuccess();
       } else {
         const err = await response.json();
-        alert(err.error || "Erreur lors de la création");
+        toast({ title: "Erreur", description: err.error || "Erreur lors de la création", variant: "destructive" });
       }
     } catch {
-      alert("Une erreur est survenue");
+      toast({ title: "Erreur", description: "Une erreur est survenue", variant: "destructive" });
     } finally {
       setLoading(false);
     }
