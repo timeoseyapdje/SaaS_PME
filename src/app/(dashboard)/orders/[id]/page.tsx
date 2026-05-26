@@ -94,9 +94,10 @@ export default function OrderDetailPage() {
   const isCancellable = !["DELIVERED", "CANCELLED", "RETURNED"].includes(order.status);
 
   return (
-    <div className="flex flex-col gap-6 max-w-3xl mx-auto">
+    <div className="flex flex-col min-h-full">
       <Header title={order.number} subtitle="Détail de la commande" />
-      <Button variant="ghost" size="sm" className="w-fit" onClick={() => router.back()}>
+      <div className="p-4 lg:p-6 max-w-4xl mx-auto w-full">
+      <Button variant="ghost" size="sm" className="w-fit mb-2" onClick={() => router.back()}>
         <ArrowLeft className="w-4 h-4 mr-2" /> Retour
       </Button>
 
@@ -219,6 +220,7 @@ export default function OrderDetailPage() {
           <CardContent><p className="text-sm text-muted-foreground">{order.notes}</p></CardContent>
         </Card>
       )}
+      </div>
     </div>
   );
 }
