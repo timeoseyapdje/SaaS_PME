@@ -201,7 +201,7 @@ function PaymentPageContent() {
                 placeholder="6XX XXX XXX"
                 required
               />
-              <p className="text-xs text-muted-foreground">Le marchand initiera le paiement sur ce numéro.</p>
+              <p className="text-xs text-muted-foreground">Une demande de paiement sera envoyée sur ce numéro. Approuvez avec votre code PIN Mobile Money.</p>
             </div>
           )}
 

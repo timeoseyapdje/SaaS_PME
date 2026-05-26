@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { initializePayment, isNotchPayConfigured, calculateGrossAmount } from "@/lib/notchpay";
+import { initiatePayIn, isGetMiPayConfigured, calculateGrossAmount } from "@/lib/getmipay";
 import { sendPaymentRequestNotification } from "@/lib/email";
 
 export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
@@ -25,7 +25,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     }
 
     const { grossAmount, feeAmount } = calculateGrossAmount(link.amount);
-    // Only expose safe fields to the public
     return NextResponse.json({
       id: link.id,
       title: link.title,
@@ -38,7 +37,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
       maxUses: link.maxUses,
       company: link.company,
       client: link.client,
-      notchpayEnabled: isNotchPayConfigured(),
+      getMiPayEnabled: isGetMiPayConfigured(),
       grossAmount,
       feeAmount,
     });
@@ -65,17 +64,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       return NextResponse.json({ error: "Méthode de paiement requise" }, { status: 400 });
     }
 
-    // For online mobile money payments, gross up the amount so company receives exactly link.amount
-    const isOnline = isNotchPayConfigured() && ["MTN_MONEY", "ORANGE_MONEY"].includes(paymentMethod);
+    const isMobileMoney = isGetMiPayConfigured() && ["MTN_MONEY", "ORANGE_MONEY"].includes(paymentMethod);
     const { grossAmount, feeAmount } = calculateGrossAmount(link.amount);
-    const chargedAmount = isOnline ? grossAmount : link.amount;
+    const chargedAmount = isMobileMoney ? grossAmount : link.amount;
 
     const transaction = await prisma.paymentLinkTransaction.create({
       data: {
         paymentLinkId: link.id,
         amount: link.amount,
-        grossAmount: isOnline ? grossAmount : null,
-        feeAmount: isOnline ? feeAmount : null,
+        grossAmount: isMobileMoney ? grossAmount : null,
+        feeAmount: isMobileMoney ? feeAmount : null,
         paymentMethod,
         phoneNumber: phoneNumber || null,
         payerName: payerName || null,
@@ -102,31 +100,35 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       }).catch(console.error);
     }
 
-    if (isOnline) {
+    if (isMobileMoney && phoneNumber) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
-      // Callback = user redirect after payment (GET), NOT the webhook (POST)
-      const callbackUrl = `${appUrl}/api/payments/notchpay/callback/payment-link?slug=${slug}`;
-      const email = payerEmail || link.company?.email || "client@nkapcontrol.com";
+      const callbackUrl = `${appUrl}/api/payments/getmipay/callback/payment-link?slug=${slug}&txId=${transaction.id}`;
 
-      const notchpay = await initializePayment({
-        email,
+      const result = await initiatePayIn({
         amount: chargedAmount,
         currency: link.currency,
-        reference: transaction.id,
+        wallet: phoneNumber,
         description: link.title,
+        customerName: payerName || undefined,
+        customerEmail: payerEmail || undefined,
         callbackUrl,
+        paymentMethod: paymentMethod as "MTN_MONEY" | "ORANGE_MONEY",
+        reference: transaction.id,
       });
 
-      if (notchpay) {
+      if (result) {
         await prisma.paymentLinkTransaction.update({
           where: { id: transaction.id },
           data: {
-            notchpayRef: notchpay.reference,       // trx.xxx from NotchPay
-            transactionRef: transaction.id,          // our own merchant ref
+            notchpayRef: result.transactionReference,
+            transactionRef: transaction.id,
           },
         });
-        return NextResponse.json({ checkoutUrl: notchpay.checkoutUrl });
+
+        return NextResponse.json({ directCharge: true, transactionId: transaction.id });
       }
+
+      return NextResponse.json({ error: "Erreur lors de l'initiation du paiement Mobile Money" }, { status: 500 });
     }
 
     return NextResponse.json({ message: "Transaction enregistrée. Le marchand vous contactera pour confirmation." });

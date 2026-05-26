@@ -261,11 +261,11 @@ const steps = [
     bg: "bg-cyan-500/10",
     border: "border-cyan-500/20",
     title: "Générez des liens de paiement",
-    description: "Créez un lien de paiement et partagez-le par WhatsApp. Votre client paie via MTN, Orange Money ou NotchPay.",
+    description: "Créez un lien de paiement et partagez-le par WhatsApp. Votre client paie via MTN ou Orange Money.",
     actions: [
       "Définissez le montant et une date d'expiration",
       "Copiez et partagez le lien par WhatsApp, SMS ou email",
-      "Le client paie via MTN Money, Orange Money ou NotchPay (mobile money et carte)",
+      "Le client paie via MTN Mobile Money ou Orange Money",
       "Vous êtes notifié dès que le paiement est confirmé",
     ],
     screen: (

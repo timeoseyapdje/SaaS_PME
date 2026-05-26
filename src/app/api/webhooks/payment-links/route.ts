@@ -1,28 +1,26 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyWebhookSignature, initiateTransfer } from "@/lib/notchpay";
+import { initiatePayOut } from "@/lib/getmipay";
 
-function parseProvider(body: Record<string, unknown>): {
+const MOBILE_MONEY_METHODS: Record<string, "MTN_MONEY" | "ORANGE_MONEY"> = {
+  MTN_MONEY: "MTN_MONEY",
+  ORANGE_MONEY: "ORANGE_MONEY",
+};
+
+function parseWebhookBody(body: Record<string, unknown>): {
   transactionRef: string | null;
   success: boolean;
   failed: boolean;
 } {
-  // NotchPay
-  if ("event" in body && "data" in body) {
-    const data = body.data as Record<string, unknown>;
+  // getMIpay format
+  if ("transaction_reference" in body || "external_reference" in body || (body.data && typeof body.data === "object")) {
+    const data = (body.data as Record<string, unknown>) || body;
+    const ref = (data.external_reference || data.transaction_reference || body.external_reference || body.transaction_reference) as string | null;
+    const status = ((data.status || body.status) as string || "").toUpperCase();
     return {
-      transactionRef: (data.reference as string) ?? null,
-      success: body.event === "payment.complete" && data.status === "complete",
-      failed: body.event === "payment.failed" || data.status === "failed",
-    };
-  }
-
-  // CinetPay
-  if ("cpm_trans_id" in body) {
-    return {
-      transactionRef: (body.cpm_trans_id as string) ?? null,
-      success: body.cpm_result === "00",
-      failed: body.cpm_result !== "00",
+      transactionRef: ref ?? null,
+      success: ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(status),
+      failed: ["FAILED", "CANCELLED", "REJECTED"].includes(status),
     };
   }
 
@@ -36,23 +34,11 @@ function parseProvider(body: Record<string, unknown>): {
   };
 }
 
-const MOBILE_MONEY_CHANNELS: Record<string, "cm.mtn" | "cm.orange"> = {
-  MTN_MONEY: "cm.mtn",
-  ORANGE_MONEY: "cm.orange",
-};
-
 export async function POST(request: Request) {
   try {
     const rawBody = await request.text();
-
-    const signature = request.headers.get("x-notch-signature") || request.headers.get("x-notchpay-signature") || "";
-    if (!verifyWebhookSignature(rawBody, signature)) {
-      console.error("Webhook payment-links: invalid signature");
-      return NextResponse.json({ error: "Signature invalide" }, { status: 401 });
-    }
-
     const body = JSON.parse(rawBody) as Record<string, unknown>;
-    const { transactionRef, success, failed } = parseProvider(body);
+    const { transactionRef, success, failed } = parseWebhookBody(body);
 
     if (!transactionRef) {
       return NextResponse.json({ received: true });
@@ -63,6 +49,7 @@ export async function POST(request: Request) {
         OR: [
           { notchpayRef: transactionRef },
           { transactionRef },
+          { id: transactionRef },
         ],
       },
       include: {
@@ -70,10 +57,7 @@ export async function POST(request: Request) {
           include: {
             company: {
               include: {
-                bankAccounts: {
-                  where: { isDefault: true },
-                  take: 1,
-                },
+                bankAccounts: { where: { isDefault: true }, take: 1 },
               },
             },
           },
@@ -99,7 +83,6 @@ export async function POST(request: Request) {
     });
 
     if (newStatus === "COMPLETED") {
-      // Check if payout already exists (idempotency — callback may have already processed this)
       const existingPayout = await prisma.payout.findUnique({
         where: { paymentLinkTransactionId: tx.id },
       });
@@ -109,31 +92,29 @@ export async function POST(request: Request) {
         const defaultAccount = company.bankAccounts[0];
 
         if (defaultAccount) {
-          // Update treasury balance
           await prisma.bankAccount.update({
             where: { id: defaultAccount.id },
             data: { balance: { increment: tx.amount } },
           });
 
-          // Attempt automatic transfer for mobile money accounts
-          const channel = MOBILE_MONEY_CHANNELS[defaultAccount.type];
+          const method = MOBILE_MONEY_METHODS[defaultAccount.type];
           const phone = defaultAccount.phoneNumber || defaultAccount.accountNumber;
 
           let payoutRef: string | undefined;
           let payoutStatus: "INITIATED" | "PROCESSING" | "FAILED" = "INITIATED";
 
-          if (channel && phone) {
-            const transfer = await initiateTransfer({
+          if (method && phone) {
+            const payout = await initiatePayOut({
               amount: tx.amount,
               currency: tx.paymentLink.currency,
-              phoneNumber: phone,
-              channel,
+              wallet: phone,
               description: `Reversement - ${tx.paymentLink.title}`,
+              paymentMethod: method,
               reference: `payout-${tx.id}`,
             });
 
-            if (transfer) {
-              payoutRef = transfer.reference;
+            if (payout) {
+              payoutRef = payout.transactionReference;
               payoutStatus = "PROCESSING";
             } else {
               payoutStatus = "FAILED";
@@ -149,7 +130,6 @@ export async function POST(request: Request) {
               currency: tx.paymentLink.currency,
               status: payoutStatus,
               payoutRef: payoutRef ?? null,
-              completedAt: payoutStatus === "PROCESSING" ? null : undefined,
             },
           });
         }

@@ -94,7 +94,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-3">5. Paiements</h2>
             <ul className="list-disc pl-5 space-y-1.5">
-              <li>Les paiements sont acceptés via MTN Mobile Money, Orange Money, NotchPay (mobile money et carte bancaire) et virement bancaire</li>
+              <li>Les paiements sont acceptés via MTN Mobile Money, Orange Money et virement bancaire, traités par getMIpay</li>
               <li>Les abonnements sont facturés mensuellement</li>
               <li>Les paiements par virement sont validés après réception effective des fonds</li>
               <li>Les comptes système (administrateur et démonstration) sont exemptés de paiement</li>

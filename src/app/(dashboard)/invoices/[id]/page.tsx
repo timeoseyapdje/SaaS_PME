@@ -21,6 +21,50 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { exportInvoicePDF } from "@/lib/export";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+function buildWhatsAppUrl(invoice: Invoice): string {
+  const client = invoice.client;
+  const message = encodeURIComponent(
+    `Bonjour ${client?.name || ""},\n\nVoici votre facture *${invoice.number}* d'un montant de ${formatCurrency(invoice.total, invoice.currency)}, échéance le ${new Date(invoice.dueDate).toLocaleDateString("fr-FR")}.\n\nMerci de votre confiance.`
+  );
+  const phone = client?.phone?.replace(/\D/g, "");
+  if (phone) {
+    const formatted = phone.startsWith("237") ? phone : `237${phone}`;
+    return `https://wa.me/${formatted}?text=${message}`;
+  }
+  return `https://wa.me/?text=${message}`;
+}
+
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  ESPECES: "Espèces",
+  VIREMENT: "Virement",
+  CHEQUE: "Chèque",
+  MTN_MONEY: "MTN Money",
+  ORANGE_MONEY: "Orange Money",
+  CARTE_BANCAIRE: "Carte bancaire",
+  NOTCHPAY: "getMIpay",
+  GETMIPAY: "getMIpay",
+};
+
+const RECURRENCE_LABELS: Record<string, string> = {
+  MONTHLY: "Mensuelle",
+  QUARTERLY: "Trimestrielle",
+  YEARLY: "Annuelle",
+};
+
+function formatAmount(amount: number): string {
+  return new Intl.NumberFormat("fr-FR").format(amount) + " XAF";
+}
 
 export default function InvoiceDetailPage() {
   const params = useParams();

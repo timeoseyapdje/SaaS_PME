@@ -117,6 +117,8 @@ export default function SubscriptionPage() {
   // Formulaire
   const [selectedPlan, setSelectedPlan] = useState("");
   const [promoCode, setPromoCode] = useState("");
+  const [payPhone, setPayPhone] = useState("");
+  const [payMethod, setPayMethod] = useState("MTN_MONEY");
 
   const fetchSubscription = useCallback(async () => {
     try {
@@ -137,18 +139,19 @@ export default function SubscriptionPage() {
 
   async function handleSubscribe() {
     if (!selectedPlan) return;
+    if (!payPhone) { setError("Numéro de téléphone requis"); return; }
 
     setError("");
     setSubmitting(true);
     try {
-      const res = await fetch("/api/payments/notchpay", {
+      const res = await fetch("/api/payments/getmipay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: selectedPlan }),
+        body: JSON.stringify({ plan: selectedPlan, phone: payPhone, paymentMethod: payMethod }),
       });
       const data = await res.json();
-      if (res.ok && data.authorizationUrl) {
-        window.location.href = data.authorizationUrl;
+      if (res.ok && data.directCharge) {
+        setSuccess(true);
         return;
       }
       setError(data.error || "Erreur lors de l'initialisation du paiement");
@@ -352,6 +355,30 @@ export default function SubscriptionPage() {
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground">Méthode de paiement *</Label>
+                    <select
+                      value={payMethod}
+                      onChange={e => setPayMethod(e.target.value)}
+                      className="w-full h-10 rounded-lg border border-border bg-background px-3 text-sm text-foreground"
+                    >
+                      <option value="MTN_MONEY">MTN Mobile Money</option>
+                      <option value="ORANGE_MONEY">Orange Money</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground flex items-center gap-1">
+                      <Smartphone className="w-3 h-3" />
+                      Numéro Mobile Money *
+                    </Label>
+                    <Input
+                      type="tel"
+                      placeholder="6XX XXX XXX"
+                      value={payPhone}
+                      onChange={e => setPayPhone(e.target.value)}
+                      className="bg-background border-border"
+                    />
+                  </div>
                   <div className="space-y-2">
                     <Label className="text-muted-foreground flex items-center gap-1">
                       <Tag className="w-3 h-3" />
