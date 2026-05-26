@@ -1,14 +1,31 @@
-const GETMIPAY_API = process.env.GETMIPAY_BASE_URL || "https://api.getmipay.com";
-
 export const GETMIPAY_FEE_RATE = 0.015;
 
-const SERVICE_IDS: Record<"MTN_MONEY" | "ORANGE_MONEY", string> = {
-  MTN_MONEY: process.env.GETMIPAY_MTN_SERVICE_ID || "",
-  ORANGE_MONEY: process.env.GETMIPAY_ORANGE_SERVICE_ID || "",
-};
+function getApiBase(): string {
+  return process.env.GETMIPAY_BASE_URL || "https://api.getmipay.com";
+}
+
+function getServiceId(paymentMethod: "MTN_MONEY" | "ORANGE_MONEY"): string {
+  return paymentMethod === "MTN_MONEY"
+    ? process.env.GETMIPAY_MTN_SERVICE_ID || ""
+    : process.env.GETMIPAY_ORANGE_SERVICE_ID || "";
+}
 
 export function isGetMiPayConfigured(): boolean {
-  return !!(process.env.GETMIPAY_PUBLIC_KEY && process.env.GETMIPAY_PRIVATE_KEY);
+  return !!(
+    process.env.GETMIPAY_PUBLIC_KEY &&
+    process.env.GETMIPAY_PRIVATE_KEY &&
+    (process.env.GETMIPAY_MTN_SERVICE_ID || process.env.GETMIPAY_ORANGE_SERVICE_ID)
+  );
+}
+
+export function getMiPayConfigStatus(): Record<string, boolean> {
+  return {
+    GETMIPAY_PUBLIC_KEY: !!process.env.GETMIPAY_PUBLIC_KEY,
+    GETMIPAY_PRIVATE_KEY: !!process.env.GETMIPAY_PRIVATE_KEY,
+    GETMIPAY_BASE_URL: !!process.env.GETMIPAY_BASE_URL,
+    GETMIPAY_MTN_SERVICE_ID: !!process.env.GETMIPAY_MTN_SERVICE_ID,
+    GETMIPAY_ORANGE_SERVICE_ID: !!process.env.GETMIPAY_ORANGE_SERVICE_ID,
+  };
 }
 
 export function calculateGrossAmount(netAmount: number): { grossAmount: number; feeAmount: number } {
@@ -32,7 +49,7 @@ async function getAuthToken(): Promise<string | null> {
   if (!publicKey || !privateKey) return null;
 
   try {
-    const res = await fetch(`${GETMIPAY_API}/auth/login`, {
+    const res = await fetch(`${getApiBase()}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ public_apikey: publicKey, private_secretkey: privateKey }),
@@ -42,7 +59,6 @@ async function getAuthToken(): Promise<string | null> {
       return null;
     }
     const data = await res.json();
-    // Support various response shapes: flat or nested under data/result
     const token =
       data.access_token ||
       data.token ||
@@ -85,14 +101,14 @@ export async function initiatePayIn({
   const token = await getAuthToken();
   if (!token) return null;
 
-  const serviceId = SERVICE_IDS[paymentMethod];
+  const serviceId = getServiceId(paymentMethod);
   if (!serviceId) {
     console.error("getMIpay: service ID not configured for", paymentMethod);
     return null;
   }
 
   try {
-    const res = await fetch(`${GETMIPAY_API}/payment/payin`, {
+    const res = await fetch(`${getApiBase()}/payment/payin`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -163,11 +179,11 @@ export async function initiatePayOut({
   const token = await getAuthToken();
   if (!token) return null;
 
-  const serviceId = SERVICE_IDS[paymentMethod];
+  const serviceId = getServiceId(paymentMethod);
   if (!serviceId) return null;
 
   try {
-    const res = await fetch(`${GETMIPAY_API}/payout`, {
+    const res = await fetch(`${getApiBase()}/payout`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -220,7 +236,7 @@ export async function checkPaymentStatus(reference: string): Promise<{ status: s
   if (!token) return null;
 
   try {
-    const res = await fetch(`${GETMIPAY_API}/payment/status/${reference}`, {
+    const res = await fetch(`${getApiBase()}/payment/status/${reference}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) return null;
