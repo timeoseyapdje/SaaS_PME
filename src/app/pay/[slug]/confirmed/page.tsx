@@ -40,7 +40,7 @@ function ConfirmedContent() {
         </div>
 
         <p className="text-sm text-muted-foreground">
-          Votre paiement a été traité avec succès par NotchPay.
+          Votre paiement a été traité avec succès.
         </p>
 
         {/* Open in browser — for PWA / WebView */}
