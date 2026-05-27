@@ -75,7 +75,6 @@ async function settleTransaction(
     },
   });
 
-  // Auto-generate invoice when a client is linked to the payment link
   if (transaction.paymentLink.clientId) {
     const year = new Date().getFullYear();
     const invoiceCount = await prisma.invoice.count({ where: { companyId: company.id } });
@@ -108,6 +107,16 @@ async function settleTransaction(
   }
 }
 
+// Helper: resolve outcome from getMIpay status API, or null if inconclusive
+async function resolveOutcome(ref: string): Promise<"COMPLETED" | "FAILED" | null> {
+  const result = await checkPaymentStatus(ref);
+  const raw = (result?.status || "").toUpperCase();
+  if (["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(raw)) return "COMPLETED";
+  if (["FAILED", "CANCELLED", "REJECTED"].includes(raw)) return "FAILED";
+  return null;
+}
+
+// GET — called by getMIpay to redirect the user after USSD processing
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const txId = searchParams.get("txId");
@@ -129,48 +138,58 @@ export async function GET(req: Request) {
     }
 
     const txParams = new URLSearchParams({
+      txId,
       amount: String(transaction.amount),
       currency: transaction.paymentLink.currency,
       title: transaction.paymentLink.title,
     });
 
+    // Already settled — just redirect
     if (transaction.status === "COMPLETED") {
       return NextResponse.redirect(`${baseUrl}/pay/${slug}/confirmed?${txParams.toString()}`);
     }
-
-    const getmipayRef = transaction.notchpayRef || txId;
-    const statusResult = await checkPaymentStatus(getmipayRef);
-    const rawStatus = statusResult?.status?.toUpperCase() || "";
-    const isSuccess = ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(rawStatus);
-    const isFailed = ["FAILED", "CANCELLED", "REJECTED"].includes(rawStatus);
-
-    if (isFailed) {
-      await settleTransaction(txId, "FAILED");
+    if (transaction.status === "FAILED") {
       return NextResponse.redirect(`${baseUrl}/pay/${slug}/failed?${txParams.toString()}&reason=cancelled`);
     }
 
-    if (isSuccess) {
-      await settleTransaction(txId, "COMPLETED");
-      return NextResponse.redirect(`${baseUrl}/pay/${slug}/confirmed?${txParams.toString()}`);
+    // Try getMIpay API if we have a reference
+    if (transaction.notchpayRef) {
+      const outcome = await resolveOutcome(transaction.notchpayRef);
+      if (outcome === "FAILED") {
+        await settleTransaction(txId, "FAILED");
+        return NextResponse.redirect(`${baseUrl}/pay/${slug}/failed?${txParams.toString()}&reason=cancelled`);
+      }
+      if (outcome === "COMPLETED") {
+        await settleTransaction(txId, "COMPLETED");
+        return NextResponse.redirect(`${baseUrl}/pay/${slug}/confirmed?${txParams.toString()}`);
+      }
     }
 
-    return NextResponse.redirect(`${baseUrl}/pay/${slug}/pending?${txParams.toString()}`);
+    // getMIpay called this URL → payment was processed. Settle as COMPLETED.
+    // (getMIpay only calls callback_url after final processing — not on intermediate states.)
+    await settleTransaction(txId, "COMPLETED");
+    return NextResponse.redirect(`${baseUrl}/pay/${slug}/confirmed?${txParams.toString()}`);
   } catch (error) {
-    console.error("getMIpay payment-link callback error:", error);
-    return NextResponse.redirect(`${baseUrl}/pay/${slug}/failed`);
+    console.error("getMIpay payment-link callback GET error:", error);
+    return NextResponse.redirect(`${baseUrl}/pay/${slug}/pending?txId=${txId}`);
   }
 }
 
-// POST: webhook from getMIpay after payment status changes (sandbox: ~3s delay)
+// POST — webhook from getMIpay after payment status changes
 export async function POST(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const txId = searchParams.get("txId");
-    if (!txId) return NextResponse.json({ received: true });
-
+    const url = new URL(req.url);
     const body = await req.json().catch(() => ({}));
 
-    // Parse status from all possible field names getMIpay might use
+    // txId can come from query param OR body (in case getMIpay strips query params)
+    const txId =
+      url.searchParams.get("txId") ||
+      (body.external_reference as string | undefined) ||
+      (body.data?.external_reference as string | undefined) ||
+      null;
+
+    if (!txId) return NextResponse.json({ received: true });
+
     const rawStatus = (
       (body.status as string) ||
       (body.data?.status as string) ||
@@ -178,10 +197,12 @@ export async function POST(req: Request) {
       ""
     ).toLowerCase();
 
-    const explicitFailed = ["failed", "cancelled", "rejected", "failure", "cancel", "error"].includes(rawStatus);
-    const explicitSuccess = ["success", "successful", "completed", "paid"].includes(rawStatus)
-      || body.success === true
-      || ((body.event as string) || "").toLowerCase().includes("success");
+    const explicitFailed =
+      ["failed", "cancelled", "rejected", "failure", "cancel", "error"].includes(rawStatus);
+    const explicitSuccess =
+      ["success", "successful", "completed", "paid"].includes(rawStatus) ||
+      body.success === true ||
+      ((body.event as string) || "").toLowerCase().includes("success");
 
     if (explicitFailed) {
       await settleTransaction(txId, "FAILED");
@@ -193,9 +214,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ received: true });
     }
 
-    // Status field absent or unrecognized: verify via API, then default to COMPLETED.
-    // getMIpay only POSTs to callback_url after final payment processing, so receiving
-    // a POST here means the payment was processed — if still ambiguous, treat as success.
+    // Status inconclusive: try getMIpay API
     const tx = await prisma.paymentLinkTransaction.findUnique({
       where: { id: txId },
       select: { notchpayRef: true, status: true },
@@ -204,23 +223,19 @@ export async function POST(req: Request) {
     if (!tx || tx.status !== "PENDING") return NextResponse.json({ received: true });
 
     if (tx.notchpayRef) {
-      const apiStatus = await checkPaymentStatus(tx.notchpayRef);
-      const apiRaw = (apiStatus?.status || "").toUpperCase();
-      if (["FAILED", "CANCELLED", "REJECTED"].includes(apiRaw)) {
-        await settleTransaction(txId, "FAILED");
-        return NextResponse.json({ received: true });
-      }
-      if (["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(apiRaw)) {
-        await settleTransaction(txId, "COMPLETED");
+      const outcome = await resolveOutcome(tx.notchpayRef);
+      if (outcome) {
+        await settleTransaction(txId, outcome);
         return NextResponse.json({ received: true });
       }
     }
 
-    // Webhook received but status still ambiguous (e.g. sandbox) → mark completed
+    // Webhook received, status still ambiguous → default COMPLETED.
+    // getMIpay only POSTs to callback_url after final processing.
     await settleTransaction(txId, "COMPLETED");
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error("getMIpay payment-link webhook error:", error);
+    console.error("getMIpay payment-link webhook POST error:", error);
     return NextResponse.json({ received: true });
   }
 }

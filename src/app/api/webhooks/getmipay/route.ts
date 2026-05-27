@@ -120,7 +120,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ received: true });
     }
 
-    if (mappedStatus === "COMPLETED") {
+    // COMPLETED or status ambiguous: getMIpay only fires the webhook after processing,
+    // so receiving it at all means the payment went through.
+    if (mappedStatus === "COMPLETED" || mappedStatus === "PENDING") {
       await prisma.paymentLinkTransaction.update({
         where: { id: plTx.id },
         data: { status: "COMPLETED", paidAt: new Date() },
