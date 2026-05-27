@@ -43,22 +43,27 @@ function formatWallet(phone: string): string {
   return digits.startsWith("237") ? digits : `237${digits}`;
 }
 
-async function getAuthToken(): Promise<string | null> {
+async function getAuthToken(): Promise<{ token: string } | { error: string }> {
   const publicKey = process.env.GETMIPAY_PUBLIC_KEY;
   const privateKey = process.env.GETMIPAY_PRIVATE_KEY;
-  if (!publicKey || !privateKey) return null;
+  const base = getApiBase();
 
+  if (!publicKey || !privateKey) {
+    return { error: `credentials_missing (base: ${base})` };
+  }
+
+  let rawBody = "";
   try {
-    const res = await fetch(`${getApiBase()}/auth/login`, {
+    const res = await fetch(`${base}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ public_apikey: publicKey, private_secretkey: privateKey }),
     });
+    rawBody = await res.text();
     if (!res.ok) {
-      console.error("getMIpay auth failed:", res.status, await res.text());
-      return null;
+      return { error: `auth_http_${res.status} (base: ${base}): ${rawBody.slice(0, 300)}` };
     }
-    const data = await res.json();
+    const data = JSON.parse(rawBody);
     const token =
       data.access_token ||
       data.token ||
@@ -68,12 +73,11 @@ async function getAuthToken(): Promise<string | null> {
       data.result?.token ||
       null;
     if (!token) {
-      console.error("getMIpay auth: no token in response", JSON.stringify(data));
+      return { error: `auth_no_token (base: ${base}): ${rawBody.slice(0, 200)}` };
     }
-    return token;
+    return { token };
   } catch (err) {
-    console.error("getMIpay auth error:", err);
-    return null;
+    return { error: `auth_exception (base: ${base}): ${String(err)} — body: ${rawBody.slice(0, 100)}` };
   }
 }
 
@@ -98,8 +102,9 @@ export async function initiatePayIn({
   paymentMethod: "MTN_MONEY" | "ORANGE_MONEY";
   reference: string;
 }): Promise<{ transactionReference: string } | { error: string }> {
-  const token = await getAuthToken();
-  if (!token) return { error: "auth_failed: impossible d'obtenir le token getMIpay" };
+  const authResult = await getAuthToken();
+  if ("error" in authResult) return { error: authResult.error };
+  const token = authResult.token;
 
   const serviceId = getServiceId(paymentMethod);
   if (!serviceId) {
@@ -173,8 +178,9 @@ export async function initiatePayOut({
   paymentMethod: "MTN_MONEY" | "ORANGE_MONEY";
   reference: string;
 }): Promise<{ transactionReference: string } | null> {
-  const token = await getAuthToken();
-  if (!token) return null;
+  const authResult = await getAuthToken();
+  if ("error" in authResult) { console.error("getMIpay payout auth failed:", authResult.error); return null; }
+  const token = authResult.token;
 
   const serviceId = getServiceId(paymentMethod);
   if (!serviceId) return null;
@@ -229,8 +235,9 @@ export async function initiatePayOut({
 }
 
 export async function checkPaymentStatus(reference: string): Promise<{ status: string; amount?: number; netAmount?: number } | null> {
-  const token = await getAuthToken();
-  if (!token) return null;
+  const authResult = await getAuthToken();
+  if ("error" in authResult) { console.error("getMIpay checkStatus auth failed:", authResult.error); return null; }
+  const token = authResult.token;
 
   try {
     const res = await fetch(`${getApiBase()}/payment/status/${reference}`, {
