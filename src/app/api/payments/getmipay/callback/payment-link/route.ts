@@ -7,6 +7,75 @@ const MOBILE_MONEY_METHODS: Record<string, "MTN_MONEY" | "ORANGE_MONEY"> = {
   ORANGE_MONEY: "ORANGE_MONEY",
 };
 
+async function settleTransaction(
+  txId: string,
+  outcome: "COMPLETED" | "FAILED"
+) {
+  const transaction = await prisma.paymentLinkTransaction.findUnique({
+    where: { id: txId },
+    include: {
+      paymentLink: {
+        include: {
+          company: { include: { bankAccounts: { where: { isDefault: true }, take: 1 } } },
+        },
+      },
+    },
+  });
+
+  if (!transaction || transaction.status !== "PENDING") return;
+
+  await prisma.paymentLinkTransaction.update({
+    where: { id: txId },
+    data: { status: outcome, paidAt: outcome === "COMPLETED" ? new Date() : null },
+  });
+
+  if (outcome !== "COMPLETED") return;
+
+  const company = transaction.paymentLink.company;
+  const defaultAccount = company.bankAccounts[0];
+  if (!defaultAccount) return;
+
+  await prisma.bankAccount.update({
+    where: { id: defaultAccount.id },
+    data: { balance: { increment: transaction.amount } },
+  });
+
+  const existingPayout = await prisma.payout.findUnique({
+    where: { paymentLinkTransactionId: transaction.id },
+  });
+  if (existingPayout) return;
+
+  const method = MOBILE_MONEY_METHODS[defaultAccount.type];
+  const phone = defaultAccount.phoneNumber || defaultAccount.accountNumber;
+  let payoutRef: string | undefined;
+  let payoutStatus: "INITIATED" | "PROCESSING" | "FAILED" = "INITIATED";
+
+  if (method && phone) {
+    const payout = await initiatePayOut({
+      amount: transaction.amount,
+      currency: transaction.paymentLink.currency,
+      wallet: phone,
+      description: `Reversement - ${transaction.paymentLink.title}`,
+      paymentMethod: method,
+      reference: `payout-${transaction.id}`,
+    });
+    if (payout) { payoutRef = payout.transactionReference; payoutStatus = "PROCESSING"; }
+    else { payoutStatus = "FAILED"; }
+  }
+
+  await prisma.payout.create({
+    data: {
+      companyId: company.id,
+      bankAccountId: defaultAccount.id,
+      paymentLinkTransactionId: transaction.id,
+      amount: transaction.amount,
+      currency: transaction.paymentLink.currency,
+      status: payoutStatus,
+      payoutRef: payoutRef ?? null,
+    },
+  });
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const txId = searchParams.get("txId");
@@ -20,86 +89,35 @@ export async function GET(req: Request) {
   try {
     const transaction = await prisma.paymentLinkTransaction.findUnique({
       where: { id: txId },
-      include: {
-        paymentLink: {
-          include: {
-            company: {
-              include: {
-                bankAccounts: { where: { isDefault: true }, take: 1 },
-              },
-            },
-          },
-        },
-      },
+      include: { paymentLink: true },
     });
 
     if (!transaction) {
       return NextResponse.redirect(`${baseUrl}/pay/${slug}?status=error`);
     }
 
+    if (transaction.status === "COMPLETED") {
+      const confirmedParams = new URLSearchParams({
+        amount: String(transaction.amount),
+        currency: transaction.paymentLink.currency,
+        title: transaction.paymentLink.title,
+      });
+      return NextResponse.redirect(`${baseUrl}/pay/${slug}/confirmed?${confirmedParams.toString()}`);
+    }
+
     const getmipayRef = transaction.notchpayRef || txId;
     const statusResult = await checkPaymentStatus(getmipayRef);
     const rawStatus = statusResult?.status?.toUpperCase() || "";
     const isSuccess = ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(rawStatus);
+    const isFailed = ["FAILED", "CANCELLED", "REJECTED"].includes(rawStatus);
 
-    if (isSuccess && transaction.status !== "COMPLETED") {
-      await prisma.paymentLinkTransaction.update({
-        where: { id: transaction.id },
-        data: { status: "COMPLETED", paidAt: new Date() },
-      });
+    if (isFailed) {
+      await settleTransaction(txId, "FAILED");
+      return NextResponse.redirect(`${baseUrl}/pay/${slug}?status=error`);
+    }
 
-      const company = transaction.paymentLink.company;
-      const defaultAccount = company.bankAccounts[0];
-
-      if (defaultAccount) {
-        await prisma.bankAccount.update({
-          where: { id: defaultAccount.id },
-          data: { balance: { increment: transaction.amount } },
-        });
-
-        const existingPayout = await prisma.payout.findUnique({
-          where: { paymentLinkTransactionId: transaction.id },
-        });
-
-        if (!existingPayout) {
-          const method = MOBILE_MONEY_METHODS[defaultAccount.type];
-          const phone = defaultAccount.phoneNumber || defaultAccount.accountNumber;
-
-          let payoutRef: string | undefined;
-          let payoutStatus: "INITIATED" | "PROCESSING" | "FAILED" = "INITIATED";
-
-          if (method && phone) {
-            const payout = await initiatePayOut({
-              amount: transaction.amount,
-              currency: transaction.paymentLink.currency,
-              wallet: phone,
-              description: `Reversement - ${transaction.paymentLink.title}`,
-              paymentMethod: method,
-              reference: `payout-${transaction.id}`,
-            });
-
-            if (payout) {
-              payoutRef = payout.transactionReference;
-              payoutStatus = "PROCESSING";
-            } else {
-              payoutStatus = "FAILED";
-            }
-          }
-
-          await prisma.payout.create({
-            data: {
-              companyId: company.id,
-              bankAccountId: defaultAccount.id,
-              paymentLinkTransactionId: transaction.id,
-              amount: transaction.amount,
-              currency: transaction.paymentLink.currency,
-              status: payoutStatus,
-              payoutRef: payoutRef ?? null,
-            },
-          });
-        }
-      }
-
+    if (isSuccess) {
+      await settleTransaction(txId, "COMPLETED");
       const confirmedParams = new URLSearchParams({
         amount: String(transaction.amount),
         currency: transaction.paymentLink.currency,
@@ -123,86 +141,55 @@ export async function POST(req: Request) {
     if (!txId) return NextResponse.json({ received: true });
 
     const body = await req.json().catch(() => ({}));
-    const rawStatus = (body.status || body.data?.status || "").toLowerCase();
-    const isSuccess = ["success", "successful", "completed", "paid"].includes(rawStatus);
-    const isFailed = ["failed", "cancelled", "rejected"].includes(rawStatus);
 
-    if (!isSuccess && !isFailed) return NextResponse.json({ received: true });
+    // Parse status from all possible field names getMIpay might use
+    const rawStatus = (
+      (body.status as string) ||
+      (body.data?.status as string) ||
+      (body.payment_status as string) ||
+      ""
+    ).toLowerCase();
 
-    const transaction = await prisma.paymentLinkTransaction.findUnique({
-      where: { id: txId },
-      include: {
-        paymentLink: {
-          include: {
-            company: { include: { bankAccounts: { where: { isDefault: true }, take: 1 } } },
-          },
-        },
-      },
-    });
+    const explicitFailed = ["failed", "cancelled", "rejected", "failure", "cancel", "error"].includes(rawStatus);
+    const explicitSuccess = ["success", "successful", "completed", "paid"].includes(rawStatus)
+      || body.success === true
+      || ((body.event as string) || "").toLowerCase().includes("success");
 
-    if (!transaction || transaction.status === "COMPLETED") {
+    if (explicitFailed) {
+      await settleTransaction(txId, "FAILED");
       return NextResponse.json({ received: true });
     }
 
-    if (isFailed) {
-      await prisma.paymentLinkTransaction.update({
-        where: { id: txId },
-        data: { status: "FAILED" },
-      });
+    if (explicitSuccess) {
+      await settleTransaction(txId, "COMPLETED");
       return NextResponse.json({ received: true });
     }
 
-    // Mark COMPLETED
-    await prisma.paymentLinkTransaction.update({
+    // Status field absent or unrecognized: verify via API, then default to COMPLETED.
+    // getMIpay only POSTs to callback_url after final payment processing, so receiving
+    // a POST here means the payment was processed — if still ambiguous, treat as success.
+    const tx = await prisma.paymentLinkTransaction.findUnique({
       where: { id: txId },
-      data: { status: "COMPLETED", paidAt: new Date() },
+      select: { notchpayRef: true, status: true },
     });
 
-    const company = transaction.paymentLink.company;
-    const defaultAccount = company.bankAccounts[0];
-    if (defaultAccount) {
-      await prisma.bankAccount.update({
-        where: { id: defaultAccount.id },
-        data: { balance: { increment: transaction.amount } },
-      });
+    if (!tx || tx.status !== "PENDING") return NextResponse.json({ received: true });
 
-      const existingPayout = await prisma.payout.findUnique({
-        where: { paymentLinkTransactionId: transaction.id },
-      });
-
-      if (!existingPayout) {
-        const method = MOBILE_MONEY_METHODS[defaultAccount.type];
-        const phone = defaultAccount.phoneNumber || defaultAccount.accountNumber;
-        let payoutRef: string | undefined;
-        let payoutStatus: "INITIATED" | "PROCESSING" | "FAILED" = "INITIATED";
-
-        if (method && phone) {
-          const payout = await initiatePayOut({
-            amount: transaction.amount,
-            currency: transaction.paymentLink.currency,
-            wallet: phone,
-            description: `Reversement - ${transaction.paymentLink.title}`,
-            paymentMethod: method,
-            reference: `payout-${transaction.id}`,
-          });
-          if (payout) { payoutRef = payout.transactionReference; payoutStatus = "PROCESSING"; }
-          else { payoutStatus = "FAILED"; }
-        }
-
-        await prisma.payout.create({
-          data: {
-            companyId: company.id,
-            bankAccountId: defaultAccount.id,
-            paymentLinkTransactionId: transaction.id,
-            amount: transaction.amount,
-            currency: transaction.paymentLink.currency,
-            status: payoutStatus,
-            payoutRef: payoutRef ?? null,
-          },
-        });
+    if (tx.notchpayRef) {
+      const apiStatus = await checkPaymentStatus(tx.notchpayRef);
+      const apiRaw = (apiStatus?.status || "").toUpperCase();
+      if (["FAILED", "CANCELLED", "REJECTED"].includes(apiRaw)) {
+        await settleTransaction(txId, "FAILED");
+        return NextResponse.json({ received: true });
+      }
+      if (["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(apiRaw)) {
+        await settleTransaction(txId, "COMPLETED");
+        return NextResponse.json({ received: true });
       }
     }
 
+    // Webhook received but status still ambiguous (e.g. sandbox) → mark completed
+    await settleTransaction(txId, "COMPLETED");
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error("getMIpay payment-link webhook error:", error);

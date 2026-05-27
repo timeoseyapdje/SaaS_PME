@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { initiatePayOut } from "@/lib/getmipay";
 import { sendSubscriptionConfirmationEmail } from "@/lib/email";
+
+const MOBILE_MONEY_METHODS: Record<string, "MTN_MONEY" | "ORANGE_MONEY"> = {
+  MTN_MONEY: "MTN_MONEY",
+  ORANGE_MONEY: "ORANGE_MONEY",
+};
 
 function mapStatus(status: string): string {
   const s = status.toUpperCase();
@@ -86,19 +92,85 @@ export async function POST(req: Request) {
       return NextResponse.json({ received: true, status: mappedStatus });
     }
 
-    // Payment link transaction
+    // Payment link transaction — full handling: status + balance + payout
     const plTx = await prisma.paymentLinkTransaction.findFirst({
       where: { OR: [{ transactionRef }, { notchpayRef: transactionRef }] },
+      include: {
+        paymentLink: {
+          include: {
+            company: {
+              include: {
+                bankAccounts: { where: { isDefault: true }, take: 1 },
+              },
+            },
+          },
+        },
+      },
     });
 
-    if (plTx && plTx.status === "PENDING") {
+    if (!plTx || plTx.status !== "PENDING") {
+      return NextResponse.json({ received: true });
+    }
+
+    if (mappedStatus === "FAILED") {
       await prisma.paymentLinkTransaction.update({
         where: { id: plTx.id },
-        data: {
-          status: mappedStatus === "COMPLETED" ? "COMPLETED" : mappedStatus === "FAILED" ? "FAILED" : "PENDING",
-          paidAt: mappedStatus === "COMPLETED" ? new Date() : null,
-        },
+        data: { status: "FAILED" },
       });
+      return NextResponse.json({ received: true });
+    }
+
+    if (mappedStatus === "COMPLETED") {
+      await prisma.paymentLinkTransaction.update({
+        where: { id: plTx.id },
+        data: { status: "COMPLETED", paidAt: new Date() },
+      });
+
+      const company = plTx.paymentLink.company;
+      const defaultAccount = company.bankAccounts[0];
+
+      if (defaultAccount) {
+        await prisma.bankAccount.update({
+          where: { id: defaultAccount.id },
+          data: { balance: { increment: plTx.amount } },
+        });
+
+        const existingPayout = await prisma.payout.findUnique({
+          where: { paymentLinkTransactionId: plTx.id },
+        });
+
+        if (!existingPayout) {
+          const method = MOBILE_MONEY_METHODS[defaultAccount.type];
+          const phone = defaultAccount.phoneNumber || defaultAccount.accountNumber;
+          let payoutRef: string | undefined;
+          let payoutStatus: "INITIATED" | "PROCESSING" | "FAILED" = "INITIATED";
+
+          if (method && phone) {
+            const payout = await initiatePayOut({
+              amount: plTx.amount,
+              currency: plTx.paymentLink.currency,
+              wallet: phone,
+              description: `Reversement - ${plTx.paymentLink.title}`,
+              paymentMethod: method,
+              reference: `payout-${plTx.id}`,
+            });
+            if (payout) { payoutRef = payout.transactionReference; payoutStatus = "PROCESSING"; }
+            else { payoutStatus = "FAILED"; }
+          }
+
+          await prisma.payout.create({
+            data: {
+              companyId: company.id,
+              bankAccountId: defaultAccount.id,
+              paymentLinkTransactionId: plTx.id,
+              amount: plTx.amount,
+              currency: plTx.paymentLink.currency,
+              status: payoutStatus,
+              payoutRef: payoutRef ?? null,
+            },
+          });
+        }
+      }
     }
 
     return NextResponse.json({ received: true });
