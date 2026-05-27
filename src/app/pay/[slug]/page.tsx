@@ -18,6 +18,8 @@ interface PaymentLinkData {
   status: string;
   currentUses: number;
   maxUses?: number;
+  grossAmount?: number;
+  feeAmount?: number;
   getMiPayEnabled?: boolean;
   company: { name: string; phone?: string; email?: string; logo?: string; city?: string };
   client?: { name: string; email?: string };
@@ -162,7 +164,7 @@ function PaymentPageContent() {
           {urlStatus === "success" ? (
             <>Votre paiement de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été effectué avec succès.</>
           ) : directCharge ? (
-            <>Une demande de paiement de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été envoyée sur votre téléphone. Approuvez avec votre code PIN Mobile Money.</>
+            <>Une demande de paiement de <strong>{data ? formatCurrency(data.grossAmount ?? data.amount, data.currency) : ""}</strong> a été envoyée sur votre téléphone. Approuvez avec votre code PIN Mobile Money.</>
           ) : (
             <>Votre demande de paiement de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été enregistrée.</>
           )}
@@ -210,6 +212,19 @@ function PaymentPageContent() {
           <p className="text-4xl font-bold">{formatCurrency(data!.amount, data!.currency)}</p>
           {data?.description && <p className="text-sm opacity-70 mt-2">{data.description}</p>}
           {data?.client && <p className="text-sm opacity-80 mt-1">Pour : {data.client.name}</p>}
+          {["MTN_MONEY", "ORANGE_MONEY"].includes(method) && data?.getMiPayEnabled && data.feeAmount ? (
+            <div className="mt-3 pt-3 border-t border-white/30 space-y-1 text-sm">
+              <div className="flex justify-between opacity-80">
+                <span>Montant</span><span>{formatCurrency(data.amount, data.currency)}</span>
+              </div>
+              <div className="flex justify-between opacity-80">
+                <span>Frais de traitement (3%)</span><span>+{formatCurrency(data.feeAmount, data.currency)}</span>
+              </div>
+              <div className="flex justify-between font-semibold">
+                <span>Total débité</span><span>{formatCurrency(data.grossAmount!, data.currency)}</span>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         {/* Payment form */}
@@ -258,7 +273,12 @@ function PaymentPageContent() {
 
           <Button type="submit" disabled={submitting || !method} className="w-full h-12 text-base">
             {submitting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
-            Confirmer le paiement · {formatCurrency(data!.amount, data!.currency)}
+            Confirmer le paiement · {formatCurrency(
+              ["MTN_MONEY", "ORANGE_MONEY"].includes(method) && data?.getMiPayEnabled && data.grossAmount
+                ? data.grossAmount
+                : data!.amount,
+              data!.currency
+            )}
           </Button>
         </form>
 
