@@ -18,10 +18,13 @@ function PendingContent() {
   const phone    = searchParams.get("phone");
 
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [debugInfo, setDebugInfo] = useState<string>("");
+  const [debugInfo, setDebugInfo] = useState<string>(`txId: ${txId ?? "ABSENT"}\nslug: ${slug}\nEn attente de la première réponse API…`);
 
   useEffect(() => {
-    if (!txId) return;
+    if (!txId) {
+      setDebugInfo("ERREUR: txId absent de l'URL");
+      return;
+    }
 
     let attempts = 0;
 
@@ -32,17 +35,18 @@ function PendingContent() {
 
       try {
         const res = await fetch(`/api/pay/${slug}/status?txId=${txId}`);
-        if (!res.ok) return;
-        const d = await res.json();
+        const text = await res.text();
+        let d: Record<string, unknown> = {};
+        try { d = JSON.parse(text); } catch { d = { raw: text }; }
 
-        setDebugInfo(JSON.stringify(d, null, 2));
+        setDebugInfo(`attempt: ${attempts}\nhttpStatus: ${res.status}\n\n${JSON.stringify(d, null, 2)}`);
 
         if (d.status === "COMPLETED") {
           clearInterval(pollRef.current!);
           const p = new URLSearchParams({
             amount:   String(d.amount   ?? amount   ?? ""),
-            currency: d.currency ?? currency,
-            title:    d.title    ?? title    ?? "",
+            currency: String(d.currency ?? currency),
+            title:    String(d.title    ?? title    ?? ""),
             phone:    phone      ?? "",
           });
           router.push(`/pay/${slug}/confirmed?${p.toString()}`);
@@ -50,13 +54,13 @@ function PendingContent() {
           clearInterval(pollRef.current!);
           const p = new URLSearchParams({
             amount:   String(d.amount   ?? amount   ?? ""),
-            currency: d.currency ?? currency,
-            title:    d.title    ?? title    ?? "",
+            currency: String(d.currency ?? currency),
+            title:    String(d.title    ?? title    ?? ""),
             reason:   "cancelled",
           });
           router.push(`/pay/${slug}/failed?${p.toString()}`);
         }
-      } catch { /* ignore transient network errors */ }
+      } catch (err) { setDebugInfo(`attempt: ${attempts}\nERREUR réseau: ${String(err)}`); }
     }, 3000);
 
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
@@ -97,14 +101,9 @@ function PendingContent() {
           </div>
         )}
 
-        {debugInfo && (
-          <details className="text-left">
-            <summary className="text-xs text-muted-foreground cursor-pointer">Debug API</summary>
-            <pre className="mt-2 text-xs bg-muted rounded-lg p-3 overflow-auto text-left whitespace-pre-wrap break-all">
-              {debugInfo}
-            </pre>
-          </details>
-        )}
+        <pre className="text-xs bg-muted rounded-lg p-3 overflow-auto text-left whitespace-pre-wrap break-all">
+          {debugInfo}
+        </pre>
 
         <div className="flex flex-col gap-3">
           <a
