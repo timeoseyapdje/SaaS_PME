@@ -1,19 +1,63 @@
 "use client";
 
-import { Suspense } from "react";
-import { useParams, useSearchParams } from "next/navigation";
-import { Clock, Smartphone, ArrowLeft, RefreshCw } from "lucide-react";
+import { Suspense, useEffect, useRef } from "react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { Clock, Smartphone, ArrowLeft, RefreshCw, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
 
 function PendingContent() {
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const slug = params.slug as string;
 
-  const amount = searchParams.get("amount");
+  const txId     = searchParams.get("txId");
+  const amount   = searchParams.get("amount");
   const currency = searchParams.get("currency") || "XAF";
-  const title = searchParams.get("title");
-  const phone = searchParams.get("phone");
+  const title    = searchParams.get("title");
+  const phone    = searchParams.get("phone");
+
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!txId) return;
+
+    let attempts = 0;
+
+    pollRef.current = setInterval(async () => {
+      attempts++;
+      // Stop after ~5 min (100 × 3 s). Page stays visible — user can retry manually.
+      if (attempts > 100) { clearInterval(pollRef.current!); return; }
+
+      try {
+        const res = await fetch(`/api/pay/${slug}/status?txId=${txId}`);
+        if (!res.ok) return;
+        const d = await res.json();
+
+        if (d.status === "COMPLETED") {
+          clearInterval(pollRef.current!);
+          const p = new URLSearchParams({
+            amount:   String(d.amount   ?? amount   ?? ""),
+            currency: d.currency ?? currency,
+            title:    d.title    ?? title    ?? "",
+            phone:    phone      ?? "",
+          });
+          router.push(`/pay/${slug}/confirmed?${p.toString()}`);
+        } else if (d.status === "FAILED") {
+          clearInterval(pollRef.current!);
+          const p = new URLSearchParams({
+            amount:   String(d.amount   ?? amount   ?? ""),
+            currency: d.currency ?? currency,
+            title:    d.title    ?? title    ?? "",
+            reason:   "cancelled",
+          });
+          router.push(`/pay/${slug}/failed?${p.toString()}`);
+        }
+      } catch { /* ignore transient network errors */ }
+    }, 3000);
+
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+  }, [txId, slug, amount, currency, title, phone, router]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -40,8 +84,15 @@ function PendingContent() {
 
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4 text-sm text-yellow-800 dark:text-yellow-300 space-y-1 text-left">
           <p className="font-semibold">Votre paiement est en cours de traitement.</p>
-          <p className="text-xs opacity-80">Si vous avez reçu une demande USSD, veuillez l&apos;approuver avec votre code PIN Mobile Money. Cette page se mettra à jour automatiquement.</p>
+          <p className="text-xs opacity-80">Si vous avez reçu une demande USSD, veuillez l&apos;approuver avec votre code PIN Mobile Money. Cette page se met à jour automatiquement.</p>
         </div>
+
+        {txId && (
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            Vérification en cours…
+          </div>
+        )}
 
         <div className="flex flex-col gap-3">
           <a

@@ -115,7 +115,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
           where: { id: tx.id },
           data: { status: "FAILED" },
         });
-        return NextResponse.json({ status: "FAILED", debug });
+        return NextResponse.json({
+          status: "FAILED",
+          amount: tx.amount,
+          currency: tx.paymentLink.currency,
+          title: tx.paymentLink.title,
+        });
       }
 
       return NextResponse.json({
