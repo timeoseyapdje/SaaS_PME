@@ -23,6 +23,19 @@ async function testAuth(): Promise<{ ok: boolean; token?: string; error?: string
   }
 }
 
+async function fetchMe(token: string) {
+  const base = process.env.GETMIPAY_BASE_URL || "https://api.getmipay.com";
+  try {
+    const res = await fetch(`${base}/api/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return { error: `HTTP ${res.status}` };
+    return await res.json();
+  } catch (e) {
+    return { error: String(e) };
+  }
+}
+
 async function fetchServices(token: string) {
   const base = process.env.GETMIPAY_BASE_URL || "https://api.getmipay.com";
   try {
@@ -40,11 +53,13 @@ export async function GET() {
   const config = getMiPayConfigStatus();
   const base = process.env.GETMIPAY_BASE_URL || "https://api.getmipay.com";
   const auth = await testAuth();
+  const me = auth.ok && auth.token ? await fetchMe(auth.token) : null;
   const services = auth.ok && auth.token ? await fetchServices(auth.token) : null;
   return NextResponse.json({
     config,
     base,
     auth: { ok: auth.ok, error: auth.error },
+    me,
     services,
   });
 }
