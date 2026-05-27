@@ -114,3 +114,98 @@ export async function GET(req: Request) {
     return NextResponse.redirect(`${baseUrl}/pay/${slug}?status=error`);
   }
 }
+
+// POST: webhook from getMIpay after payment status changes (sandbox: ~3s delay)
+export async function POST(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const txId = searchParams.get("txId");
+    if (!txId) return NextResponse.json({ received: true });
+
+    const body = await req.json().catch(() => ({}));
+    const rawStatus = (body.status || body.data?.status || "").toLowerCase();
+    const isSuccess = ["success", "successful", "completed", "paid"].includes(rawStatus);
+    const isFailed = ["failed", "cancelled", "rejected"].includes(rawStatus);
+
+    if (!isSuccess && !isFailed) return NextResponse.json({ received: true });
+
+    const transaction = await prisma.paymentLinkTransaction.findUnique({
+      where: { id: txId },
+      include: {
+        paymentLink: {
+          include: {
+            company: { include: { bankAccounts: { where: { isDefault: true }, take: 1 } } },
+          },
+        },
+      },
+    });
+
+    if (!transaction || transaction.status === "COMPLETED") {
+      return NextResponse.json({ received: true });
+    }
+
+    if (isFailed) {
+      await prisma.paymentLinkTransaction.update({
+        where: { id: txId },
+        data: { status: "FAILED" },
+      });
+      return NextResponse.json({ received: true });
+    }
+
+    // Mark COMPLETED
+    await prisma.paymentLinkTransaction.update({
+      where: { id: txId },
+      data: { status: "COMPLETED", paidAt: new Date() },
+    });
+
+    const company = transaction.paymentLink.company;
+    const defaultAccount = company.bankAccounts[0];
+    if (defaultAccount) {
+      await prisma.bankAccount.update({
+        where: { id: defaultAccount.id },
+        data: { balance: { increment: transaction.amount } },
+      });
+
+      const existingPayout = await prisma.payout.findUnique({
+        where: { paymentLinkTransactionId: transaction.id },
+      });
+
+      if (!existingPayout) {
+        const method = MOBILE_MONEY_METHODS[defaultAccount.type];
+        const phone = defaultAccount.phoneNumber || defaultAccount.accountNumber;
+        let payoutRef: string | undefined;
+        let payoutStatus: "INITIATED" | "PROCESSING" | "FAILED" = "INITIATED";
+
+        if (method && phone) {
+          const payout = await initiatePayOut({
+            amount: transaction.amount,
+            currency: transaction.paymentLink.currency,
+            wallet: phone,
+            description: `Reversement - ${transaction.paymentLink.title}`,
+            paymentMethod: method,
+            reference: `payout-${transaction.id}`,
+          });
+          if (payout) { payoutRef = payout.transactionReference; payoutStatus = "PROCESSING"; }
+          else { payoutStatus = "FAILED"; }
+        }
+
+        await prisma.payout.create({
+          data: {
+            companyId: company.id,
+            bankAccountId: defaultAccount.id,
+            paymentLinkTransactionId: transaction.id,
+            amount: transaction.amount,
+            currency: transaction.paymentLink.currency,
+            status: payoutStatus,
+            payoutRef: payoutRef ?? null,
+          },
+        });
+      }
+    }
+
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error("getMIpay payment-link webhook error:", error);
+    return NextResponse.json({ received: true });
+  }
+}

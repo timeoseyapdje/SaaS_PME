@@ -120,9 +120,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         await prisma.paymentLinkTransaction.update({
           where: { id: transaction.id },
           data: {
-            // Use soleaspay_reference for status polling (GET /api/payment/status/{ref})
             notchpayRef: result.soleaspayReference || result.transactionReference,
-            transactionRef: result.transactionReference,
+            transactionRef: transaction.id,
           },
         });
         return NextResponse.json({ directCharge: true, transactionId: transaction.id });
