@@ -101,7 +101,7 @@ export async function initiatePayIn({
   callbackUrl: string;
   paymentMethod: "MTN_MONEY" | "ORANGE_MONEY";
   reference: string;
-}): Promise<{ transactionReference: string } | { error: string }> {
+}): Promise<{ transactionReference: string; soleaspayReference: string | null } | { error: string }> {
   const authResult = await getAuthToken();
   if ("error" in authResult) return { error: authResult.error };
   const token = authResult.token;
@@ -153,7 +153,8 @@ export async function initiatePayIn({
     if (!txRef) {
       return { error: `payin_no_ref: ${rawBody.slice(0, 200)}` };
     }
-    return { transactionReference: txRef };
+    const soleaspayRef = data.data?.soleaspay_reference || data.soleaspay_reference || null;
+    return { transactionReference: txRef, soleaspayReference: soleaspayRef };
   } catch (err) {
     return { error: `payin_exception: ${String(err)} — body: ${rawBody.slice(0, 200)}` };
   }
