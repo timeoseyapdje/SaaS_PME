@@ -83,7 +83,7 @@ export async function GET(req: Request) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
 
   if (!txId || !slug) {
-    return NextResponse.redirect(`${baseUrl}/pay/${slug || "error"}?status=error`);
+    return NextResponse.redirect(`${baseUrl}/pay/${slug || "unknown"}/failed`);
   }
 
   try {
@@ -93,16 +93,17 @@ export async function GET(req: Request) {
     });
 
     if (!transaction) {
-      return NextResponse.redirect(`${baseUrl}/pay/${slug}?status=error`);
+      return NextResponse.redirect(`${baseUrl}/pay/${slug}/failed`);
     }
 
+    const txParams = new URLSearchParams({
+      amount: String(transaction.amount),
+      currency: transaction.paymentLink.currency,
+      title: transaction.paymentLink.title,
+    });
+
     if (transaction.status === "COMPLETED") {
-      const confirmedParams = new URLSearchParams({
-        amount: String(transaction.amount),
-        currency: transaction.paymentLink.currency,
-        title: transaction.paymentLink.title,
-      });
-      return NextResponse.redirect(`${baseUrl}/pay/${slug}/confirmed?${confirmedParams.toString()}`);
+      return NextResponse.redirect(`${baseUrl}/pay/${slug}/confirmed?${txParams.toString()}`);
     }
 
     const getmipayRef = transaction.notchpayRef || txId;
@@ -113,23 +114,18 @@ export async function GET(req: Request) {
 
     if (isFailed) {
       await settleTransaction(txId, "FAILED");
-      return NextResponse.redirect(`${baseUrl}/pay/${slug}?status=error`);
+      return NextResponse.redirect(`${baseUrl}/pay/${slug}/failed?${txParams.toString()}&reason=cancelled`);
     }
 
     if (isSuccess) {
       await settleTransaction(txId, "COMPLETED");
-      const confirmedParams = new URLSearchParams({
-        amount: String(transaction.amount),
-        currency: transaction.paymentLink.currency,
-        title: transaction.paymentLink.title,
-      });
-      return NextResponse.redirect(`${baseUrl}/pay/${slug}/confirmed?${confirmedParams.toString()}`);
+      return NextResponse.redirect(`${baseUrl}/pay/${slug}/confirmed?${txParams.toString()}`);
     }
 
-    return NextResponse.redirect(`${baseUrl}/pay/${slug}?status=pending`);
+    return NextResponse.redirect(`${baseUrl}/pay/${slug}/pending?${txParams.toString()}`);
   } catch (error) {
     console.error("getMIpay payment-link callback error:", error);
-    return NextResponse.redirect(`${baseUrl}/pay/${slug}?status=error`);
+    return NextResponse.redirect(`${baseUrl}/pay/${slug}/failed`);
   }
 }
 

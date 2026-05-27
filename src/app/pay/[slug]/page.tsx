@@ -88,10 +88,13 @@ function PaymentPageContent() {
           router.push(`/pay/${slug}/confirmed?${params.toString()}`);
         } else if (d.status === "FAILED") {
           clearInterval(pollRef.current!);
-          setError("Le paiement a échoué. Veuillez réessayer.");
-          setSuccess(false);
-          setDirectCharge(false);
-          setTransactionId(null);
+          const failParams = new URLSearchParams({
+            amount: String(d.amount ?? ""),
+            currency: d.currency ?? "XAF",
+            title: d.title ?? "",
+            reason: "cancelled",
+          });
+          router.push(`/pay/${slug}/failed?${failParams.toString()}`);
         }
       } catch { /* ignore network errors during polling */ }
     }, 3000);
