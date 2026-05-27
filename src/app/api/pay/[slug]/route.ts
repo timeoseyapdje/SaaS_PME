@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { initiatePayIn, isGetMiPayConfigured, calculateGrossAmount } from "@/lib/getmipay";
+import { initiatePayIn, isGetMiPayConfigured } from "@/lib/getmipay";
 import { sendPaymentRequestNotification } from "@/lib/email";
 
 export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
@@ -24,7 +24,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
       return NextResponse.json({ error: "Ce lien a atteint son nombre maximum d'utilisations" }, { status: 410 });
     }
 
-    const { grossAmount, feeAmount } = calculateGrossAmount(link.amount);
     return NextResponse.json({
       id: link.id,
       title: link.title,
@@ -38,8 +37,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
       company: link.company,
       client: link.client,
       getMiPayEnabled: isGetMiPayConfigured(),
-      grossAmount,
-      feeAmount,
     });
   } catch (error) {
     console.error(error);
@@ -65,15 +62,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     }
 
     const isMobileMoney = isGetMiPayConfigured() && ["MTN_MONEY", "ORANGE_MONEY"].includes(paymentMethod);
-    const { grossAmount, feeAmount } = calculateGrossAmount(link.amount);
-    const chargedAmount = isMobileMoney ? grossAmount : link.amount;
 
     const transaction = await prisma.paymentLinkTransaction.create({
       data: {
         paymentLinkId: link.id,
         amount: link.amount,
-        grossAmount: isMobileMoney ? grossAmount : null,
-        feeAmount: isMobileMoney ? feeAmount : null,
+        grossAmount: null,
+        feeAmount: null,
         paymentMethod,
         phoneNumber: phoneNumber || null,
         payerName: payerName || null,
@@ -110,7 +105,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       const callbackUrl = `${appUrl}/api/payments/getmipay/callback/payment-link?slug=${slug}&txId=${transaction.id}`;
 
       const result = await initiatePayIn({
-        amount: chargedAmount,
+        amount: link.amount,
         currency: link.currency,
         wallet: phoneNumber,
         description: link.title,
