@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { Clock, Smartphone, ArrowLeft, RefreshCw, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
@@ -18,6 +18,7 @@ function PendingContent() {
   const phone    = searchParams.get("phone");
 
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string>("");
 
   useEffect(() => {
     if (!txId) return;
@@ -33,6 +34,8 @@ function PendingContent() {
         const res = await fetch(`/api/pay/${slug}/status?txId=${txId}`);
         if (!res.ok) return;
         const d = await res.json();
+
+        setDebugInfo(JSON.stringify(d, null, 2));
 
         if (d.status === "COMPLETED") {
           clearInterval(pollRef.current!);
@@ -92,6 +95,15 @@ function PendingContent() {
             <Loader2 className="w-3 h-3 animate-spin" />
             Vérification en cours…
           </div>
+        )}
+
+        {debugInfo && (
+          <details className="text-left">
+            <summary className="text-xs text-muted-foreground cursor-pointer">Debug API</summary>
+            <pre className="mt-2 text-xs bg-muted rounded-lg p-3 overflow-auto text-left whitespace-pre-wrap break-all">
+              {debugInfo}
+            </pre>
+          </details>
         )}
 
         <div className="flex flex-col gap-3">
