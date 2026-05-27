@@ -1,4 +1,4 @@
-export const GETMIPAY_FEE_RATE = 0.015;
+export const GETMIPAY_FEE_RATE = 0.03; // 3% payin fee (source: /api/services)
 
 function getApiBase(): string {
   return process.env.GETMIPAY_BASE_URL || "https://api.getmipay.com";
