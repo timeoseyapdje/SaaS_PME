@@ -41,14 +41,24 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     }
 
     // Still PENDING: ask getMIpay directly for real-time status
-    if (tx.notchpayRef) {
-      const apiStatus = await checkPaymentStatus(tx.notchpayRef);
-      const raw = apiStatus?.status?.toUpperCase() || "";
+    // Per docs: valid references are order_id (= txId = transaction.id) OR soleaspay_reference.
+    // transaction_reference is NOT accepted — always fall back to txId (order_id).
+    {
+      const isKnown = (s: string) =>
+        ["SUCCESS","SUCCESSFUL","COMPLETED","PAID","FAILED","CANCELLED","REJECTED"].includes(s);
+
+      let apiStatus = tx.notchpayRef ? await checkPaymentStatus(tx.notchpayRef) : null;
+      let raw = apiStatus?.status?.toUpperCase() || "";
+
+      if (!isKnown(raw)) {
+        const byOrderId = await checkPaymentStatus(txId);
+        if (byOrderId) { apiStatus = byOrderId; raw = byOrderId.status?.toUpperCase() || ""; }
+      }
+
       const isSuccess = ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(raw);
       const isFailed = ["FAILED", "CANCELLED", "REJECTED"].includes(raw);
 
-      // Debug info included to help diagnose sandbox issues
-      const debug = { ref: tx.notchpayRef, apiStatus, raw };
+      const debug = { ref: tx.notchpayRef, orderId: txId, apiStatus, raw };
 
       if (isSuccess) {
         await prisma.paymentLinkTransaction.update({
@@ -131,13 +141,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
         debug,
       });
     }
-
-    return NextResponse.json({
-      status: "PENDING",
-      amount: tx.amount,
-      currency: tx.paymentLink.currency,
-      title: tx.paymentLink.title,
-    });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ status: "ERROR" }, { status: 500 });
