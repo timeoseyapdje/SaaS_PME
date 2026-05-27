@@ -113,7 +113,7 @@ export async function initiatePayIn({
 
   let rawBody = "";
   try {
-    const res = await fetch(`${getApiBase()}/payment/payin`, {
+    const res = await fetch(`${getApiBase()}/api/payment/payin`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -186,7 +186,7 @@ export async function initiatePayOut({
   if (!serviceId) return null;
 
   try {
-    const res = await fetch(`${getApiBase()}/payout`, {
+    const res = await fetch(`${getApiBase()}/api/payout`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -240,7 +240,7 @@ export async function checkPaymentStatus(reference: string): Promise<{ status: s
   const token = authResult.token;
 
   try {
-    const res = await fetch(`${getApiBase()}/payment/status/${reference}`, {
+    const res = await fetch(`${getApiBase()}/api/payment/status/${reference}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) return null;
