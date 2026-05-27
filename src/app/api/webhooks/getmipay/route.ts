@@ -171,6 +171,38 @@ export async function POST(req: Request) {
           });
         }
       }
+
+      // Auto-generate invoice when a client is linked to the payment link
+      if (plTx.paymentLink.clientId) {
+        const year = new Date().getFullYear();
+        const invoiceCount = await prisma.invoice.count({ where: { companyId: company.id } });
+        const number = `FAC-${year}-${String(invoiceCount + 1).padStart(4, "0")}`;
+        await prisma.invoice.create({
+          data: {
+            companyId: company.id,
+            clientId: plTx.paymentLink.clientId,
+            number,
+            status: "PAID",
+            dueDate: new Date(),
+            paidAt: new Date(),
+            currency: plTx.paymentLink.currency,
+            subtotal: plTx.amount,
+            tvaRate: 0,
+            tvaAmount: 0,
+            total: plTx.amount,
+            applyTVA: false,
+            notes: `Paiement via lien — ${plTx.paymentLink.title}`,
+            items: {
+              create: [{
+                description: plTx.paymentLink.title,
+                quantity: 1,
+                unitPrice: plTx.amount,
+                total: plTx.amount,
+              }],
+            },
+          },
+        });
+      }
     }
 
     return NextResponse.json({ received: true });

@@ -74,6 +74,38 @@ async function settleTransaction(
       payoutRef: payoutRef ?? null,
     },
   });
+
+  // Auto-generate invoice when a client is linked to the payment link
+  if (transaction.paymentLink.clientId) {
+    const year = new Date().getFullYear();
+    const invoiceCount = await prisma.invoice.count({ where: { companyId: company.id } });
+    const number = `FAC-${year}-${String(invoiceCount + 1).padStart(4, "0")}`;
+    await prisma.invoice.create({
+      data: {
+        companyId: company.id,
+        clientId: transaction.paymentLink.clientId,
+        number,
+        status: "PAID",
+        dueDate: new Date(),
+        paidAt: new Date(),
+        currency: transaction.paymentLink.currency,
+        subtotal: transaction.amount,
+        tvaRate: 0,
+        tvaAmount: 0,
+        total: transaction.amount,
+        applyTVA: false,
+        notes: `Paiement via lien — ${transaction.paymentLink.title}`,
+        items: {
+          create: [{
+            description: transaction.paymentLink.title,
+            quantity: 1,
+            unitPrice: transaction.amount,
+            total: transaction.amount,
+          }],
+        },
+      },
+    });
+  }
 }
 
 export async function GET(req: Request) {

@@ -101,7 +101,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     }
 
     if (isMobileMoney && phoneNumber) {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
+      // On Vercel preview, NEXT_PUBLIC_APP_URL points to production — use VERCEL_URL instead
+      // so getMIpay sends the webhook to the correct preview deployment.
+      const appUrl =
+        process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production" && process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
       const callbackUrl = `${appUrl}/api/payments/getmipay/callback/payment-link?slug=${slug}&txId=${transaction.id}`;
 
       const result = await initiatePayIn({
