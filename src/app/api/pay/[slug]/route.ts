@@ -116,7 +116,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         reference: transaction.id,
       });
 
-      if (result) {
+      if ("transactionReference" in result) {
         await prisma.paymentLinkTransaction.update({
           where: { id: transaction.id },
           data: {
@@ -127,7 +127,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         return NextResponse.json({ directCharge: true, transactionId: transaction.id });
       }
 
-      return NextResponse.json({ error: "Erreur lors de l'initiation du paiement Mobile Money" }, { status: 500 });
+      console.error("initiatePayIn failed:", result.error);
+      return NextResponse.json({ error: result.error }, { status: 500 });
     }
 
     return NextResponse.json({ message: "Transaction enregistrée. Le marchand vous contactera pour confirmation." });

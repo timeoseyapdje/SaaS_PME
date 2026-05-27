@@ -97,16 +97,16 @@ export async function initiatePayIn({
   callbackUrl: string;
   paymentMethod: "MTN_MONEY" | "ORANGE_MONEY";
   reference: string;
-}): Promise<{ transactionReference: string } | null> {
+}): Promise<{ transactionReference: string } | { error: string }> {
   const token = await getAuthToken();
-  if (!token) return null;
+  if (!token) return { error: "auth_failed: impossible d'obtenir le token getMIpay" };
 
   const serviceId = getServiceId(paymentMethod);
   if (!serviceId) {
-    console.error("getMIpay: service ID not configured for", paymentMethod);
-    return null;
+    return { error: `service_id_missing: GETMIPAY_${paymentMethod}_SERVICE_ID non configuré` };
   }
 
+  let rawBody = "";
   try {
     const res = await fetch(`${getApiBase()}/payment/payin`, {
       method: "POST",
@@ -128,16 +128,15 @@ export async function initiatePayIn({
       }),
     });
 
+    rawBody = await res.text();
     if (!res.ok) {
-      console.error("getMIpay payin failed:", res.status, await res.text());
-      return null;
+      return { error: `payin_http_${res.status}: ${rawBody.slice(0, 300)}` };
     }
 
-    const data = await res.json();
+    const data = JSON.parse(rawBody);
     const isSuccess = data.success === true || data.status === "success" || data.code === 200 || String(data.code) === "200";
     if (!isSuccess) {
-      console.error("getMIpay payin error:", data.message || data.error, JSON.stringify(data));
-      return null;
+      return { error: `payin_rejected: ${data.message || data.error || rawBody.slice(0, 200)}` };
     }
 
     const txRef =
@@ -147,13 +146,11 @@ export async function initiatePayIn({
       data.reference ||
       null;
     if (!txRef) {
-      console.error("getMIpay payin: no transaction reference in response", JSON.stringify(data));
-      return null;
+      return { error: `payin_no_ref: ${rawBody.slice(0, 200)}` };
     }
     return { transactionReference: txRef };
   } catch (err) {
-    console.error("getMIpay payin error:", err);
-    return null;
+    return { error: `payin_exception: ${String(err)} — body: ${rawBody.slice(0, 200)}` };
   }
 }
 

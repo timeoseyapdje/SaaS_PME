@@ -68,7 +68,7 @@ export async function POST(req: Request) {
       reference: merchantRef,
     });
 
-    if (result) {
+    if ("transactionReference" in result) {
       await prisma.payment.update({
         where: { id: payment.id },
         data: { notchpayRef: result.transactionReference },
@@ -77,7 +77,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ directCharge: true, reference: merchantRef });
     }
 
-    return NextResponse.json({ error: "Erreur getMIpay" }, { status: 500 });
+    console.error("initiatePayIn (subscription) failed:", result.error);
+    return NextResponse.json({ error: result.error }, { status: 500 });
   } catch (error) {
     console.error("getMIpay init error:", error);
     return NextResponse.json({ error: "Erreur lors de l'initialisation du paiement" }, { status: 500 });
