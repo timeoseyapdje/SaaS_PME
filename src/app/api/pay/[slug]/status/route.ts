@@ -58,7 +58,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
       const isSuccess = ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(raw);
       const isFailed = ["FAILED", "CANCELLED", "REJECTED"].includes(raw);
 
-      const debug = { ref: tx.notchpayRef, orderId: txId, apiStatus, raw };
+      const appUrl =
+        process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production" && process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
+      const expectedCallbackUrl = `${appUrl}/api/payments/getmipay/callback/payment-link?slug=${slug}&txId=${txId}`;
+      const debug = { ref: tx.notchpayRef, orderId: txId, apiStatus, raw, expectedCallbackUrl };
 
       if (isSuccess) {
         await prisma.paymentLinkTransaction.update({
