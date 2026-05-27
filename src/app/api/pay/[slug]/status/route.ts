@@ -47,6 +47,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
       const isSuccess = ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(raw);
       const isFailed = ["FAILED", "CANCELLED", "REJECTED"].includes(raw);
 
+      // Debug info included to help diagnose sandbox issues
+      const debug = { ref: tx.notchpayRef, apiStatus, raw };
+
       if (isSuccess) {
         await prisma.paymentLinkTransaction.update({
           where: { id: tx.id },
@@ -112,8 +115,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
           where: { id: tx.id },
           data: { status: "FAILED" },
         });
-        return NextResponse.json({ status: "FAILED" });
+        return NextResponse.json({ status: "FAILED", debug });
       }
+
+      return NextResponse.json({
+        status: "PENDING",
+        amount: tx.amount,
+        currency: tx.paymentLink.currency,
+        title: tx.paymentLink.title,
+        debug,
+      });
     }
 
     return NextResponse.json({
