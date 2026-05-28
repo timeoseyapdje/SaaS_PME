@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { Clock, Smartphone, ArrowLeft, RefreshCw, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
@@ -18,28 +18,20 @@ function PendingContent() {
   const phone    = searchParams.get("phone");
 
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [debugInfo, setDebugInfo] = useState<string>(`txId: ${txId ?? "ABSENT"}\nslug: ${slug}\nEn attente de la première réponse API…`);
 
   useEffect(() => {
-    if (!txId) {
-      setDebugInfo("ERREUR: txId absent de l'URL");
-      return;
-    }
+    if (!txId) return;
 
     let attempts = 0;
 
     pollRef.current = setInterval(async () => {
       attempts++;
-      // Stop after ~5 min (100 × 3 s). Page stays visible — user can retry manually.
       if (attempts > 100) { clearInterval(pollRef.current!); return; }
 
       try {
         const res = await fetch(`/api/pay/${slug}/status?txId=${txId}`);
-        const text = await res.text();
-        let d: Record<string, unknown> = {};
-        try { d = JSON.parse(text); } catch { d = { raw: text }; }
-
-        setDebugInfo(`attempt: ${attempts}\nhttpStatus: ${res.status}\n\n${JSON.stringify(d, null, 2)}`);
+        if (!res.ok) return;
+        const d = await res.json();
 
         if (d.status === "COMPLETED") {
           clearInterval(pollRef.current!);
@@ -47,7 +39,7 @@ function PendingContent() {
             amount:   String(d.amount   ?? amount   ?? ""),
             currency: String(d.currency ?? currency),
             title:    String(d.title    ?? title    ?? ""),
-            phone:    phone      ?? "",
+            phone:    phone ?? "",
           });
           router.push(`/pay/${slug}/confirmed?${p.toString()}`);
         } else if (d.status === "FAILED") {
@@ -60,7 +52,7 @@ function PendingContent() {
           });
           router.push(`/pay/${slug}/failed?${p.toString()}`);
         }
-      } catch (err) { setDebugInfo(`attempt: ${attempts}\nERREUR réseau: ${String(err)}`); }
+      } catch { /* ignore transient network errors */ }
     }, 3000);
 
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
@@ -100,39 +92,6 @@ function PendingContent() {
             Vérification en cours…
           </div>
         )}
-
-        <details className="text-left">
-          <summary className="text-xs text-muted-foreground cursor-pointer select-none">Debug</summary>
-          <pre className="mt-2 text-xs bg-muted rounded-lg p-3 overflow-auto whitespace-pre-wrap break-all">
-            {debugInfo}
-          </pre>
-          {txId && (
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={async () => {
-                  const cb = JSON.parse(debugInfo.split("\n\n")[1] || "{}");
-                  const url = cb?.debug?.expectedCallbackUrl;
-                  if (!url) return;
-                  await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "success" }) });
-                }}
-                className="flex-1 py-1.5 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-medium"
-              >
-                ✓ Simuler succès
-              </button>
-              <button
-                onClick={async () => {
-                  const cb = JSON.parse(debugInfo.split("\n\n")[1] || "{}");
-                  const url = cb?.debug?.expectedCallbackUrl;
-                  if (!url) return;
-                  await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "failed" }) });
-                }}
-                className="flex-1 py-1.5 px-3 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-medium"
-              >
-                ✗ Simuler échec
-              </button>
-            </div>
-          )}
-        </details>
 
         <div className="flex flex-col gap-3">
           <a

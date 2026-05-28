@@ -58,10 +58,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
       const isSuccess = ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(raw);
       const isFailed = ["FAILED", "CANCELLED", "REJECTED"].includes(raw);
 
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
-      const expectedCallbackUrl = `${appUrl}/api/payments/getmipay/callback/payment-link?slug=${slug}&txId=${txId}`;
-      const debug = { ref: tx.notchpayRef, orderId: txId, apiStatus, raw, expectedCallbackUrl };
-
       if (isSuccess) {
         await prisma.paymentLinkTransaction.update({
           where: { id: tx.id },
@@ -140,7 +136,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
         amount: tx.amount,
         currency: tx.paymentLink.currency,
         title: tx.paymentLink.title,
-        debug,
       });
     }
   } catch (error) {
