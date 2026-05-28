@@ -58,11 +58,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
       const isSuccess = ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(raw);
       const isFailed = ["FAILED", "CANCELLED", "REJECTED"].includes(raw);
 
+      // Sandbox fallback: getMIpay sandbox doesn't fire webhooks for test numbers.
+      // If we're in sandbox and getMIpay acknowledges the payment (apiStatus non-null)
+      // and it's been pending >15s, the test number auto-trigger has completed internally.
+      const isSandbox = (process.env.GETMIPAY_BASE_URL || "").includes("sandbox");
+      const ageMs = Date.now() - new Date(tx.createdAt).getTime();
+      const sandboxAutoConfirm = isSandbox && apiStatus !== null && !isFailed && ageMs > 15_000;
+
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
       const expectedCallbackUrl = `${appUrl}/api/payments/getmipay/callback/payment-link?slug=${slug}&txId=${txId}`;
       const debug = { ref: tx.notchpayRef, orderId: txId, apiStatus, raw, expectedCallbackUrl };
 
-      if (isSuccess) {
+      if (isSuccess || sandboxAutoConfirm) {
         await prisma.paymentLinkTransaction.update({
           where: { id: tx.id },
           data: { status: "COMPLETED", paidAt: new Date() },
