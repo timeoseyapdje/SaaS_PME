@@ -33,10 +33,11 @@ import {
   LayoutTemplate,
   RotateCcw,
 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useSidebarConfig } from "@/hooks/useSidebarConfig";
 
 interface NavChild {
   name: string;
@@ -142,11 +143,12 @@ export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const { canAny } = usePermissions();
+  const { config } = useSidebarConfig();
   const userRole = (session?.user as { role?: string } | undefined)?.role;
   const isAdmin = userRole === "ADMIN";
 
   const filteredNavigation = useMemo(() => {
-    return navigation.filter((item) => {
+    const permFiltered = navigation.filter((item) => {
       if (item.name === "Dashboard") return canAny("dashboard");
       if (item.name === "Produits & Services") return canAny("products");
       if (item.name === "Ventes") return canAny("orders") || canAny("payment_links");
@@ -159,7 +161,18 @@ export function Sidebar() {
       if (item.name === "Aide") return true;
       return true;
     });
-  }, [canAny]);
+
+    const visible = permFiltered.filter(
+      (item) => !config.hiddenSections.includes(item.name)
+    );
+
+    const orderMap = new Map(config.order.map((name, i) => [name, i]));
+    return visible.sort((a, b) => {
+      const ia = orderMap.get(a.name) ?? 999;
+      const ib = orderMap.get(b.name) ?? 999;
+      return ia - ib;
+    });
+  }, [canAny, config]);
   const [openGroups, setOpenGroups] = useState<string[]>([
     "Facturation",
     "Finances",

@@ -10,11 +10,19 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Save, Building2, Shield, Landmark, User, Palette, Pencil, Check, Sun, Moon, Monitor } from "lucide-react";
+import {
+  Loader2, Save, Building2, Shield, Landmark, User, Palette, Pencil, Check,
+  Sun, Moon, Monitor, PanelLeft, GripVertical, Eye, EyeOff, RotateCcw,
+  LayoutDashboard, Package, ShoppingCart, FileText, TrendingDown, BarChart3,
+  Tag, Users, CreditCard, Settings as SettingsIcon,
+} from "lucide-react";
 import { BankAccount } from "@/types";
 import { formatCurrency } from "@/lib/currency";
 import { DEMO_EMAIL } from "@/lib/demo";
 import { AlertTriangle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { useSidebarConfig } from "@/hooks/useSidebarConfig";
+import { Reorder } from "framer-motion";
 
 function AppearanceSection() {
   const { theme, setTheme } = useTheme();
@@ -74,6 +82,131 @@ function AppearanceSection() {
             })}
           </div>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+const SECTION_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  "Dashboard": LayoutDashboard,
+  "Produits & Services": Package,
+  "Ventes": ShoppingCart,
+  "Facturation": FileText,
+  "Finances": TrendingDown,
+  "Rapports": BarChart3,
+  "Contacts": Tag,
+  "Équipe": Users,
+  "Abonnement": CreditCard,
+  "Paramètres": SettingsIcon,
+};
+
+function SidebarCustomizationSection() {
+  const { config, toggleSection, reorder, reset, isPinned, isHidden, DEFAULT_ORDER } = useSidebarConfig();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  const hasChanges =
+    config.hiddenSections.length > 0 ||
+    JSON.stringify(config.order) !== JSON.stringify(DEFAULT_ORDER);
+
+  if (!mounted) {
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <PanelLeft className="w-4 h-4" />
+            Barre latérale
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-12 rounded-xl bg-muted/50 animate-pulse" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="mt-4">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-base flex items-center gap-2">
+          <PanelLeft className="w-4 h-4" />
+          Barre latérale
+        </CardTitle>
+        {hasChanges && (
+          <Button variant="ghost" size="sm" onClick={reset} className="text-muted-foreground hover:text-foreground">
+            <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+            Réinitialiser
+          </Button>
+        )}
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground mb-4">
+          Masquez des sections ou réorganisez-les en les glissant.
+          Le Dashboard et les Paramètres restent toujours visibles.
+        </p>
+        <Reorder.Group
+          axis="y"
+          values={config.order}
+          onReorder={reorder}
+          className="space-y-1.5"
+        >
+          {config.order.map((name) => {
+            const Icon = SECTION_ICONS[name];
+            const pinned = isPinned(name);
+            const hidden = isHidden(name);
+
+            return (
+              <Reorder.Item
+                key={name}
+                value={name}
+                dragListener={!pinned}
+                className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl border transition-all ${
+                  hidden
+                    ? "border-border/50 bg-muted/30 opacity-60"
+                    : "border-border bg-card"
+                } ${pinned ? "cursor-default" : "cursor-grab active:cursor-grabbing"}`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <GripVertical
+                    className={`w-4 h-4 flex-shrink-0 ${
+                      pinned ? "text-transparent" : "text-muted-foreground"
+                    }`}
+                  />
+                  {Icon && (
+                    <Icon
+                      className={`w-4 h-4 flex-shrink-0 ${
+                        hidden ? "text-muted-foreground/50" : "text-emerald-500"
+                      }`}
+                    />
+                  )}
+                  <span
+                    className={`text-sm font-medium truncate ${
+                      hidden ? "text-muted-foreground line-through" : "text-foreground"
+                    }`}
+                  >
+                    {name}
+                  </span>
+                  {pinned && (
+                    <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md flex-shrink-0">
+                      fixe
+                    </span>
+                  )}
+                </div>
+                <Switch
+                  checked={!hidden}
+                  onCheckedChange={() => toggleSection(name)}
+                  disabled={pinned}
+                  className="data-[state=checked]:bg-emerald-500 flex-shrink-0"
+                />
+              </Reorder.Item>
+            );
+          })}
+        </Reorder.Group>
       </CardContent>
     </Card>
   );
@@ -502,6 +635,9 @@ export default function SettingsPage() {
           <TabsContent value="customization">
             {/* Apparence — accessible à tous les plans */}
             <AppearanceSection />
+
+            {/* Barre latérale — accessible à tous les plans */}
+            <SidebarCustomizationSection />
 
             <Card className="mt-4">
               <CardHeader>
