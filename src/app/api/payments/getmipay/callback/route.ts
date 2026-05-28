@@ -7,7 +7,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const txRef = searchParams.get("txRef");
   const plan = searchParams.get("plan");
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.nkapcontrol.com";
 
   if (!txRef) {
     return NextResponse.redirect(`${baseUrl}/subscription?status=error`);

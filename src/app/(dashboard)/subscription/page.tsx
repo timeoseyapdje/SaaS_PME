@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/Header";
@@ -113,8 +113,10 @@ export default function SubscriptionPage() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(urlStatus === "success");
   const [error, setError] = useState(urlStatus === "error" ? "Le paiement a échoué. Veuillez réessayer." : "");
+  const [pendingUssd, setPendingUssd] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Formulaire
   const [selectedPlan, setSelectedPlan] = useState("");
@@ -138,6 +140,10 @@ export default function SubscriptionPage() {
   useEffect(() => {
     fetchSubscription();
   }, [fetchSubscription]);
+
+  useEffect(() => {
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+  }, []);
 
   async function cancelSubscription() {
     setCancelling(true);
@@ -171,7 +177,24 @@ export default function SubscriptionPage() {
       });
       const data = await res.json();
       if (res.ok && data.directCharge) {
-        setSuccess(true);
+        setPendingUssd(true);
+        let attempts = 0;
+        pollRef.current = setInterval(async () => {
+          attempts++;
+          if (attempts > 100) { clearInterval(pollRef.current!); return; }
+          try {
+            const sr = await fetch("/api/subscription");
+            if (!sr.ok) return;
+            const sd = await sr.json();
+            if (sd.subscription?.status === "ACTIVE") {
+              clearInterval(pollRef.current!);
+              setPendingUssd(false);
+              setCurrentPlan(sd.plan);
+              setSubscription(sd.subscription);
+              setSuccess(true);
+            }
+          } catch { /* ignore */ }
+        }, 3000);
         return;
       }
       setError(data.error || "Erreur lors de l'initialisation du paiement");
@@ -351,6 +374,12 @@ export default function SubscriptionPage() {
                   <div className="flex items-center gap-2 p-3 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 text-sm border border-rose-500/20">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     {error}
+                  </div>
+                )}
+                {pendingUssd && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 text-sm border border-amber-500/20">
+                    <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+                    Demande USSD envoyée. Approuvez avec votre code PIN Mobile Money…
                   </div>
                 )}
                 {success && (
