@@ -18,6 +18,10 @@ import {
   UserCog,
   UserPlus,
   BookOpen,
+  Settings,
+  PanelLeft,
+  GripVertical,
+  Eye,
 } from "lucide-react";
 
 /* ─── Données des étapes ─── */
@@ -522,6 +526,43 @@ const steps = [
       </div>
     ),
   },
+  {
+    number: "12",
+    icon: Settings,
+    color: "text-gray-400",
+    bg: "bg-gray-500/10",
+    border: "border-gray-500/20",
+    title: "Personnalisez votre espace",
+    description: "Adaptez l'interface à votre façon de travailler : masquez les sections inutiles de la barre latérale et réorganisez-les par glisser-déposer.",
+    actions: [
+      "Allez dans Paramètres → Personnalisation → Barre latérale",
+      "Désactivez les sections que vous n'utilisez pas",
+      "Glissez-déposez pour réordonner selon vos priorités",
+      "Réinitialisez en un clic si besoin",
+    ],
+    screen: (
+      <div className="w-full h-full bg-background flex flex-col p-3 gap-2">
+        <div className="flex items-center justify-between mb-1">
+          <div className="h-2.5 w-24 bg-white/70 rounded" />
+          <div className="h-5 w-16 bg-muted border border-border rounded-lg" />
+        </div>
+        {[
+          { active: true, color: "bg-emerald-500/60" },
+          { active: true, color: "bg-blue-500/60" },
+          { active: false, color: "bg-muted-foreground/20" },
+          { active: true, color: "bg-amber-500/60" },
+          { active: false, color: "bg-muted-foreground/20" },
+        ].map((row, i) => (
+          <div key={i} className={`flex items-center gap-2 h-8 rounded-lg px-2 border ${row.active ? "bg-card/70 border-border" : "bg-muted/30 border-border/50 opacity-50"}`}>
+            <GripVertical className="w-3 h-3 text-muted-foreground/40" />
+            <div className={`w-3.5 h-3.5 rounded ${row.color}`} />
+            <div className={`flex-1 h-1.5 rounded ${row.active ? "bg-muted-foreground/30" : "bg-muted-foreground/15 line-through"}`} />
+            <div className={`w-6 h-3.5 rounded-full ${row.active ? "bg-emerald-500/60" : "bg-muted-foreground/20"}`} />
+          </div>
+        ))}
+      </div>
+    ),
+  },
 ];
 
 /* ─── Composant device frame ─── */
@@ -583,7 +624,7 @@ export default function OnboardingPage() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-foreground text-xs font-medium mb-6">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Guide de démarrage — 11 étapes
+            Guide de démarrage — 12 étapes
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground mb-4 leading-tight">
             Bienvenue sur{" "}
@@ -592,7 +633,7 @@ export default function OnboardingPage() {
             </span>
           </h1>
           <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
-            Suivez ces 11 étapes pour maîtriser la plateforme et tirer le meilleur de votre outil de gestion.
+            Suivez ces 12 étapes pour maîtriser la plateforme et tirer le meilleur de votre outil de gestion.
           </p>
         </motion.div>
       </section>

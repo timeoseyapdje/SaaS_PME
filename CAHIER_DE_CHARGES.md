@@ -196,6 +196,7 @@ Les PME camerounaises manquent d'outils numériques adaptés à leur réalité :
 | Fonctionnalité | Description | Statut |
 |----------------|-------------|--------|
 | Dark / Light / Système | next-themes | ✅ Livré |
+| Barre latérale personnalisable | Masquer des sections et réordonner par drag-and-drop, persisté en localStorage | ✅ Livré |
 | Toast notifications | Toutes les actions avec retour visuel | ✅ Livré |
 | Confirmations inline | Suppression avec boutons Oui/Annuler (pas de dialog natif) | ✅ Livré |
 | Page d'aide in-app | FAQ par section + liens démarrage rapide à `/help` | ✅ Livré |

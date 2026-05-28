@@ -22,6 +22,7 @@ import {
   Calculator,
   TrendingUp,
   Bell,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -136,6 +137,18 @@ const sections = [
       { q: "Comment recevoir une notification quand une facture est payée ?", a: "Les notifications internes apparaissent dans la cloche en haut à droite de l'application. Elles vous alertent automatiquement sur les paiements reçus, les factures en retard et les demandes d'admission." },
     ],
   },
+  {
+    title: "Paramètres & Personnalisation",
+    icon: Settings,
+    color: "text-gray-500",
+    items: [
+      { q: "Comment changer le thème (clair/sombre) ?", a: "Allez dans Paramètres → Personnalisation → Apparence. Choisissez entre Clair, Sombre ou Système (suit les préférences de votre appareil)." },
+      { q: "Comment masquer des sections de la barre latérale ?", a: "Allez dans Paramètres → Personnalisation → Barre latérale. Désactivez le switch à côté de chaque section que vous souhaitez masquer. Le Dashboard et les Paramètres restent toujours visibles." },
+      { q: "Comment réorganiser la barre latérale ?", a: "Dans Paramètres → Personnalisation → Barre latérale, glissez-déposez les sections pour les réorganiser dans l'ordre qui vous convient. Les modifications sont appliquées instantanément." },
+      { q: "Comment réinitialiser la barre latérale ?", a: "Si vous voulez revenir à l'ordre et à la visibilité par défaut, cliquez sur le bouton « Réinitialiser » en haut à droite de la section Barre latérale dans les paramètres." },
+      { q: "Comment personnaliser les documents (plan Max) ?", a: "Allez dans Paramètres → Personnalisation. Si vous êtes sur le plan Max, vous pouvez modifier la couleur principale, ajouter un logo, un en-tête et un pied de page personnalisés, et choisir un modèle de facture." },
+    ],
+  },
 ];
 
 export default function HelpPage() {
@@ -187,6 +200,7 @@ export default function HelpPage() {
                 { icon: Bell, text: "Relances automatiques à J+7, J+14, J+30" },
                 { icon: Calculator, text: "Rapport TVA détaillé + calcul IS automatique" },
                 { icon: TrendingUp, text: "Prévisions de trésorerie sur 90 jours" },
+                { icon: Settings, text: "Barre latérale personnalisable (masquer, réordonner)" },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-center gap-2">
                   <Icon className="w-3.5 h-3.5 text-emerald-500 shrink-0" />

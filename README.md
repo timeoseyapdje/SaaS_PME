@@ -35,6 +35,7 @@ Solution SaaS tout-en-un de gestion financière et commerciale, conçue spécifi
 - **Aide in-app** — FAQ complète par section + liens démarrage rapide accessible depuis la sidebar
 - **Emails transactionnels** — Envoi de factures et devis par email (Resend) avec templates HTML
 - **Dark / Light / System mode** — next-themes
+- **Barre latérale personnalisable** — Masquer des sections et réordonner par drag-and-drop (localStorage)
 - **Multi-devises** — FCFA (XAF), Euro, Dollar US
 - **Gestion d'équipe** — Invitations, postes avec permissions granulaires par module
 - **Abonnements** — Plans Starter (gratuit), Pro (3 000 FCFA/mois), Max (10 000 FCFA/mois)
@@ -189,6 +190,7 @@ src/
 │   └── tax.ts                    # TVA 19,25% + calculs OHADA
 ├── hooks/
 │   ├── usePermissions.ts         # Hook canAny(), can()
+│   ├── useSidebarConfig.ts       # Hook personnalisation sidebar (ordre, visibilité)
 │   └── useChat.ts                # Hook Nkap AI chat
 └── types/index.ts                # Types TypeScript (Invoice, Quote, Client...)
 prisma/
