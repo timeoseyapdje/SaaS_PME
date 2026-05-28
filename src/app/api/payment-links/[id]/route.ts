@@ -55,6 +55,8 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     const existing = await prisma.paymentLink.findFirst({ where: { id, companyId } });
     if (!existing) return NextResponse.json({ error: "Lien non trouvé" }, { status: 404 });
 
+    const txIds = (await prisma.paymentLinkTransaction.findMany({ where: { paymentLinkId: id }, select: { id: true } })).map(t => t.id);
+    if (txIds.length) await prisma.payout.deleteMany({ where: { paymentLinkTransactionId: { in: txIds } } });
     await prisma.paymentLinkTransaction.deleteMany({ where: { paymentLinkId: id } });
     await prisma.paymentLink.delete({ where: { id } });
     return NextResponse.json({ success: true });
