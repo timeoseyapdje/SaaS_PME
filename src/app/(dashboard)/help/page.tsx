@@ -121,8 +121,8 @@ const sections = [
     icon: CreditCard,
     color: "text-teal-500",
     items: [
-      { q: "Comment accepter un paiement MTN/Orange Money ?", a: "Créez un lien de paiement dans Ventes → Liens de paiement. Partagez le lien avec votre client. NotchPay lui envoie une demande de paiement USSD qu'il confirme avec son code PIN." },
-      { q: "Pourquoi le paiement reste-t-il en attente ?", a: "Le client doit confirmer le paiement sur son téléphone avec son code PIN. Si le problème persiste, vérifiez que votre clé NotchPay est bien configurée dans les paramètres." },
+      { q: "Comment accepter un paiement MTN/Orange Money ?", a: "Créez un lien de paiement dans Ventes → Liens de paiement. Partagez le lien avec votre client. getMIpay lui envoie une demande USSD qu'il confirme avec son code PIN Mobile Money." },
+      { q: "Pourquoi le paiement reste-t-il en attente ?", a: "Le client doit confirmer le paiement sur son téléphone avec son code PIN. Si le problème persiste, vérifiez que vos clés getMIpay sont bien configurées dans les variables d'environnement." },
       { q: "Où va l'argent une fois le paiement reçu ?", a: "Le reversement est automatiquement effectué vers le compte marqué « Compte principal » dans Finance → Trésorerie. Vérifiez qu'au moins un compte a cette option activée." },
     ],
   },

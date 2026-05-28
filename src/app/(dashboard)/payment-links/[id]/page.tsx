@@ -102,7 +102,11 @@ export default function PaymentLinkTransactionsPage() {
     }
   }, [id, router]);
 
-  useEffect(() => { fetch_(); }, [fetch_]);
+  useEffect(() => {
+    fetch_();
+    const timer = setInterval(fetch_, 10_000);
+    return () => clearInterval(timer);
+  }, [fetch_]);
 
   function copyLink() {
     if (!link) return;

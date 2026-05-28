@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
@@ -71,13 +71,20 @@ export default function PaymentLinksPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmDeleteLink, setConfirmDeleteLink] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadLinks = useCallback(() => {
     fetch("/api/payment-links")
       .then(r => r.json())
       .then(setLinks)
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    loadLinks();
+    // Auto-refresh every 10 s to pick up getMIpay webhook confirmations
+    const timer = setInterval(loadLinks, 10_000);
+    return () => clearInterval(timer);
+  }, [loadLinks]);
 
   function getUrl(slug: string) {
     return `${window.location.origin}/pay/${slug}`;
@@ -309,7 +316,9 @@ export default function PaymentLinksPage() {
                               <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
                                 {formatCurrency(tx.amount, link.currency)}
                               </p>
-                              {tx.status === "PENDING" && (
+                              {tx.status === "PENDING" && ["MTN_MONEY", "ORANGE_MONEY"].includes(tx.paymentMethod) ? (
+                                <span className="text-[10px] text-muted-foreground italic shrink-0">En attente getMIpay…</span>
+                              ) : tx.status === "PENDING" ? (
                                 <div className="flex gap-1.5 shrink-0">
                                   <Button
                                     size="sm"
@@ -329,7 +338,7 @@ export default function PaymentLinksPage() {
                                     <XCircle className="w-3 h-3 mr-1" /> Rejeter
                                   </Button>
                                 </div>
-                              )}
+                              ) : null}
                             </div>
                           );
                         })}

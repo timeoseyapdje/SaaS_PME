@@ -85,6 +85,39 @@ Company
 | `/api/quotes/[id]/convert` | POST | Convertit en facture (FAC-YYYY-XXXX) |
 | `/api/email/send-invoice` | POST | Envoie la facture par email (Resend) |
 | `/api/email/send-quote` | POST | Envoie le devis par email (Resend) |
+<<<<<<< HEAD
+| `/api/pay/[slug]` | POST | Initie paiement getMIpay (USSD push) |
+| `/api/payments/getmipay` | POST | Init abonnement getMIpay |
+| `/api/payments/getmipay/callback` | GET | Callback abonnement |
+| `/api/payments/getmipay/callback/payment-link` | GET | Callback liens de paiement |
+| `/api/webhooks/getmipay` | POST | Webhook getMIpay (abonnements + paiements) |
+| `/api/webhooks/payment-links` | POST | Webhook liens de paiement getMIpay |
+
+---
+
+## getMIpay — Points Critiques
+
+```typescript
+// Auth: POST /auth/login → Bearer token (à chaque appel)
+const token = await getAuthToken(); // dans src/lib/getmipay.ts
+
+// PayIn (USSD push vers le téléphone du client)
+await initiatePayIn({ amount, currency, wallet: "237XXXXXXXXX", paymentMethod: "MTN_MONEY", ... });
+// → POST /payment/payin avec headers: service, operation: "2"
+
+// PayOut (reversement au marchand)
+await initiatePayOut({ amount, currency, wallet, paymentMethod, ... });
+// → POST /payout avec headers: service, operation: "4"
+
+// Wallet: format sans "+" — "237670000001" (pas "+237...")
+
+// Variables d'environnement
+GETMIPAY_BASE_URL       // URL de base API (ex: https://api.getmipay.com)
+GETMIPAY_PUBLIC_KEY     // pour auth + payin
+GETMIPAY_PRIVATE_KEY    // pour auth + payout
+GETMIPAY_MTN_SERVICE_ID     // ID service MTN
+GETMIPAY_ORANGE_SERVICE_ID  // ID service Orange
+=======
 | `/api/pay/[slug]` | POST | Initialise + charge directe NotchPay |
 | `/api/payments/notchpay/webhook` | POST | Webhook paiements abonnements |
 | `/api/webhooks/payment-links` | POST | Webhook NotchPay liens de paiement |
@@ -110,6 +143,7 @@ function formatCameroonPhone(phone: string): string {
 // Variables d'environnement
 NOTCHPAY_PUBLIC_KEY  // pour init + charge
 NOTCHPAY_PRIVATE_KEY // pour transferts + signature webhook
+>>>>>>> main
 ```
 
 ---

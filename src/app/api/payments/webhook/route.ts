@@ -1,39 +1,28 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendSubscriptionConfirmationEmail } from "@/lib/email";
-import { verifyWebhookSignature } from "@/lib/notchpay";
 
-// Maps any provider status to internal status
-function mapStatus(event: string, status: string): string {
-  if (event === "payment.complete" || ["SUCCESSFUL", "SUCCESS", "COMPLETED", "complete"].includes(status)) return "COMPLETED";
-  if (event === "payment.failed"   || ["FAILED", "CANCELLED", "failed", "cancelled"].includes(status)) return "FAILED";
+function mapStatus(status: string): string {
+  const s = status.toUpperCase();
+  if (["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID", "COMPLETE"].includes(s)) return "COMPLETED";
+  if (["FAILED", "CANCELLED", "REJECTED"].includes(s)) return "FAILED";
   return "PENDING";
 }
 
 export async function POST(request: Request) {
   try {
     const rawBody = await request.text();
-
-    // Verify NotchPay signature if present
-    const signature = request.headers.get("x-notch-signature") ?? "";
-    if (signature && !verifyWebhookSignature(rawBody, signature)) {
-      return NextResponse.json({ error: "Signature invalide" }, { status: 401 });
-    }
-
     const body = JSON.parse(rawBody);
 
-    // Extract ref + status from NotchPay or generic format
     let transactionRef: string | undefined;
     let mappedStatus: string;
 
     if (body.event && body.data) {
-      // NotchPay format
-      transactionRef = body.data.reference;
-      mappedStatus = mapStatus(body.event, body.data.status ?? "");
+      transactionRef = body.data.external_reference || body.data.transaction_reference || body.data.reference;
+      mappedStatus = mapStatus(body.data.status ?? "");
     } else {
-      // Generic / legacy format
-      transactionRef = body.transactionRef;
-      mappedStatus = mapStatus("", (body.status ?? "").toUpperCase());
+      transactionRef = body.external_reference || body.transaction_reference || body.transactionRef;
+      mappedStatus = mapStatus((body.status ?? "").toUpperCase());
     }
 
     if (!transactionRef) {
@@ -41,7 +30,7 @@ export async function POST(request: Request) {
     }
 
     const payment = await prisma.payment.findFirst({
-      where: { transactionRef },
+      where: { OR: [{ transactionRef }, { notchpayRef: transactionRef }] },
       include: {
         subscription: {
           include: {

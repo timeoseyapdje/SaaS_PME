@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Loader2, Save, Link2 } from "lucide-react";
+import { ArrowLeft, Loader2, Save, Link2, Info } from "lucide-react";
 import { Client } from "@/types";
+import { formatCurrency } from "@/lib/currency";
+import { calculateGrossAmount, GETMIPAY_FEE_RATE } from "@/lib/getmipay";
 
 export default function NewPaymentLinkPage() {
   const router = useRouter();
@@ -30,6 +32,10 @@ export default function NewPaymentLinkPage() {
   }, []);
 
   const set = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
+
+  const netAmount = Number(form.amount) || 0;
+  const { grossAmount } = netAmount > 0 ? calculateGrossAmount(netAmount) : { grossAmount: 0 };
+  const feePercent = Math.round(GETMIPAY_FEE_RATE * 100);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -75,8 +81,17 @@ export default function NewPaymentLinkPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Montant (XAF) *</Label>
+                <Label>Montant que vous recevez (XAF) *</Label>
                 <Input type="number" min="1" value={form.amount} onChange={e => set("amount", e.target.value)} placeholder="0" required />
+                {netAmount > 0 && (
+                  <div className="flex items-start gap-1.5 text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+                    <Info className="w-3 h-3 mt-0.5 shrink-0 text-emerald-500" />
+                    <span>
+                      Le client paiera <strong className="text-foreground">{formatCurrency(grossAmount, form.currency)}</strong>
+                      {" "}(+{feePercent}% frais getMIpay)
+                    </span>
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Client</Label>
