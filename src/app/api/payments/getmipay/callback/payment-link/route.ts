@@ -181,19 +181,12 @@ export async function POST(req: Request) {
     const url = new URL(req.url);
     const body = await req.json().catch(() => ({}));
 
-    console.log("[getMIpay callback POST] received", {
-      url: url.toString(),
-      body: JSON.stringify(body).slice(0, 500),
-    });
-
     // txId can come from query param OR body (in case getMIpay strips query params)
     const txId =
       url.searchParams.get("txId") ||
       (body.external_reference as string | undefined) ||
       (body.data?.external_reference as string | undefined) ||
       null;
-
-    console.log("[getMIpay callback POST] txId resolved:", txId);
 
     if (!txId) return NextResponse.json({ received: true });
 
