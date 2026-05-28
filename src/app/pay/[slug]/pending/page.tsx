@@ -101,9 +101,38 @@ function PendingContent() {
           </div>
         )}
 
-        <pre className="text-xs bg-muted rounded-lg p-3 overflow-auto text-left whitespace-pre-wrap break-all">
-          {debugInfo}
-        </pre>
+        <details className="text-left">
+          <summary className="text-xs text-muted-foreground cursor-pointer select-none">Debug</summary>
+          <pre className="mt-2 text-xs bg-muted rounded-lg p-3 overflow-auto whitespace-pre-wrap break-all">
+            {debugInfo}
+          </pre>
+          {txId && (
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={async () => {
+                  const cb = JSON.parse(debugInfo.split("\n\n")[1] || "{}");
+                  const url = cb?.debug?.expectedCallbackUrl;
+                  if (!url) return;
+                  await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "success" }) });
+                }}
+                className="flex-1 py-1.5 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-medium"
+              >
+                ✓ Simuler succès
+              </button>
+              <button
+                onClick={async () => {
+                  const cb = JSON.parse(debugInfo.split("\n\n")[1] || "{}");
+                  const url = cb?.debug?.expectedCallbackUrl;
+                  if (!url) return;
+                  await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "failed" }) });
+                }}
+                className="flex-1 py-1.5 px-3 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-medium"
+              >
+                ✗ Simuler échec
+              </button>
+            </div>
+          )}
+        </details>
 
         <div className="flex flex-col gap-3">
           <a
