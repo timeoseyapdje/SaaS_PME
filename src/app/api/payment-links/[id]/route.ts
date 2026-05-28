@@ -11,7 +11,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const link = await prisma.paymentLink.findFirst({
       where: { id, companyId },
-      include: { client: true, transactions: true },
+      include: { client: true, transactions: { include: { payout: true } } },
     });
 
     if (!link) return NextResponse.json({ error: "Lien non trouvé" }, { status: 404 });
