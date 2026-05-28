@@ -64,7 +64,8 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
   MTN_MONEY: "MTN Money",
   ORANGE_MONEY: "Orange Money",
   CARTE_BANCAIRE: "Carte bancaire",
-  NOTCHPAY: "NotchPay",
+  NOTCHPAY: "getMIpay",
+  GETMIPAY: "getMIpay",
 };
 
 const RECURRENCE_LABELS: Record<string, string> = {

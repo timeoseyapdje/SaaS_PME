@@ -371,6 +371,7 @@ enum PaymentMethod {
   ORANGE_MONEY
   CARTE_BANCAIRE
   NOTCHPAY
+  GETMIPAY
 }
 
 // ============================================================

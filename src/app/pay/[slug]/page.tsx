@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { Loader2, CheckCircle2, Smartphone, Building2, ArrowLeft, XCircle } from "lucide-react";
+import { Loader2, Building2, ArrowLeft, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +18,9 @@ interface PaymentLinkData {
   status: string;
   currentUses: number;
   maxUses?: number;
+  grossAmount?: number;
+  feeAmount?: number;
+  getMiPayEnabled?: boolean;
   company: { name: string; phone?: string; email?: string; logo?: string; city?: string };
   client?: { name: string; email?: string };
 }
@@ -48,10 +51,8 @@ function PaymentPageContent() {
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(urlStatus === "success");
-  const [directCharge, setDirectCharge] = useState(false);
-  const [transactionId, setTransactionId] = useState<string | null>(null);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // non-mobile-money success (VIREMENT, ESPECES…)
+  const [manualSuccess, setManualSuccess] = useState(urlStatus === "success");
 
   const fetchLink = useCallback(async () => {
     try {
@@ -63,37 +64,6 @@ function PaymentPageContent() {
   }, [slug]);
 
   useEffect(() => { fetchLink(); }, [fetchLink]);
-
-  useEffect(() => {
-    if (!directCharge || !transactionId) return;
-    let attempts = 0;
-    pollRef.current = setInterval(async () => {
-      attempts++;
-      if (attempts > 100) { clearInterval(pollRef.current!); return; }
-      try {
-        const res = await fetch(`/api/pay/${slug}/status?txId=${transactionId}`);
-        if (!res.ok) return;
-        const d = await res.json();
-        if (d.status === "COMPLETED") {
-          clearInterval(pollRef.current!);
-          const params = new URLSearchParams({
-            amount: String(d.amount ?? ""),
-            currency: d.currency ?? "XAF",
-            title: d.title ?? "",
-            phone: phone || "",
-          });
-          router.push(`/pay/${slug}/confirmed?${params.toString()}`);
-        } else if (d.status === "FAILED") {
-          clearInterval(pollRef.current!);
-          setError("Le paiement a échoué. Veuillez réessayer.");
-          setSuccess(false);
-          setDirectCharge(false);
-          setTransactionId(null);
-        }
-      } catch { /* ignore network errors during polling */ }
-    }, 3000);
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [directCharge, transactionId, slug, phone, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -108,14 +78,22 @@ function PaymentPageContent() {
       });
       const d = await res.json();
       if (!res.ok) { setError(d.error); return; }
-      if (d.checkoutUrl) {
+
+      if (d.directCharge && d.transactionId) {
+        // Redirect to /pending — that page polls and routes to /confirmed or /failed
+        const p = new URLSearchParams({
+          txId: d.transactionId,
+          amount: String(data?.grossAmount ?? data?.amount ?? ""),
+          currency: data?.currency ?? "XAF",
+          title: data?.title ?? "",
+          phone: phone || "",
+        });
+        router.push(`/pay/${slug}/pending?${p.toString()}`);
+      } else if (d.checkoutUrl) {
         window.location.href = d.checkoutUrl;
-      } else if (d.directCharge) {
-        setTransactionId(d.transactionId ?? null);
-        setDirectCharge(true);
-        setSuccess(true);
       } else {
-        setSuccess(true);
+        // Manual method (VIREMENT, ESPECES)
+        setManualSuccess(true);
       }
     } catch { setError("Erreur. Veuillez reessayer."); }
     finally { setSubmitting(false); }
@@ -145,35 +123,16 @@ function PaymentPageContent() {
     </div>
   );
 
-  if (success) return (
+  if (manualSuccess) return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="max-w-sm w-full text-center space-y-4">
         <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto">
-          <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+          <svg className="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
         </div>
-        <h1 className="text-xl font-bold text-foreground">
-          {urlStatus === "success" ? "Paiement confirmé !" : directCharge ? "Vérifiez votre téléphone !" : "Demande envoyée !"}
-        </h1>
+        <h1 className="text-xl font-bold text-foreground">Demande envoyée !</h1>
         <p className="text-sm text-muted-foreground">
-          {urlStatus === "success" ? (
-            <>Votre paiement de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été effectué avec succès.</>
-          ) : directCharge ? (
-            <>Une demande de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été envoyée sur votre téléphone par NotchPay. Approuvez avec votre code PIN Mobile Money.</>
-          ) : (
-            <>Votre demande de paiement de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été enregistrée.</>
-          )}
+          Votre demande de paiement de <strong>{data ? formatCurrency(data.amount, data.currency) : ""}</strong> a été enregistrée. Le marchand vous contactera pour confirmation.
         </p>
-        {directCharge && (
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <Loader2 className="w-3 h-3 animate-spin" />
-            En attente de votre confirmation…
-          </div>
-        )}
-        {data?.company.phone && (
-          <a href={`tel:${data.company.phone}`} className="inline-flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 font-medium">
-            <Smartphone className="w-4 h-4" /> {data.company.phone}
-          </a>
-        )}
         <button
           onClick={() => window.history.length > 1 ? window.history.back() : (window.location.href = "/")}
           className="inline-flex items-center gap-2 text-sm text-muted-foreground font-medium mt-2 hover:text-foreground"
@@ -206,6 +165,19 @@ function PaymentPageContent() {
           <p className="text-4xl font-bold">{formatCurrency(data!.amount, data!.currency)}</p>
           {data?.description && <p className="text-sm opacity-70 mt-2">{data.description}</p>}
           {data?.client && <p className="text-sm opacity-80 mt-1">Pour : {data.client.name}</p>}
+          {["MTN_MONEY", "ORANGE_MONEY"].includes(method) && data?.getMiPayEnabled && data.feeAmount ? (
+            <div className="mt-3 pt-3 border-t border-white/30 space-y-1 text-sm">
+              <div className="flex justify-between opacity-80">
+                <span>Montant</span><span>{formatCurrency(data.amount, data.currency)}</span>
+              </div>
+              <div className="flex justify-between opacity-80">
+                <span>Frais de traitement (3%)</span><span>+{formatCurrency(data.feeAmount, data.currency)}</span>
+              </div>
+              <div className="flex justify-between font-semibold">
+                <span>Total débité</span><span>{formatCurrency(data.grossAmount!, data.currency)}</span>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         {/* Payment form */}
@@ -246,7 +218,7 @@ function PaymentPageContent() {
                 placeholder="6XX XXX XXX"
                 required
               />
-              <p className="text-xs text-muted-foreground">NotchPay enverra une demande de paiement sur ce numéro. Approuvez avec votre code PIN Mobile Money.</p>
+              <p className="text-xs text-muted-foreground">Une demande de paiement sera envoyée sur ce numéro. Approuvez avec votre code PIN Mobile Money.</p>
             </div>
           )}
 
@@ -254,7 +226,12 @@ function PaymentPageContent() {
 
           <Button type="submit" disabled={submitting || !method} className="w-full h-12 text-base">
             {submitting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
-            Confirmer le paiement · {formatCurrency(data!.amount, data!.currency)}
+            Confirmer le paiement · {formatCurrency(
+              ["MTN_MONEY", "ORANGE_MONEY"].includes(method) && data?.getMiPayEnabled && data.grossAmount
+                ? data.grossAmount
+                : data!.amount,
+              data!.currency
+            )}
           </Button>
         </form>
 

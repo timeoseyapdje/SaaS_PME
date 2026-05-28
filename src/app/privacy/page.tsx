@@ -76,10 +76,10 @@ export default function PrivacyPage() {
 
             <h3 className="text-sm font-semibold text-foreground mt-4 mb-2">2.4 Données de paiement</h3>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Méthode de paiement choisie (MTN MoMo, Orange Money, NotchPay, virement, carte)</li>
+              <li>Méthode de paiement choisie (MTN MoMo, Orange Money, virement, carte)</li>
               <li>Numéro de téléphone pour les paiements mobile money</li>
               <li>Historique des paiements d&apos;abonnement</li>
-              <li>Références de transactions NotchPay</li>
+              <li>Références de transactions getMIpay</li>
             </ul>
 
             <h3 className="text-sm font-semibold text-foreground mt-4 mb-2">2.5 Données d&apos;équipe et de permissions</h3>
@@ -139,7 +139,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-5 space-y-1.5 mt-2">
               <li>Obligation légale (décision de justice, réquisition des autorités compétentes)</li>
               <li>Protection des droits de Nkap Control en cas de litige</li>
-              <li>Sous-traitants techniques nécessaires au fonctionnement du service (hébergement, envoi d&apos;emails, processeur de paiement NotchPay) sous contrat de confidentialité</li>
+              <li>Sous-traitants techniques nécessaires au fonctionnement du service (hébergement, envoi d&apos;emails, processeur de paiement getMIpay) sous contrat de confidentialité</li>
             </ul>
           </section>
 
