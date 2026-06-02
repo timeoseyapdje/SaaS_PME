@@ -23,10 +23,7 @@ function getServiceId(paymentMethod: "MTN_MONEY" | "ORANGE_MONEY"): string {
 }
 
 export function isGetMiPayConfigured(): boolean {
-  return !!(
-    process.env.GETMIPAY_PUBLIC_KEY &&
-    process.env.GETMIPAY_PRIVATE_KEY
-  );
+  return !!process.env.GETMIPAY_PRIVATE_KEY;
 }
 
 export function getMiPayConfigStatus(): Record<string, boolean> {
@@ -65,8 +62,8 @@ export async function getAuthToken(): Promise<{ token: string } | { error: strin
   const publicKey = process.env.GETMIPAY_PUBLIC_KEY;
   const privateKey = process.env.GETMIPAY_PRIVATE_KEY;
 
-  if (!publicKey || !privateKey) {
-    return { error: "credentials_missing: GETMIPAY_PUBLIC_KEY ou GETMIPAY_PRIVATE_KEY non configuré" };
+  if (!privateKey) {
+    return { error: "credentials_missing: GETMIPAY_PRIVATE_KEY non configuré" };
   }
 
   let rawBody = "";
@@ -74,7 +71,10 @@ export async function getAuthToken(): Promise<{ token: string } | { error: strin
     const res = await fetch(`${API_BASE}/action/auth`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ public_apikey: publicKey, private_secretkey: privateKey }),
+      body: JSON.stringify({
+        ...(publicKey ? { public_apikey: publicKey } : {}),
+        secret_apikey: privateKey,
+      }),
     });
     rawBody = await res.text();
     if (!res.ok) {
