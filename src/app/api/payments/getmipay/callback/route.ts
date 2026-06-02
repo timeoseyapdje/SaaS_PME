@@ -33,8 +33,7 @@ export async function GET(req: Request) {
       return NextResponse.redirect(`${baseUrl}/subscription?status=error`);
     }
 
-    const getmipayRef = payment.notchpayRef || txRef;
-    const statusResult = await checkPaymentStatus(getmipayRef);
+    const statusResult = await checkPaymentStatus(txRef, payment.notchpayRef || undefined);
     const rawStatus = statusResult?.status?.toUpperCase() || "";
     const isSuccess = ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(rawStatus);
 

@@ -108,8 +108,8 @@ async function settleTransaction(
 }
 
 // Helper: resolve outcome from getMIpay status API, or null if inconclusive
-async function resolveOutcome(ref: string): Promise<"COMPLETED" | "FAILED" | null> {
-  const result = await checkPaymentStatus(ref);
+async function resolveOutcome(ref: string, payId?: string): Promise<"COMPLETED" | "FAILED" | null> {
+  const result = await checkPaymentStatus(ref, payId);
   const raw = (result?.status || "").toUpperCase();
   if (["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(raw)) return "COMPLETED";
   if (["FAILED", "CANCELLED", "REJECTED"].includes(raw)) return "FAILED";

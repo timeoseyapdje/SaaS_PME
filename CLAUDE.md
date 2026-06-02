@@ -85,7 +85,6 @@ Company
 | `/api/quotes/[id]/convert` | POST | Convertit en facture (FAC-YYYY-XXXX) |
 | `/api/email/send-invoice` | POST | Envoie la facture par email (Resend) |
 | `/api/email/send-quote` | POST | Envoie le devis par email (Resend) |
-<<<<<<< HEAD
 | `/api/pay/[slug]` | POST | Initie paiement getMIpay (USSD push) |
 | `/api/payments/getmipay` | POST | Init abonnement getMIpay |
 | `/api/payments/getmipay/callback` | GET | Callback abonnement |
@@ -95,55 +94,42 @@ Company
 
 ---
 
-## getMIpay — Points Critiques
+## getMIpay API v1 — Points Critiques
+
+**Base URL** : `https://getmipay.com/api/v1`
+**Lib** : `src/lib/getmipay.ts` (paiements) + `src/lib/getmipay-cards.ts` (cartes virtuelles)
+**Doc complète** : `docs/GETMIPAY_API_REFERENCE.md`
 
 ```typescript
-// Auth: POST /auth/login → Bearer token (à chaque appel)
+// Auth: POST /action/auth → JWT Bearer token (cache 24h)
 const token = await getAuthToken(); // dans src/lib/getmipay.ts
 
 // PayIn (USSD push vers le téléphone du client)
-await initiatePayIn({ amount, currency, wallet: "237XXXXXXXXX", paymentMethod: "MTN_MONEY", ... });
-// → POST /payment/payin avec headers: service, operation: "2"
+await initiatePayIn({ amount, currency, wallet: "237XXXXXXXXX", paymentMethod: "MTN_MONEY", description: "...", customerName: "..." });
+// → POST /payins avec headers: service: "1", operation: "2"
 
 // PayOut (reversement au marchand)
-await initiatePayOut({ amount, currency, wallet, paymentMethod, ... });
-// → POST /payout avec headers: service, operation: "4"
+await initiatePayOut({ amount, currency, wallet, paymentMethod, description: "...", customerName: "..." });
+// → POST /payouts avec headers: service: "1", operation: "4"
 
-// Wallet: format sans "+" — "237670000001" (pas "+237...")
+// Transaction Check (vérification statut)
+await checkPaymentStatus(orderId, payId);
+// → POST /transaction-check avec { order_id, pay_id }
+
+// Services : 1=MTN CM, 3=OM CI (OTP), 4=OM SN (OTP), 5=OM BF (OTP)
+// Wallet : format sans "+" — "237670000001" (pas "+237...")
+
+// Cartes virtuelles (src/lib/getmipay-cards.ts)
+import { createCardUser, createCard, topUpCard, ... } from "@/lib/getmipay-cards";
 
 // Variables d'environnement
-GETMIPAY_BASE_URL       // URL de base API (ex: https://api.getmipay.com)
-GETMIPAY_PUBLIC_KEY     // pour auth + payin
-GETMIPAY_PRIVATE_KEY    // pour auth + payout
-GETMIPAY_MTN_SERVICE_ID     // ID service MTN
-GETMIPAY_ORANGE_SERVICE_ID  // ID service Orange
-=======
-| `/api/pay/[slug]` | POST | Initialise + charge directe NotchPay |
-| `/api/payments/notchpay/webhook` | POST | Webhook paiements abonnements |
-| `/api/webhooks/payment-links` | POST | Webhook NotchPay liens de paiement |
-
----
-
-## NotchPay — Points Critiques
-
-```typescript
-// CORRECT: le checkoutUrl est dans data.transaction.authorization_url
-const authUrl = data.authorization_url || data.transaction?.authorization_url;
-
-// Charge directe (pas de redirect) — préférer ceci
-await chargePayment({ reference, phone, paymentMethod: "MTN_MONEY" });
-// → POST /payments/{reference}/charge avec { channel: "cm.mtn", data: { phone: "+237XXXXXXXXX" } }
-
-// Formatage téléphone Cameroun
-function formatCameroonPhone(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
+GETMIPAY_PUBLIC_KEY         // gmp_pk_... pour auth
+GETMIPAY_PRIVATE_KEY        // gmp_sk_... pour auth
   return digits.startsWith("237") ? `+${digits}` : `+237${digits}`;
 }
 
-// Variables d'environnement
-NOTCHPAY_PUBLIC_KEY  // pour init + charge
-NOTCHPAY_PRIVATE_KEY // pour transferts + signature webhook
->>>>>>> main
+GETMIPAY_MTN_SERVICE_ID     // optionnel, défaut "1"
+GETMIPAY_ORANGE_SERVICE_ID  // optionnel, défaut "3"
 ```
 
 ---

@@ -47,13 +47,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
       const isKnown = (s: string) =>
         ["SUCCESS","SUCCESSFUL","COMPLETED","PAID","FAILED","CANCELLED","REJECTED"].includes(s);
 
-      let apiStatus = tx.notchpayRef ? await checkPaymentStatus(tx.notchpayRef) : null;
+      let apiStatus = await checkPaymentStatus(txId, tx.notchpayRef || undefined);
       let raw = apiStatus?.status?.toUpperCase() || "";
-
-      if (!isKnown(raw)) {
-        const byOrderId = await checkPaymentStatus(txId);
-        if (byOrderId) { apiStatus = byOrderId; raw = byOrderId.status?.toUpperCase() || ""; }
-      }
 
       const isSuccess = ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(raw);
       const isFailed = ["FAILED", "CANCELLED", "REJECTED"].includes(raw);
