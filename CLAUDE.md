@@ -1,6 +1,6 @@
-# CLAUDE.md — Nkap Control
+# Nkap Control — Guide de développement
 
-Guide de référence pour Claude Code. Toujours lire avant d'intervenir sur ce projet.
+Guide de référence du projet. Toujours lire avant d'intervenir sur ce codebase.
 
 ---
 
@@ -125,9 +125,6 @@ import { createCardUser, createCard, topUpCard, ... } from "@/lib/getmipay-cards
 // Variables d'environnement
 GETMIPAY_PUBLIC_KEY         // gmp_pk_... pour auth
 GETMIPAY_PRIVATE_KEY        // gmp_sk_... pour auth
-  return digits.startsWith("237") ? `+${digits}` : `+237${digits}`;
-}
-
 GETMIPAY_MTN_SERVICE_ID     // optionnel, défaut "1"
 GETMIPAY_ORANGE_SERVICE_ID  // optionnel, défaut "3"
 ```
