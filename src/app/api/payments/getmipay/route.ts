@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   }
 
   const merchantRef = generateReference("SUB");
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.nkapcontrol.com";
 
   try {
     const payment = await prisma.payment.create({
