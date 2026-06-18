@@ -11,6 +11,16 @@ async function settleTransaction(
   txId: string,
   outcome: "COMPLETED" | "FAILED"
 ) {
+  // Atomic update: only proceeds if transaction is still PENDING
+  const updated = await prisma.paymentLinkTransaction.updateMany({
+    where: { id: txId, status: "PENDING" },
+    data: { status: outcome, paidAt: outcome === "COMPLETED" ? new Date() : null },
+  });
+
+  if (updated.count === 0) return; // already settled by another process
+
+  if (outcome !== "COMPLETED") return;
+
   const transaction = await prisma.paymentLinkTransaction.findUnique({
     where: { id: txId },
     include: {
@@ -22,12 +32,7 @@ async function settleTransaction(
     },
   });
 
-  if (!transaction || transaction.status !== "PENDING") return;
-
-  await prisma.paymentLinkTransaction.update({
-    where: { id: txId },
-    data: { status: outcome, paidAt: outcome === "COMPLETED" ? new Date() : null },
-  });
+  if (!transaction) return;
 
   if (outcome !== "COMPLETED") return;
 
@@ -153,8 +158,9 @@ export async function GET(req: Request) {
     }
 
     // Try getMIpay API if we have a reference
+    // order_id = transaction.id (used as reference in initiatePayIn), pay_id = soleaspay_reference
     if (transaction.notchpayRef) {
-      const outcome = await resolveOutcome(transaction.notchpayRef);
+      const outcome = await resolveOutcome(txId, transaction.notchpayRef);
       if (outcome === "FAILED") {
         await settleTransaction(txId, "FAILED");
         return NextResponse.redirect(`${baseUrl}/pay/${slug}/failed?${txParams.toString()}&reason=cancelled`);
