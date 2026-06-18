@@ -155,6 +155,7 @@ export async function initiatePayIn({
         wallet: formatWallet(wallet),
         description,
         customer_name: customerName || "Client",
+        external_reference: reference,
         ...(customerEmail ? { customer_email: customerEmail } : {}),
         ...(callbackUrl ? { callback_url: callbackUrl } : {}),
       }),

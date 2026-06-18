@@ -54,54 +54,57 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
       const isFailed = ["FAILED", "CANCELLED", "REJECTED"].includes(raw);
 
       if (isSuccess) {
-        await prisma.paymentLinkTransaction.update({
-          where: { id: tx.id },
+        // Atomic update to prevent double-settlement with callback/webhook
+        const settled = await prisma.paymentLinkTransaction.updateMany({
+          where: { id: tx.id, status: "PENDING" },
           data: { status: "COMPLETED", paidAt: new Date() },
         });
 
-        // Credit company balance and trigger payout
-        const company = tx.paymentLink.company;
-        const defaultAccount = company.bankAccounts[0];
-        if (defaultAccount) {
-          await prisma.bankAccount.update({
-            where: { id: defaultAccount.id },
-            data: { balance: { increment: tx.amount } },
-          });
-
-          const existingPayout = await prisma.payout.findUnique({
-            where: { paymentLinkTransactionId: tx.id },
-          });
-
-          if (!existingPayout) {
-            const method = MOBILE_MONEY_METHODS[defaultAccount.type];
-            const phone = defaultAccount.phoneNumber || defaultAccount.accountNumber;
-            let payoutRef: string | undefined;
-            let payoutStatus: "INITIATED" | "PROCESSING" | "FAILED" = "INITIATED";
-
-            if (method && phone) {
-              const payout = await initiatePayOut({
-                amount: tx.amount,
-                currency: tx.paymentLink.currency,
-                wallet: phone,
-                description: `Reversement - ${tx.paymentLink.title}`,
-                paymentMethod: method,
-                reference: `payout-${tx.id}`,
-              });
-              if (payout) { payoutRef = payout.transactionReference; payoutStatus = "PROCESSING"; }
-              else { payoutStatus = "FAILED"; }
-            }
-
-            await prisma.payout.create({
-              data: {
-                companyId: company.id,
-                bankAccountId: defaultAccount.id,
-                paymentLinkTransactionId: tx.id,
-                amount: tx.amount,
-                currency: tx.paymentLink.currency,
-                status: payoutStatus,
-                payoutRef: payoutRef ?? null,
-              },
+        // Only credit balance and trigger payout if we were the one to settle
+        if (settled.count > 0) {
+          const company = tx.paymentLink.company;
+          const defaultAccount = company.bankAccounts[0];
+          if (defaultAccount) {
+            await prisma.bankAccount.update({
+              where: { id: defaultAccount.id },
+              data: { balance: { increment: tx.amount } },
             });
+
+            const existingPayout = await prisma.payout.findUnique({
+              where: { paymentLinkTransactionId: tx.id },
+            });
+
+            if (!existingPayout) {
+              const method = MOBILE_MONEY_METHODS[defaultAccount.type];
+              const phone = defaultAccount.phoneNumber || defaultAccount.accountNumber;
+              let payoutRef: string | undefined;
+              let payoutStatus: "INITIATED" | "PROCESSING" | "FAILED" = "INITIATED";
+
+              if (method && phone) {
+                const payout = await initiatePayOut({
+                  amount: tx.amount,
+                  currency: tx.paymentLink.currency,
+                  wallet: phone,
+                  description: `Reversement - ${tx.paymentLink.title}`,
+                  paymentMethod: method,
+                  reference: `payout-${tx.id}`,
+                });
+                if (payout) { payoutRef = payout.transactionReference; payoutStatus = "PROCESSING"; }
+                else { payoutStatus = "FAILED"; }
+              }
+
+              await prisma.payout.create({
+                data: {
+                  companyId: company.id,
+                  bankAccountId: defaultAccount.id,
+                  paymentLinkTransactionId: tx.id,
+                  amount: tx.amount,
+                  currency: tx.paymentLink.currency,
+                  status: payoutStatus,
+                  payoutRef: payoutRef ?? null,
+                },
+              });
+            }
           }
         }
 

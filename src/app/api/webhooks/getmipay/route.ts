@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { initiatePayOut } from "@/lib/getmipay";
+import { initiatePayOut, checkPaymentStatus } from "@/lib/getmipay";
 import { sendSubscriptionConfirmationEmail } from "@/lib/email";
 
 const MOBILE_MONEY_METHODS: Record<string, "MTN_MONEY" | "ORANGE_MONEY"> = {
@@ -120,14 +120,38 @@ export async function POST(req: Request) {
       return NextResponse.json({ received: true });
     }
 
-    // COMPLETED or status ambiguous: getMIpay only fires the webhook after processing,
-    // so receiving it at all means the payment went through.
-    if (mappedStatus === "COMPLETED" || mappedStatus === "PENDING") {
-      await prisma.paymentLinkTransaction.update({
-        where: { id: plTx.id },
-        data: { status: "COMPLETED", paidAt: new Date() },
-      });
+    // If status is ambiguous (PENDING or unknown), query getMIpay API before settling
+    if (mappedStatus !== "COMPLETED") {
+      const statusResult = await checkPaymentStatus(
+        plTx.transactionRef || plTx.id,
+        plTx.notchpayRef || undefined
+      );
+      const apiStatus = (statusResult?.status || "").toUpperCase();
+      const isApiSuccess = ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(apiStatus);
+      const isApiFailed = ["FAILED", "CANCELLED", "REJECTED"].includes(apiStatus);
 
+      if (isApiFailed) {
+        await prisma.paymentLinkTransaction.update({
+          where: { id: plTx.id },
+          data: { status: "FAILED" },
+        });
+        return NextResponse.json({ received: true });
+      }
+
+      if (!isApiSuccess) {
+        // Still genuinely pending — do not settle yet
+        return NextResponse.json({ received: true });
+      }
+    }
+
+    // Status is confirmed COMPLETED: atomic update to prevent double-settlement
+    const settled = await prisma.paymentLinkTransaction.updateMany({
+      where: { id: plTx.id, status: "PENDING" },
+      data: { status: "COMPLETED", paidAt: new Date() },
+    });
+    if (settled.count === 0) return NextResponse.json({ received: true });
+
+    {
       const company = plTx.paymentLink.company;
       const defaultAccount = company.bankAccounts[0];
 
