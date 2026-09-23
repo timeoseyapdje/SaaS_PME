@@ -116,7 +116,7 @@ await initiatePayOut({ amount, currency, wallet, paymentMethod, description: "..
 await checkPaymentStatus(orderId, payId);
 // → POST /payments/direct-status { order_id, pay_id } ou GET /payments/{ref}
 
-// Services : 1=MTN CM, 3=OM CI (OTP), 4=OM SN (OTP), 5=OM BF (OTP)
+// Services activés sur le compte : 1=MTN CM, 2=Orange Money CM
 // Wallet : format sans "+" — "237670000001" (pas "+237...")
 
 // Cartes virtuelles (src/lib/getmipay-cards.ts)
@@ -125,8 +125,6 @@ import { createCardUser, createCard, topUpCard, ... } from "@/lib/getmipay-cards
 // Variables d'environnement
 GETMIPAY_PUBLIC_KEY         // gmp_pk_... pour auth
 GETMIPAY_PRIVATE_KEY        // gmp_sk_... pour auth
-GETMIPAY_MTN_SERVICE_ID     // optionnel, défaut "1"
-GETMIPAY_ORANGE_SERVICE_ID  // optionnel, défaut "3"
 ```
 
 ---

@@ -2,25 +2,21 @@
 // Base URL: https://api.getmipay.com/api/v1
 // (getmipay.com/api/v1 is the marketing site and returns an HTML 404)
 // Auth: JWT bearer token via POST /action/auth (expires 24h)
-// Services: 1=MTN CM, 3=OM CI, 4=OM SN, 5=OM BF
+// Services (GET /services on the Nkap Control account): 1=MTN CM, 2=OM CM
 
 export const GETMIPAY_FEE_RATE = 0.03; // 3% payin fee (source: /api/services)
 
 export const API_BASE = process.env.GETMIPAY_API_URL || "https://api.getmipay.com/api/v1";
 
-// Service IDs per the production API docs
-const SERVICE_IDS: Record<string, string> = {
-  MTN_MONEY: "1",      // MTN Mobile Money Cameroon
-  ORANGE_MONEY_CI: "3", // Orange Money Côte d'Ivoire (OTP required)
-  ORANGE_MONEY_SN: "4", // Orange Money Senegal (OTP required)
-  ORANGE_MONEY_BF: "5", // Orange Money Burkina Faso (OTP required)
+// Service IDs enabled on the merchant account (GET /services).
+// 3/4/5 are Orange CI/SN/BF — not Cameroon, and not enabled on this account.
+const SERVICE_IDS: Record<"MTN_MONEY" | "ORANGE_MONEY", string> = {
+  MTN_MONEY: "1",    // MTN Mobile Money Cameroon
+  ORANGE_MONEY: "2", // Orange Money Cameroon
 };
 
 function getServiceId(paymentMethod: "MTN_MONEY" | "ORANGE_MONEY"): string {
-  if (paymentMethod === "MTN_MONEY") {
-    return process.env.GETMIPAY_MTN_SERVICE_ID || SERVICE_IDS.MTN_MONEY;
-  }
-  return process.env.GETMIPAY_ORANGE_SERVICE_ID || SERVICE_IDS.ORANGE_MONEY_CI;
+  return SERVICE_IDS[paymentMethod];
 }
 
 export function isGetMiPayConfigured(): boolean {
@@ -31,8 +27,6 @@ export function getMiPayConfigStatus(): Record<string, boolean> {
   return {
     GETMIPAY_PUBLIC_KEY: !!process.env.GETMIPAY_PUBLIC_KEY,
     GETMIPAY_PRIVATE_KEY: !!process.env.GETMIPAY_PRIVATE_KEY,
-    GETMIPAY_MTN_SERVICE_ID: !!process.env.GETMIPAY_MTN_SERVICE_ID,
-    GETMIPAY_ORANGE_SERVICE_ID: !!process.env.GETMIPAY_ORANGE_SERVICE_ID,
   };
 }
 
@@ -314,7 +308,7 @@ export async function getMerchantBalance(): Promise<{ balance: number; currency:
     const data = await res.json();
     if (!data.success) return null;
     return {
-      balance: data.data.balance,
+      balance: Number(data.data.balance),
       currency: data.data.currency,
       merchantName: data.data.merchant_name,
     };
@@ -348,7 +342,8 @@ export async function getAvailableServices(): Promise<{
     const data = await res.json();
     if (!data.success) return null;
     return {
-      allServices: (data.data.all_services || []).map((s: Record<string, unknown>) => ({
+      // The live API returns services_by_country ({ CM: [...] }), not all_services
+      allServices: (data.data.all_services || Object.values(data.data.services_by_country || {}).flat()).map((s: Record<string, unknown>) => ({
         id: s.id,
         name: s.name,
         description: s.description,

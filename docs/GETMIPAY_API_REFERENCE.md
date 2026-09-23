@@ -275,8 +275,6 @@ Returns all active fee configs with `currencies_available`, `card_types_availabl
 ```env
 GETMIPAY_PUBLIC_KEY=gmp_pk_...
 GETMIPAY_PRIVATE_KEY=gmp_sk_...
-GETMIPAY_MTN_SERVICE_ID=1          # optional, defaults to "1"
-GETMIPAY_ORANGE_SERVICE_ID=3       # optional, defaults to "3"
 ```
 
 ## Wallet Format
