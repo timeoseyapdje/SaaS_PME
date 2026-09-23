@@ -184,6 +184,12 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-[100svh] bg-zinc-950 selection:bg-emerald-500/30 relative" style={{ overflowX: "hidden" }}>
+      {/* Google AdSense — React 19 hoists async scripts into <head> */}
+      <script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2952261428752027"
+        crossOrigin="anonymous"
+      />
       {/* Background — absolute (pas fixed) pour éviter les bugs iOS GPU */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-dot-pattern opacity-20 [-webkit-mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)] [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]" />
