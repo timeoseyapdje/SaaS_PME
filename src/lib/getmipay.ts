@@ -1,11 +1,12 @@
 // getMIPay API v1 — Production integration
-// Base URL: https://getmipay.com/api/v1
+// Base URL: https://api.getmipay.com/api/v1
+// (getmipay.com/api/v1 is the marketing site and returns an HTML 404)
 // Auth: JWT bearer token via POST /action/auth (expires 24h)
 // Services: 1=MTN CM, 3=OM CI, 4=OM SN, 5=OM BF
 
 export const GETMIPAY_FEE_RATE = 0.03; // 3% payin fee (source: /api/services)
 
-const API_BASE = "https://getmipay.com/api/v1";
+export const API_BASE = process.env.GETMIPAY_API_URL || "https://api.getmipay.com/api/v1";
 
 // Service IDs per the production API docs
 const SERVICE_IDS: Record<string, string> = {
@@ -23,7 +24,7 @@ function getServiceId(paymentMethod: "MTN_MONEY" | "ORANGE_MONEY"): string {
 }
 
 export function isGetMiPayConfigured(): boolean {
-  return !!process.env.GETMIPAY_PRIVATE_KEY;
+  return !!process.env.GETMIPAY_PUBLIC_KEY && !!process.env.GETMIPAY_PRIVATE_KEY;
 }
 
 export function getMiPayConfigStatus(): Record<string, boolean> {
@@ -62,18 +63,18 @@ export async function getAuthToken(): Promise<{ token: string } | { error: strin
   const publicKey = process.env.GETMIPAY_PUBLIC_KEY;
   const privateKey = process.env.GETMIPAY_PRIVATE_KEY;
 
-  if (!privateKey) {
-    return { error: "credentials_missing: GETMIPAY_PRIVATE_KEY non configuré" };
+  if (!publicKey || !privateKey) {
+    return { error: "credentials_missing: GETMIPAY_PUBLIC_KEY et GETMIPAY_PRIVATE_KEY sont tous deux requis" };
   }
 
   let rawBody = "";
   try {
     const res = await fetch(`${API_BASE}/action/auth`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
-        ...(publicKey ? { public_apikey: publicKey } : {}),
-        secret_apikey: privateKey,
+        public_apikey: publicKey,
+        private_secretkey: privateKey,
       }),
     });
     rawBody = await res.text();
@@ -140,13 +141,14 @@ export async function initiatePayIn({
     const headers: Record<string, string> = {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
+      Accept: "application/json",
       service: serviceId,
       operation: "2",
     };
     // OTP required only for Orange Money CI/SN/BF
     if (otp) headers.otp = otp;
 
-    const res = await fetch(`${API_BASE}/payins`, {
+    const res = await fetch(`${API_BASE}/payments/payin`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -216,6 +218,7 @@ export async function initiatePayOut({
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        Accept: "application/json",
         service: serviceId,
         operation: "4",
       },
@@ -254,29 +257,34 @@ export async function initiatePayOut({
   }
 }
 
-// Direct transaction status check via POST /transaction-check
-// Uses both order_id and pay_id (soleaspay_reference) for reliable lookup
+// Transaction status check.
+// `reference` is the getMIpay transaction_reference (MPAYIN_...) returned by the pay-in.
+// With a soleaspay pay_id we use POST /payments/direct-status (real-time from the operator),
+// otherwise GET /payments/{reference}.
 export async function checkPaymentStatus(
-  orderId: string,
+  reference: string,
   payId?: string,
 ): Promise<{ status: string; amount?: number; currency?: string } | null> {
   const authResult = await getAuthToken();
   if ("error" in authResult) { console.error("getMIpay checkStatus auth failed:", authResult.error); return null; }
-  const token = authResult.token;
+  const headers = {
+    Authorization: `Bearer ${authResult.token}`,
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
 
   try {
-    const res = await fetch(`${API_BASE}/transaction-check`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        order_id: orderId,
-        pay_id: payId || orderId,
-      }),
-    });
-    if (!res.ok) return null;
+    const res = payId
+      ? await fetch(`${API_BASE}/payments/direct-status`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ order_id: reference, pay_id: payId }),
+        })
+      : await fetch(`${API_BASE}/payments/${encodeURIComponent(reference)}`, { headers });
+    if (!res.ok) {
+      console.error("getMIpay status failed:", res.status, (await res.text()).slice(0, 300));
+      return null;
+    }
     const data = await res.json();
     if (!data.success) return null;
     return {
@@ -300,7 +308,7 @@ export async function getMerchantBalance(): Promise<{ balance: number; currency:
 
   try {
     const res = await fetch(`${API_BASE}/balance`, {
-      headers: { Authorization: `Bearer ${authResult.token}` },
+      headers: { Authorization: `Bearer ${authResult.token}`, Accept: "application/json" },
     });
     if (!res.ok) return null;
     const data = await res.json();
@@ -334,7 +342,7 @@ export async function getAvailableServices(): Promise<{
 
   try {
     const res = await fetch(`${API_BASE}/services`, {
-      headers: { Authorization: `Bearer ${authResult.token}` },
+      headers: { Authorization: `Bearer ${authResult.token}`, Accept: "application/json" },
     });
     if (!res.ok) return null;
     const data = await res.json();
@@ -369,7 +377,7 @@ export async function convertCurrency(
   try {
     const params = new URLSearchParams({ amount: String(amount), from, to });
     const res = await fetch(`${API_BASE}/convert-currency?${params}`, {
-      headers: { Authorization: `Bearer ${authResult.token}` },
+      headers: { Authorization: `Bearer ${authResult.token}`, Accept: "application/json" },
     });
     if (!res.ok) return null;
     const data = await res.json();
@@ -385,14 +393,15 @@ export async function checkApiKeyStatus(): Promise<{
   status: string;
   merchant?: { id: number; businessName: string };
 } | null> {
+  const publicKey = process.env.GETMIPAY_PUBLIC_KEY;
   const secretKey = process.env.GETMIPAY_PRIVATE_KEY;
-  if (!secretKey) return null;
+  if (!publicKey || !secretKey) return null;
 
   try {
     const res = await fetch(`${API_BASE}/action/check-api-key`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ secret_apikey: secretKey }),
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ public_apikey: publicKey, secret_apikey: secretKey }),
     });
     if (!res.ok) return null;
     const data = await res.json();

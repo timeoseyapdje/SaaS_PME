@@ -11,7 +11,7 @@ const MOBILE_MONEY_METHODS: Record<string, "MTN_MONEY" | "ORANGE_MONEY"> = {
 function mapStatus(status: string): string {
   const s = status.toUpperCase();
   if (["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(s)) return "COMPLETED";
-  if (["FAILED", "CANCELLED", "REJECTED"].includes(s)) return "FAILED";
+  if (["FAILED", "CANCELLED", "REJECTED", "TIMEOUT"].includes(s)) return "FAILED";
   return "PENDING";
 }
 
@@ -19,20 +19,21 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
+    // getMIpay webhooks send order_id (= transaction_reference MPAYIN_...) + reference (soleaspay)
     const transactionRef =
+      body.order_id ||
+      body.data?.order_id ||
       body.external_reference ||
       body.transaction_reference ||
       body.data?.external_reference ||
       body.data?.transaction_reference;
 
-    const rawStatus =
-      body.status ||
-      body.data?.status ||
-      "";
-
     if (!transactionRef) {
       return NextResponse.json({ received: true });
     }
+
+    // Public endpoint: the body's status is never trusted, only the getMIpay API's.
+    const rawStatus = (await checkPaymentStatus(transactionRef))?.status || "";
 
     const mappedStatus = mapStatus(rawStatus);
 

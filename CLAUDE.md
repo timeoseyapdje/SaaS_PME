@@ -96,7 +96,7 @@ Company
 
 ## getMIpay API v1 — Points Critiques
 
-**Base URL** : `https://getmipay.com/api/v1`
+**Base URL** : `https://api.getmipay.com/api/v1` (⚠️ pas `getmipay.com/api/v1`, qui est le site web → 404)
 **Lib** : `src/lib/getmipay.ts` (paiements) + `src/lib/getmipay-cards.ts` (cartes virtuelles)
 **Doc complète** : `docs/GETMIPAY_API_REFERENCE.md`
 
@@ -106,7 +106,7 @@ const token = await getAuthToken(); // dans src/lib/getmipay.ts
 
 // PayIn (USSD push vers le téléphone du client)
 await initiatePayIn({ amount, currency, wallet: "237XXXXXXXXX", paymentMethod: "MTN_MONEY", description: "...", customerName: "..." });
-// → POST /payins avec headers: service: "1", operation: "2"
+// → POST /payments/payin avec headers: service: "1", operation: "2"
 
 // PayOut (reversement au marchand)
 await initiatePayOut({ amount, currency, wallet, paymentMethod, description: "...", customerName: "..." });
@@ -114,7 +114,7 @@ await initiatePayOut({ amount, currency, wallet, paymentMethod, description: "..
 
 // Transaction Check (vérification statut)
 await checkPaymentStatus(orderId, payId);
-// → POST /transaction-check avec { order_id, pay_id }
+// → POST /payments/direct-status { order_id, pay_id } ou GET /payments/{ref}
 
 // Services : 1=MTN CM, 3=OM CI (OTP), 4=OM SN (OTP), 5=OM BF (OTP)
 // Wallet : format sans "+" — "237670000001" (pas "+237...")

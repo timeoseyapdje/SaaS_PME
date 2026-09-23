@@ -112,7 +112,11 @@ export default function SubscriptionPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(urlStatus === "success");
-  const [error, setError] = useState(urlStatus === "error" ? "Le paiement a échoué. Veuillez réessayer." : "");
+  const [error, setError] = useState(
+    urlStatus === "error" ? "Le paiement a échoué. Veuillez réessayer."
+    : urlStatus === "pending" ? "Paiement en cours de confirmation par l'opérateur. Rafraîchissez la page dans quelques instants."
+    : ""
+  );
   const [pendingUssd, setPendingUssd] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelling, setCancelling] = useState(false);
@@ -183,6 +187,10 @@ export default function SubscriptionPage() {
           attempts++;
           if (attempts > 100) { clearInterval(pollRef.current!); return; }
           try {
+            // Ask the server to check the getMIpay status (in case the webhook never arrives)
+            if (attempts % 3 === 0) {
+              await fetch(`/api/payments/getmipay/callback?txRef=${encodeURIComponent(data.reference)}&plan=${selectedPlan}`, { method: "POST" });
+            }
             const sr = await fetch("/api/subscription");
             if (!sr.ok) return;
             const sd = await sr.json();

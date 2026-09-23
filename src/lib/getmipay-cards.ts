@@ -1,10 +1,8 @@
 // getMIPay Virtual Cards API v1
-// Base URL: https://getmipay.com/api/v1/virtual-cards
+// Base URL: https://api.getmipay.com/api/v1/virtual-cards
 // All endpoints require JWT Bearer token from getAuthToken()
 
-import { getAuthToken } from "./getmipay";
-
-const API_BASE = "https://getmipay.com/api/v1";
+import { getAuthToken, API_BASE } from "./getmipay";
 
 // ──────────────────────────────────────────────
 // Types
@@ -117,6 +115,7 @@ async function authenticatedFetch<T>(
       headers: {
         Authorization: `Bearer ${authResult.token}`,
         "Content-Type": "application/json",
+        Accept: "application/json",
         ...options.headers,
       },
     });
@@ -216,7 +215,7 @@ export async function createCardUser(params: {
   isBusiness?: boolean;
   businessName?: string | null;
 }): Promise<ApiResult<CardUser>> {
-  const result = await authenticatedFetch<{ data: Record<string, unknown> }>("/virtual-cards/users", {
+  const result = await authenticatedFetch<{ data: Record<string, unknown> }>("/virtual-cards/action/card/user", {
     method: "POST",
     body: JSON.stringify({
       first_name: params.firstName,
@@ -283,7 +282,7 @@ export async function updateCardUser(
 }
 
 export async function getAllCardUsers(): Promise<ApiResult<{ users: CardUser[]; totalCount: number }>> {
-  const result = await authenticatedFetch<{ users: Array<{ data: Record<string, unknown> }>; total_count: number }>("/virtual-cards/users");
+  const result = await authenticatedFetch<{ users: Array<{ data: Record<string, unknown> }>; total_count: number }>("/virtual-cards/action/card/user");
   if ("error" in result) return result;
   return {
     data: {
@@ -317,7 +316,7 @@ export async function createCard(params: {
   category: "PERSONAL" | "BUSINESS";
   grade: "BASIC" | "PREMIUM";
 }): Promise<ApiResult<VirtualCard>> {
-  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/users/${params.userId}/cards`, {
+  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/action/card/${params.userId}`, {
     method: "POST",
     body: JSON.stringify({
       balance: params.balance,
@@ -332,25 +331,25 @@ export async function createCard(params: {
 }
 
 export async function listVirtualCards(): Promise<ApiResult<VirtualCard[]>> {
-  const result = await authenticatedFetch<unknown[]>("/virtual-cards");
+  const result = await authenticatedFetch<unknown[]>("/virtual-cards/cards");
   if ("error" in result) return result;
   return { data: (result.data as Record<string, unknown>[]).map(mapCard) };
 }
 
 export async function getCardDetails(cardId: string): Promise<ApiResult<VirtualCard>> {
-  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/${cardId}`);
+  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/action/card/${cardId}`);
   if ("error" in result) return result;
   return { data: mapCard(result.data) };
 }
 
 export async function getCardBalance(cardId: string): Promise<ApiResult<{ cardId: string; balance: number; currency: string }>> {
-  const result = await authenticatedFetch<{ card_id: string; balance: number; currency: string }>(`/virtual-cards/${cardId}/balance`);
+  const result = await authenticatedFetch<{ card_id: string; balance: number; currency: string }>(`/virtual-cards/cards/${cardId}/balance`);
   if ("error" in result) return result;
   return { data: { cardId: result.data.card_id, balance: result.data.balance, currency: result.data.currency } };
 }
 
 export async function getCardTransactions(cardId: string): Promise<ApiResult<CardOperationResult>> {
-  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/${cardId}/transactions`);
+  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/action/card/transaction/${cardId}`);
   if ("error" in result) return result;
   return { data: mapCardOperation(result.data) };
 }
@@ -364,7 +363,7 @@ export async function topUpCard(
   amount: number,
   currency: "USD" | "EUR" | "XAF",
 ): Promise<ApiResult<CardOperationResult>> {
-  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/${cardId}/topup`, {
+  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/cards/${cardId}/topup`, {
     method: "POST",
     body: JSON.stringify({ amount, currency }),
   });
@@ -377,7 +376,7 @@ export async function withdrawFromCard(
   amount: number,
   currency: "USD" | "EUR" | "XAF",
 ): Promise<ApiResult<CardOperationResult>> {
-  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/${cardId}/withdraw`, {
+  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/cards/${cardId}/withdraw`, {
     method: "POST",
     body: JSON.stringify({ amount, currency }),
   });
@@ -386,7 +385,7 @@ export async function withdrawFromCard(
 }
 
 export async function enableCard(cardId: string): Promise<ApiResult<CardOperationResult>> {
-  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/${cardId}/enable`, {
+  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/cards/${cardId}/enable`, {
     method: "POST",
   });
   if ("error" in result) return result;
@@ -394,7 +393,7 @@ export async function enableCard(cardId: string): Promise<ApiResult<CardOperatio
 }
 
 export async function disableCard(cardId: string): Promise<ApiResult<CardOperationResult>> {
-  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/${cardId}/disable`, {
+  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/cards/${cardId}/disable`, {
     method: "POST",
   });
   if ("error" in result) return result;
@@ -402,7 +401,7 @@ export async function disableCard(cardId: string): Promise<ApiResult<CardOperati
 }
 
 export async function terminateCard(cardId: string): Promise<ApiResult<CardOperationResult>> {
-  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/${cardId}`, {
+  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/cards/${cardId}`, {
     method: "DELETE",
   });
   if ("error" in result) return result;
@@ -416,7 +415,7 @@ export async function cardOperation(
   amount?: number,
   currency?: "USD" | "EUR" | "XAF",
 ): Promise<ApiResult<CardOperationResult>> {
-  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/${cardId}/operation`, {
+  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/cards/${cardId}/operation`, {
     method: "POST",
     body: JSON.stringify({
       action,
@@ -479,7 +478,7 @@ export async function calculateCardCreationFees(params: {
     card_type: params.cardType,
     initial_balance: String(params.initialBalance),
   });
-  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/fees/calculate?${qs}`);
+  const result = await authenticatedFetch<Record<string, unknown>>(`/virtual-cards/calculate-fees?${qs}`);
   if ("error" in result) return result;
   const d = result.data;
   const otherFees = d.other_fees as Record<string, number>;

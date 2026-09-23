@@ -1,6 +1,6 @@
 # getMIPay API v1 — Reference
 
-> Production Base URL: `https://getmipay.com/api/v1`
+> Production Base URL: `https://api.getmipay.com/api/v1`
 > Auth: JWT Bearer token (24h lifetime)
 
 ---
@@ -26,7 +26,7 @@
 
 ## Payments
 
-### POST `/payins` — Collect Payment (Pay-In)
+### POST `/payments/payin` — Collect Payment (Pay-In)
 **Headers:** `Authorization: Bearer <jwt>`, `operation: "2"`, `service: "<id>"`, `otp: "<code>"` (optional)
 
 | Service | ID | OTP Required |
@@ -92,7 +92,7 @@
 }
 ```
 
-### POST `/transaction-check` — Transaction Status Check
+### POST `/payments/direct-status` — Transaction Status Check
 ```json
 // Body
 {

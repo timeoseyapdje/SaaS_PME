@@ -41,13 +41,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     }
 
     // Still PENDING: ask getMIpay directly for real-time status
-    // Per docs: valid references are order_id (= txId = transaction.id) OR soleaspay_reference.
-    // transaction_reference is NOT accepted — always fall back to txId (order_id).
+    // notchpayRef holds the getMIpay transaction_reference (MPAYIN_...) returned by the pay-in.
     {
       const isKnown = (s: string) =>
         ["SUCCESS","SUCCESSFUL","COMPLETED","PAID","FAILED","CANCELLED","REJECTED"].includes(s);
 
-      let apiStatus = await checkPaymentStatus(txId, tx.notchpayRef || undefined);
+      let apiStatus = await checkPaymentStatus(tx.notchpayRef || txId);
       let raw = apiStatus?.status?.toUpperCase() || "";
 
       const isSuccess = ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(raw);

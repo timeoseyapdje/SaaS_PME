@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { initiatePayOut } from "@/lib/getmipay";
+import { initiatePayOut, checkPaymentStatus } from "@/lib/getmipay";
 
 const MOBILE_MONEY_METHODS: Record<string, "MTN_MONEY" | "ORANGE_MONEY"> = {
   MTN_MONEY: "MTN_MONEY",
@@ -13,14 +13,14 @@ function parseWebhookBody(body: Record<string, unknown>): {
   failed: boolean;
 } {
   // getMIpay format
-  if ("transaction_reference" in body || "external_reference" in body || (body.data && typeof body.data === "object")) {
+  if ("order_id" in body || "transaction_reference" in body || "external_reference" in body || (body.data && typeof body.data === "object")) {
     const data = (body.data as Record<string, unknown>) || body;
-    const ref = (data.external_reference || data.transaction_reference || body.external_reference || body.transaction_reference) as string | null;
+    const ref = (data.order_id || data.external_reference || data.transaction_reference || body.order_id || body.external_reference || body.transaction_reference) as string | null;
     const status = ((data.status || body.status) as string || "").toUpperCase();
     return {
       transactionRef: ref ?? null,
       success: ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(status),
-      failed: ["FAILED", "CANCELLED", "REJECTED"].includes(status),
+      failed: ["FAILED", "CANCELLED", "REJECTED", "TIMEOUT"].includes(status),
     };
   }
 
@@ -30,7 +30,7 @@ function parseWebhookBody(body: Record<string, unknown>): {
   return {
     transactionRef: ref ?? null,
     success: ["COMPLETED", "SUCCESS", "SUCCESSFUL"].includes(status),
-    failed: ["FAILED", "CANCELLED", "REJECTED"].includes(status),
+    failed: ["FAILED", "CANCELLED", "REJECTED", "TIMEOUT"].includes(status),
   };
 }
 
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   try {
     const rawBody = await request.text();
     const body = JSON.parse(rawBody) as Record<string, unknown>;
-    const { transactionRef, success, failed } = parseWebhookBody(body);
+    const { transactionRef } = parseWebhookBody(body);
 
     if (!transactionRef) {
       return NextResponse.json({ received: true });
@@ -69,7 +69,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true });
     }
 
-    const newStatus = success ? "COMPLETED" : failed ? "FAILED" : null;
+    // Public endpoint: the body's status is never trusted, only the getMIpay API's.
+    const verified = parseWebhookBody({ status: (await checkPaymentStatus(tx.notchpayRef || transactionRef))?.status || "" });
+    const newStatus = verified.success ? "COMPLETED" : verified.failed ? "FAILED" : null;
     if (!newStatus) {
       return NextResponse.json({ received: true, status: "PENDING" });
     }

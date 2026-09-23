@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getMiPayConfigStatus, getAuthToken, checkApiKeyStatus, getAvailableServices, getMerchantBalance } from "@/lib/getmipay";
+import { getMiPayConfigStatus, getAuthToken, checkApiKeyStatus, getAvailableServices, getMerchantBalance, API_BASE } from "@/lib/getmipay";
 
 export async function GET() {
   const config = getMiPayConfigStatus();
@@ -14,7 +14,7 @@ export async function GET() {
 
   return NextResponse.json({
     config,
-    base: "https://getmipay.com/api/v1",
+    base: API_BASE,
     auth: { ok: authOk, error: "error" in auth ? auth.error : undefined },
     apiKey: apiKeyStatus,
     balance,
