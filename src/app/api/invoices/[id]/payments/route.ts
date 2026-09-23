@@ -9,7 +9,7 @@ const VALID_METHODS = [
   "MTN_MONEY",
   "ORANGE_MONEY",
   "CARTE_BANCAIRE",
-  "NOTCHPAY",
+  "GETMIPAY",
 ] as const;
 
 type PaymentMethod = (typeof VALID_METHODS)[number];

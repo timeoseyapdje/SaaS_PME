@@ -24,7 +24,7 @@ Solution SaaS tout-en-un de gestion financière et commerciale, conçue spécifi
 - **Commandes** — Suivi de statut (Pending → Delivered), déduction automatique des stocks, conversion en facture
 - **Liens de paiement** — Génération de liens partageables (MTN Money / Orange Money), page publique sans authentification
 
-### Paiements Mobile Money (NotchPay)
+### Paiements Mobile Money (getMIpay)
 - **Charge directe** — Le client reçoit une demande sur son téléphone et confirme avec son PIN (pas de page intermédiaire)
 - **Commission automatique** — Le client paie montant + 2,5% de frais, l'entreprise reçoit exactement le montant demandé
 - **Reversements automatiques** — Transfert automatique vers le compte MTN/Orange principal de l'entreprise
@@ -53,7 +53,7 @@ Solution SaaS tout-en-un de gestion financière et commerciale, conçue spécifi
 | Animations | Framer Motion |
 | Graphiques | Recharts 2 |
 | IA | Anthropic SDK (`@anthropic-ai/sdk`) |
-| Paiements | NotchPay (MTN Money, Orange Money) |
+| Paiements | getMIpay (MTN Money, Orange Money) |
 | Abonnements | Stripe |
 | Emails | Resend |
 | PDF/Excel | jsPDF + ExcelJS |
@@ -66,7 +66,7 @@ Solution SaaS tout-en-un de gestion financière et commerciale, conçue spécifi
 ### Prérequis
 - Node.js 20+
 - PostgreSQL 14+ (ou compte [Neon](https://neon.tech))
-- Compte NotchPay
+- Compte marchand getMIpay
 - Clé API Anthropic
 - Compte Resend
 
@@ -102,9 +102,9 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 # Anthropic AI
 ANTHROPIC_API_KEY="sk-ant-..."
 
-# NotchPay (paiements Mobile Money)
-NOTCHPAY_PUBLIC_KEY="pk_..."
-NOTCHPAY_PRIVATE_KEY="sk_..."
+# getMIpay (paiements Mobile Money)
+GETMIPAY_PUBLIC_KEY="gmp_pk_..."
+GETMIPAY_PRIVATE_KEY="gmp_sk_..."
 
 # Resend (emails)
 RESEND_API_KEY="re_..."
@@ -129,15 +129,13 @@ npm run dev
 
 ---
 
-## Configuration NotchPay (Webhooks)
+## Configuration getMIpay (Webhooks)
 
-### Webhook abonnements
-- **URL** : `https://votre-domaine.com/api/payments/webhook`
-- **Événements** : `payment.complete`, `payment.failed`
+Chaque pay-in envoie son propre `callback_url` ; les webhooks génériques sont :
+- **Abonnements + liens de paiement** : `https://votre-domaine.com/api/webhooks/getmipay`
+- **Liens de paiement** : `https://votre-domaine.com/api/webhooks/payment-links`
 
-### Webhook liens de paiement
-- **URL** : `https://votre-domaine.com/api/webhooks/payment-links`
-- **Événements** : `payment.complete`, `payment.failed`
+Le statut reçu n'est jamais pris tel quel : il est toujours revérifié auprès de l'API getMIpay.
 
 ### Compte de reversement
 Dans l'app → **Trésorerie** → créer un compte **MTN Money** ou **Orange Money** → saisir le numéro → cocher **Compte principal**.
@@ -172,7 +170,7 @@ src/
 │   │   ├── invoices/              # CRUD factures + mark-overdue + duplicate
 │   │   ├── email/                 # send-invoice + send-quote
 │   │   ├── pay/[slug]/            # Page publique de paiement
-│   │   ├── webhooks/              # Webhooks NotchPay
+│   │   ├── webhooks/              # Webhooks getMIpay
 │   │   └── ...
 │   └── pay/[slug]/                # Page publique de paiement Mobile Money
 ├── components/
@@ -181,7 +179,7 @@ src/
 │   ├── quotes/                    # QuoteForm
 │   └── layout/                   # Sidebar, Header
 ├── lib/
-│   ├── notchpay.ts               # Intégration NotchPay (init + charge directe + transferts)
+│   ├── getmipay.ts               # Intégration getMIpay (pay-in, payout, statut)
 │   ├── email.ts                  # Templates email (factures, devis, abonnements...)
 │   ├── export.ts                 # exportInvoicePDF + exportQuotePDF + Excel/CSV
 │   ├── permissions.ts            # Modules, actions, templates de rôles

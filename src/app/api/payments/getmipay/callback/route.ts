@@ -9,7 +9,7 @@ type Outcome = "COMPLETED" | "FAILED" | "PENDING" | "NOT_FOUND";
 // The callback URL is public, so the caller's claims are never trusted on their own.
 async function settleSubscriptionPayment(txRef: string, plan: string | null): Promise<Outcome> {
   const payment = await prisma.payment.findFirst({
-    where: { OR: [{ transactionRef: txRef }, { notchpayRef: txRef }] },
+    where: { OR: [{ transactionRef: txRef }, { providerRef: txRef }] },
     include: {
       subscription: {
         include: {
@@ -26,7 +26,7 @@ async function settleSubscriptionPayment(txRef: string, plan: string | null): Pr
   if (!payment) return "NOT_FOUND";
   if (payment.status === "COMPLETED") return "COMPLETED";
 
-  const statusResult = await checkPaymentStatus(payment.notchpayRef || txRef);
+  const statusResult = await checkPaymentStatus(payment.providerRef || txRef);
   const rawStatus = statusResult?.status?.toUpperCase() || "";
 
   if (["FAILED", "CANCELLED", "REJECTED", "TIMEOUT"].includes(rawStatus)) {

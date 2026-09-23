@@ -41,12 +41,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     }
 
     // Still PENDING: ask getMIpay directly for real-time status
-    // notchpayRef holds the getMIpay transaction_reference (MPAYIN_...) returned by the pay-in.
+    // providerRef holds the getMIpay transaction_reference (MPAYIN_...) returned by the pay-in.
     {
       const isKnown = (s: string) =>
         ["SUCCESS","SUCCESSFUL","COMPLETED","PAID","FAILED","CANCELLED","REJECTED"].includes(s);
 
-      let apiStatus = await checkPaymentStatus(tx.notchpayRef || txId);
+      let apiStatus = await checkPaymentStatus(tx.providerRef || txId);
       let raw = apiStatus?.status?.toUpperCase() || "";
 
       const isSuccess = ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(raw);

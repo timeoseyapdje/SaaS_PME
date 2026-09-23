@@ -232,7 +232,7 @@ export type PaymentMethod =
   | "MTN_MONEY"
   | "ORANGE_MONEY"
   | "CARTE_BANCAIRE"
-  | "NOTCHPAY";
+  | "GETMIPAY";
 
 export type PaymentStatus = "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
 

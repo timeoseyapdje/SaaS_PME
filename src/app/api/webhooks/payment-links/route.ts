@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     const tx = await prisma.paymentLinkTransaction.findFirst({
       where: {
         OR: [
-          { notchpayRef: transactionRef },
+          { providerRef: transactionRef },
           { transactionRef },
           { id: transactionRef },
         ],
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     }
 
     // Public endpoint: the body's status is never trusted, only the getMIpay API's.
-    const verified = parseWebhookBody({ status: (await checkPaymentStatus(tx.notchpayRef || transactionRef))?.status || "" });
+    const verified = parseWebhookBody({ status: (await checkPaymentStatus(tx.providerRef || transactionRef))?.status || "" });
     const newStatus = verified.success ? "COMPLETED" : verified.failed ? "FAILED" : null;
     if (!newStatus) {
       return NextResponse.json({ received: true, status: "PENDING" });

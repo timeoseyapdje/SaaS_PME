@@ -370,7 +370,7 @@ enum PaymentMethod {
   MTN_MONEY
   ORANGE_MONEY
   CARTE_BANCAIRE
-  NOTCHPAY
+  NOTCHPAY // ancienne valeur, conservée tant que des lignes en base l'utilisent
   GETMIPAY
 }
 
@@ -475,7 +475,7 @@ model Payment {
   currency        String        @default("XAF")
   paymentMethod   PaymentMethod
   transactionRef  String?
-  notchpayRef     String?
+  providerRef     String?       @map("notchpayRef") // référence getMIpay (MPAYIN_...)
   phoneNumber     String?       // Pour Mobile Money
   status          PaymentStatus @default(PENDING)
   paidAt          DateTime?
@@ -747,7 +747,7 @@ model PaymentLinkTransaction {
   payerEmail    String?
   status        PaymentStatus @default(PENDING)
   transactionRef String?
-  notchpayRef    String?
+  providerRef    String?       @map("notchpayRef") // référence getMIpay (MPAYIN_...)
   paidAt        DateTime?
   createdAt     DateTime      @default(now())
   payout        Payout?

@@ -122,7 +122,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         await prisma.paymentLinkTransaction.update({
           where: { id: transaction.id },
           data: {
-            notchpayRef: result.transactionReference,
+            providerRef: result.transactionReference,
             transactionRef: transaction.id,
           },
         });

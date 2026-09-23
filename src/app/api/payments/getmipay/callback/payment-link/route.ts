@@ -158,9 +158,9 @@ export async function GET(req: Request) {
     }
 
     // Try getMIpay API if we have a reference
-    // order_id = transaction.id (used as reference in initiatePayIn), pay_id = soleaspay_reference
-    if (transaction.notchpayRef) {
-      const outcome = await resolveOutcome(txId, transaction.notchpayRef);
+    // providerRef holds the getMIpay transaction_reference (MPAYIN_...)
+    if (transaction.providerRef) {
+      const outcome = await resolveOutcome(transaction.providerRef);
       if (outcome === "FAILED") {
         await settleTransaction(txId, "FAILED");
         return NextResponse.redirect(`${baseUrl}/pay/${slug}/failed?${txParams.toString()}&reason=cancelled`);
@@ -185,20 +185,20 @@ export async function POST(req: Request) {
     const url = new URL(req.url);
     const body = await req.json().catch(() => ({}));
 
-    // getMIpay sends order_id (= notchpayRef, MPAYIN_...); txId is in our callback URL.
+    // getMIpay sends order_id (= providerRef, MPAYIN_...); txId is in our callback URL.
     const txId = url.searchParams.get("txId");
     const orderId = (body.order_id as string | undefined) || (body.data?.order_id as string | undefined);
     if (!txId && !orderId) return NextResponse.json({ received: true });
 
     // This URL is public: the body's status is never trusted, only the getMIpay API's.
     const tx = await prisma.paymentLinkTransaction.findFirst({
-      where: txId ? { id: txId } : { notchpayRef: orderId },
-      select: { id: true, notchpayRef: true, status: true },
+      where: txId ? { id: txId } : { providerRef: orderId },
+      select: { id: true, providerRef: true, status: true },
     });
 
-    if (!tx || tx.status !== "PENDING" || !tx.notchpayRef) return NextResponse.json({ received: true });
+    if (!tx || tx.status !== "PENDING" || !tx.providerRef) return NextResponse.json({ received: true });
 
-    const outcome = await resolveOutcome(tx.notchpayRef);
+    const outcome = await resolveOutcome(tx.providerRef);
     if (outcome) await settleTransaction(tx.id, outcome);
     return NextResponse.json({ received: true });
   } catch (error) {

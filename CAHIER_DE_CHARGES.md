@@ -116,7 +116,7 @@ Les PME camerounaises manquent d'outils numériques adaptés à leur réalité :
 | Multi-comptes | Banque, Caisse, MTN Money, Orange Money | ✅ Livré |
 | Transactions | Entrées / Sorties avec catégories | ✅ Livré |
 | Soldes temps réel | Mise à jour instantanée | ✅ Livré |
-| Historique reversements | Suivi des payouts NotchPay | ✅ Livré |
+| Historique reversements | Suivi des payouts getMIpay | ✅ Livré |
 
 ### 3.7 Catalogue Produits & Inventaire
 
@@ -186,7 +186,7 @@ Les PME camerounaises manquent d'outils numériques adaptés à leur réalité :
 | Fonctionnalité | Description | Statut |
 |----------------|-------------|--------|
 | 3 plans | Starter (gratuit), Pro (3 000 XAF/mois), Max (10 000 XAF/mois) | ✅ Livré |
-| Paiement Mobile Money | MTN Money / Orange Money via NotchPay | ✅ Livré |
+| Paiement Mobile Money | MTN Money / Orange Money via getMIpay | ✅ Livré |
 | Paiement Stripe | Carte bancaire | ✅ Livré |
 | Codes promo | Réduction en % ou montant fixe | ✅ Livré |
 | Gestion | Upgrade/downgrade/résiliation | ✅ Livré |
@@ -229,7 +229,7 @@ Les PME camerounaises manquent d'outils numériques adaptés à leur réalité :
 | Animations | Framer Motion |
 | Graphiques | Recharts 2 |
 | IA | Anthropic SDK (`@anthropic-ai/sdk`) |
-| Paiements | NotchPay (MTN Money, Orange Money) |
+| Paiements | getMIpay (MTN Money, Orange Money) |
 | Abonnements | Stripe |
 | Emails | Resend |
 | PDF/Excel | jsPDF + ExcelJS |
@@ -242,7 +242,7 @@ Les PME camerounaises manquent d'outils numériques adaptés à leur réalité :
 | **Vercel** | Hébergement Next.js (Edge Network, auto-déploiement) |
 | **Neon** | PostgreSQL serverless (prod) |
 | **Stripe** | Paiements par carte et gestion des abonnements |
-| **NotchPay** | Paiements Mobile Money (MTN, Orange) |
+| **getMIpay** | Paiements Mobile Money (MTN, Orange) |
 | **Anthropic API** | Intelligence artificielle (Nkap AI) |
 | **Resend** | Emails transactionnels |
 
@@ -272,7 +272,7 @@ Company
 - Mots de passe bcrypt (12 rounds)
 - Isolation stricte des données par `companyId` sur chaque requête API
 - HTTPS obligatoire (Vercel)
-- Webhooks NotchPay signés HMAC-SHA256
+- Webhooks getMIpay revérifiés auprès de l'API avant tout règlement
 - Variables sensibles en variables d'environnement uniquement
 
 ---
@@ -304,7 +304,7 @@ Company
 - Catalogue produits & gestion des stocks
 - Commandes avec workflow de statuts
 - Liens de paiement Mobile Money
-- Charge directe NotchPay (sans page intermédiaire)
+- Charge directe getMIpay (USSD push, sans page intermédiaire)
 - Dark/Light mode + design système unifié
 - Gestion d'équipe avec permissions granulaires
 

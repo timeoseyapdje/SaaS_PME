@@ -71,7 +71,7 @@ export async function POST(req: Request) {
     if ("transactionReference" in result) {
       await prisma.payment.update({
         where: { id: payment.id },
-        data: { notchpayRef: result.transactionReference },
+        data: { providerRef: result.transactionReference },
       });
 
       return NextResponse.json({ directCharge: true, reference: merchantRef });

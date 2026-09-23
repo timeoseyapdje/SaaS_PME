@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
     // Subscription payment
     const payment = await prisma.payment.findFirst({
-      where: { OR: [{ transactionRef }, { notchpayRef: transactionRef }] },
+      where: { OR: [{ transactionRef }, { providerRef: transactionRef }] },
       include: {
         subscription: {
           include: {
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
 
     // Payment link transaction — full handling: status + balance + payout
     const plTx = await prisma.paymentLinkTransaction.findFirst({
-      where: { OR: [{ transactionRef }, { notchpayRef: transactionRef }] },
+      where: { OR: [{ transactionRef }, { providerRef: transactionRef }] },
       include: {
         paymentLink: {
           include: {
@@ -121,28 +121,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ received: true });
     }
 
-    // If status is ambiguous (PENDING or unknown), query getMIpay API before settling
+    // mappedStatus comes from the getMIpay API: still pending → do not settle yet
     if (mappedStatus !== "COMPLETED") {
-      const statusResult = await checkPaymentStatus(
-        plTx.transactionRef || plTx.id,
-        plTx.notchpayRef || undefined
-      );
-      const apiStatus = (statusResult?.status || "").toUpperCase();
-      const isApiSuccess = ["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(apiStatus);
-      const isApiFailed = ["FAILED", "CANCELLED", "REJECTED"].includes(apiStatus);
-
-      if (isApiFailed) {
-        await prisma.paymentLinkTransaction.update({
-          where: { id: plTx.id },
-          data: { status: "FAILED" },
-        });
-        return NextResponse.json({ received: true });
-      }
-
-      if (!isApiSuccess) {
-        // Still genuinely pending — do not settle yet
-        return NextResponse.json({ received: true });
-      }
+      return NextResponse.json({ received: true });
     }
 
     // Status is confirmed COMPLETED: atomic update to prevent double-settlement
