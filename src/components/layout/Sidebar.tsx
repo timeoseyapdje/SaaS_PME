@@ -135,6 +135,7 @@ const superAdminNavigation: NavItem[] = [
     icon: Mail,
     children: [
       { name: "Notifications", href: "/admin/notifications" },
+      { name: "Feedback", href: "/admin/feedback" },
     ],
   },
 ];

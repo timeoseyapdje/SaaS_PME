@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { Bell, ChevronDown, LogOut, Settings, FileText, TrendingDown, AlertTriangle, CheckCircle2, X } from "lucide-react";
+import { Bell, ChevronDown, LogOut, Settings, FileText, TrendingDown, AlertTriangle, CheckCircle2, X, LifeBuoy, MessageSquare } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -220,6 +220,8 @@ export function Header({ title, subtitle }: HeaderProps) {
       case "expense": return <TrendingDown className="w-4 h-4 text-rose-400" />;
       case "alert": return <AlertTriangle className="w-4 h-4 text-red-400" />;
       case "success": return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
+      case "support": return <LifeBuoy className="w-4 h-4 text-sky-400" />;
+      case "feedback": return <MessageSquare className="w-4 h-4 text-emerald-400" />;
       default: return <Bell className="w-4 h-4 text-muted-foreground" />;
     }
   };

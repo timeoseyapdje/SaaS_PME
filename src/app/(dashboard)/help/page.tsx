@@ -10,7 +10,6 @@ import {
   Package,
   Link2,
   MessageCircle,
-  Mail,
   BookOpen,
   ArrowRight,
   RotateCcw,
@@ -25,6 +24,7 @@ import {
   Settings,
 } from "lucide-react";
 import Link from "next/link";
+import { ContactSupportForm } from "@/components/help/ContactSupportForm";
 
 const sections = [
   {
@@ -232,26 +232,21 @@ export default function HelpPage() {
         ))}
 
         {/* Contact */}
-        <Card className="border-emerald-200 dark:border-emerald-800">
-          <CardContent className="p-4 flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <p className="font-medium text-sm">Vous n&apos;avez pas trouvé votre réponse ?</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Utilisez l&apos;assistant Nkap AI ou contactez le support.</p>
-            </div>
-            <div className="flex gap-2">
+        <Card id="support" className="border-emerald-200 dark:border-emerald-800">
+          <CardContent className="p-4 space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <p className="font-medium text-sm">Vous n&apos;avez pas trouvé votre réponse ?</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Utilisez l&apos;assistant Nkap AI ou écrivez-nous directement ci-dessous.</p>
+              </div>
               <Link href="/dashboard">
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 text-sm font-medium hover:bg-emerald-500/20 transition-colors cursor-pointer">
                   <MessageCircle className="w-4 h-4" />
                   Nkap AI
                 </div>
               </Link>
-              <a href="mailto:support@nkapcontrol.com">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-sm font-medium hover:bg-muted/80 transition-colors cursor-pointer">
-                  <Mail className="w-4 h-4" />
-                  Email support
-                </div>
-              </a>
             </div>
+            <ContactSupportForm />
           </CardContent>
         </Card>
       </main>
