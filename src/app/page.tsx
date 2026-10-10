@@ -12,7 +12,6 @@ import {
   FileText,
   Landmark,
   Users,
-  Star,
   Check,
   Menu,
   X,
@@ -160,27 +159,6 @@ const plans = [
   },
 ];
 
-const testimonials = [
-  {
-    name: "Jean-Pierre Mbarga",
-    role: "Gerante, TechSarl Yaounde",
-    text: "Depuis que j'utilise Nkap Control, je gagne 2 heures par jour sur ma comptabilite. Le calcul automatique de la TVA est un vrai plus.",
-    rating: 5,
-  },
-  {
-    name: "Vanessa SANDJI",
-    role: "Gerante, Extraits Cameroun",
-    text: "Enfin un logiciel qui comprend le contexte camerounais ! Les paiements Mobile Money integres et les rapports OHADA sont exactement ce qu'il nous fallait.",
-    rating: 5,
-  },
-  {
-    name: "Paul DJOKO",
-    role: "Expert-comptable",
-    text: "Je recommande Nkap Control a tous mes clients PME. Les rapports fiscaux sont conformes et me facilitent le travail en fin d'exercice.",
-    rating: 5,
-  },
-];
-
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -212,7 +190,6 @@ export default function LandingPage() {
             <Link href="/" className="hover:text-white transition-colors">Accueil</Link>
             <Link href="#features" className="hover:text-white transition-colors">Fonctionnalites</Link>
             <Link href="#pricing" className="hover:text-white transition-colors">Tarifs</Link>
-            <Link href="#testimonials" className="hover:text-white transition-colors">References</Link>
             <Link href="/guides" className="hover:text-white transition-colors">Guides</Link>
           </nav>
 
@@ -248,7 +225,6 @@ export default function LandingPage() {
               { href: "/", label: "Accueil" },
               { href: "#features", label: "Fonctionnalites" },
               { href: "#pricing", label: "Tarifs" },
-              { href: "#testimonials", label: "References" },
               { href: "/guides", label: "Guides" },
             ].map((item) => (
               <Link
@@ -656,37 +632,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Testimonials */}
-        <section id="testimonials" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mb-3 sm:mb-4">Ce que disent nos utilisateurs</h2>
-            <p className="text-base sm:text-lg text-muted-foreground">Des entrepreneurs camerounais qui ont transforme leur gestion financiere.</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-8">
-            {testimonials.map((t, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className="p-6 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm"
-              >
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: t.rating }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-6">&ldquo;{t.text}&rdquo;</p>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
         {/* Guides */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div className="flex items-end justify-between gap-4 mb-8">
@@ -714,7 +659,7 @@ export default function LandingPage() {
             <div className="relative z-10 max-w-2xl mx-auto">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6">Pret a propulser votre PME ?</h2>
               <p className="text-emerald-100 text-sm sm:text-lg mb-7 sm:mb-10">
-                Rejoignez des centaines d&apos;entreprises camerounaises qui font confiance a Nkap Control pour leur gestion quotidienne.
+                Factures conformes, paiements Mobile Money et tresorerie en temps reel : essayez Nkap Control gratuitement.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button asChild size="lg" className="h-14 px-8 text-base font-semibold bg-white text-emerald-600 hover:bg-emerald-50 rounded-full shadow-lg">
