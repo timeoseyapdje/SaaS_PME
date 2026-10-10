@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Clock } from "lucide-react";
 import { PublicShell } from "@/components/public/PublicShell";
-import { guides, formatGuideDate } from "@/content/guides";
+import { getPublishedGuides, formatGuideDate } from "@/content/guides";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Guides de gestion pour PME au Cameroun | Nkap Control",
@@ -24,7 +26,7 @@ export default function GuidesPage() {
           </p>
         </header>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {guides.map((g) => (
+          {getPublishedGuides().reverse().map((g) => (
             <Link
               key={g.slug}
               href={`/guides/${g.slug}`}

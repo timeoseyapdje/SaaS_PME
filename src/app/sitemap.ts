@@ -1,9 +1,12 @@
 import type { MetadataRoute } from "next";
-import { guides } from "@/content/guides";
+import { getPublishedGuides } from "@/content/guides";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://www.nkapcontrol.com";
 
+export const revalidate = 3600;
+
 export default function sitemap(): MetadataRoute.Sitemap {
+  const guides = getPublishedGuides();
   const latestGuide = guides.reduce((max, g) => (g.updatedAt > max ? g.updatedAt : max), guides[0].updatedAt);
 
   return [

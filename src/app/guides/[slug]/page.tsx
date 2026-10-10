@@ -4,12 +4,14 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Info } from "lucide-react";
 import { PublicShell } from "@/components/public/PublicShell";
 import { Button } from "@/components/ui/button";
-import { guides, getGuide, formatGuideDate, type GuideBlock } from "@/content/guides";
+import { getPublishedGuides, getGuide, formatGuideDate, type GuideBlock } from "@/content/guides";
 
 type Props = { params: Promise<{ slug: string }> };
 
+export const revalidate = 3600;
+
 export function generateStaticParams() {
-  return guides.map((g) => ({ slug: g.slug }));
+  return getPublishedGuides().map((g) => ({ slug: g.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -77,7 +79,7 @@ export default async function GuidePage({ params }: Props) {
   const guide = getGuide((await params).slug);
   if (!guide) notFound();
 
-  const related = guides.filter((g) => g.slug !== guide.slug).slice(0, 3);
+  const related = getPublishedGuides().filter((g) => g.slug !== guide.slug).reverse().slice(0, 3);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",

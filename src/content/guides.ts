@@ -594,10 +594,405 @@ export const guides: Guide[] = [
       },
     ],
   },
+  {
+    slug: "fixer-ses-prix-calculer-sa-marge",
+    title: "Fixer ses prix et calculer sa marge : la méthode pas à pas",
+    description:
+      "Coût de revient, marge, taux de marque, seuil de rentabilité : comment fixer un prix de vente qui couvre vraiment vos charges, avec des exemples en FCFA.",
+    category: "Gestion",
+    publishedAt: "2026-10-13",
+    updatedAt: "2026-10-13",
+    readingMinutes: 7,
+    body: [
+      {
+        type: "p",
+        text: "Beaucoup de commerçants fixent leurs prix en regardant le voisin, puis ajoutent « un petit bénéfice ». Le résultat est souvent le même : beaucoup de ventes, peu d'argent en fin de mois. Un prix de vente se construit à partir de vos propres coûts. Voici une méthode simple, applicable aussi bien à une boutique qu'à une activité de services.",
+      },
+      { type: "h2", text: "1. Calculer le coût de revient réel" },
+      {
+        type: "p",
+        text: "Le coût de revient, c'est tout ce qu'un produit vous coûte avant d'être vendu. Pour un article acheté pour être revendu, il ne se limite pas au prix payé au fournisseur.",
+      },
+      {
+        type: "ul",
+        items: [
+          "le prix d'achat hors taxe ;",
+          "le transport jusqu'à votre magasin (taxi, moto, camion, frais de chargement) ;",
+          "les frais de dédouanement si le produit est importé ;",
+          "les pertes habituelles : casse, produits périmés, invendus.",
+        ],
+      },
+      {
+        type: "p",
+        text: "Exemple : vous achetez des cartons de savon à 9 000 FCFA HT l'unité. Le transport coûte 15 000 FCFA pour 30 cartons, soit 500 FCFA par carton, et vous perdez en moyenne 1 carton sur 30 (abîmé ou invendable). Coût de revient d'un carton vendu : (9 000 + 500) × 30 ÷ 29 ≈ 9 830 FCFA, et non 9 000 FCFA.",
+      },
+      { type: "h2", text: "2. Répartir les charges fixes" },
+      {
+        type: "p",
+        text: "Le loyer, l'électricité, le salaire du vendeur, la patente, internet : ces charges existent même si vous ne vendez rien. Elles doivent être couvertes par l'ensemble de vos ventes. Additionnez-les sur un mois pour savoir combien votre marge totale doit rapporter, au minimum, chaque mois.",
+      },
+      {
+        type: "table",
+        head: ["Charge fixe mensuelle", "Montant"],
+        rows: [
+          ["Loyer de la boutique", "150 000 FCFA"],
+          ["Salaire du vendeur", "80 000 FCFA"],
+          ["Électricité et eau", "25 000 FCFA"],
+          ["Internet, téléphone, divers", "20 000 FCFA"],
+          ["Total", "275 000 FCFA"],
+        ],
+      },
+      { type: "h2", text: "3. Marge, taux de marge et taux de marque" },
+      {
+        type: "p",
+        text: "La marge est la différence entre le prix de vente hors taxe et le coût de revient. Deux pourcentages servent à l'exprimer, et on les confond souvent :",
+      },
+      {
+        type: "ul",
+        items: [
+          "le taux de marge = marge ÷ coût de revient ;",
+          "le taux de marque = marge ÷ prix de vente HT.",
+        ],
+      },
+      {
+        type: "p",
+        text: "Si un article vous revient à 10 000 FCFA et que vous le vendez 12 500 FCFA HT, la marge est de 2 500 FCFA. Le taux de marge est de 25 %, mais le taux de marque n'est que de 20 %. Quand un fournisseur ou un associé parle de « 25 % de marge », demandez toujours sur quelle base il calcule.",
+      },
+      { type: "h2", text: "4. Calculer le prix de vente" },
+      {
+        type: "p",
+        text: "Pour obtenir un taux de marque visé, divisez le coût de revient par (1 − taux de marque). Pour viser 30 % de marque sur un carton qui revient à 9 830 FCFA : 9 830 ÷ 0,70 ≈ 14 040 FCFA HT. Si vous êtes assujetti à la TVA, le prix affiché au client sera 14 040 × 1,1925 ≈ 16 740 FCFA TTC.",
+      },
+      {
+        type: "callout",
+        title: "Erreur fréquente",
+        text: "Ajouter 30 % au coût de revient (9 830 × 1,30 = 12 780 FCFA) ne donne pas 30 % de marque, mais seulement 23 %. Sur des centaines d'articles, l'écart représente beaucoup d'argent.",
+      },
+      { type: "h2", text: "5. Vérifier le seuil de rentabilité" },
+      {
+        type: "p",
+        text: "Le seuil de rentabilité est le chiffre d'affaires à partir duquel vos marges couvrent toutes vos charges fixes. Formule : seuil = charges fixes ÷ taux de marque.",
+      },
+      {
+        type: "p",
+        text: "Avec 275 000 FCFA de charges fixes par mois et un taux de marque moyen de 30 %, il faut vendre 275 000 ÷ 0,30 ≈ 917 000 FCFA HT par mois avant de gagner le moindre franc. En dessous, l'activité perd de l'argent, même si chaque vente « rapporte ».",
+      },
+      { type: "h2", text: "6. Confronter le prix au marché" },
+      {
+        type: "p",
+        text: "Une fois votre prix calculé, comparez-le aux prix pratiqués autour de vous. S'il est nettement plus élevé, ne baissez pas aveuglément : cherchez d'abord où réduire le coût de revient (acheter en plus grande quantité, regrouper les transports, négocier avec un autre fournisseur) ou comment justifier la différence (livraison, conseil, garantie, paiement Mobile Money accepté).",
+      },
+      {
+        type: "callout",
+        title: "À retenir",
+        text: "Un bon prix couvre le coût de revient complet, une part des charges fixes, et laisse un bénéfice. Recalculez-le à chaque hausse de vos prix d'achat, pas une fois par an.",
+      },
+    ],
+  },
+  {
+    slug: "avoir-note-de-credit-facture",
+    title: "Avoir (note de crédit) : corriger ou annuler une facture correctement",
+    description:
+      "Erreur de prix, retour de marchandise, remise accordée après coup : pourquoi on ne supprime jamais une facture, et comment émettre un avoir sans fausser sa TVA.",
+    category: "Facturation",
+    publishedAt: "2026-10-16",
+    updatedAt: "2026-10-16",
+    readingMinutes: 5,
+    body: [
+      {
+        type: "p",
+        text: "Une facture envoyée contient une erreur, ou le client renvoie une partie de la marchandise. Le réflexe naturel est de modifier la facture ou de la supprimer pour en refaire une. C'est précisément ce qu'il ne faut pas faire. La bonne méthode s'appelle l'avoir, aussi appelé note de crédit.",
+      },
+      { type: "h2", text: "Pourquoi on ne supprime pas une facture" },
+      {
+        type: "p",
+        text: "Une facture émise a peut-être déjà été enregistrée par votre client dans sa comptabilité, et elle a été prise en compte dans votre chiffre d'affaires et votre TVA collectée. La supprimer crée un trou dans votre numérotation, et la modifier fait coexister deux versions différentes d'un même document. Dans les deux cas, en cas de contrôle fiscal, c'est un signal d'alerte.",
+      },
+      { type: "h2", text: "Qu'est-ce qu'un avoir ?" },
+      {
+        type: "p",
+        text: "L'avoir est un document qui annule tout ou partie d'une facture existante. Il fonctionne comme une facture « en négatif » : il réduit votre chiffre d'affaires, votre TVA collectée et la somme que le client vous doit.",
+      },
+      { type: "h2", text: "Les cas où l'on émet un avoir" },
+      {
+        type: "ul",
+        items: [
+          "erreur de prix, de quantité ou de taux de TVA sur la facture ;",
+          "retour de marchandise défectueuse ou non conforme ;",
+          "remise ou ristourne accordée après l'émission de la facture ;",
+          "annulation d'une commande déjà facturée ;",
+          "facture adressée au mauvais client.",
+        ],
+      },
+      { type: "h2", text: "Ce que doit contenir un avoir" },
+      {
+        type: "ul",
+        items: [
+          "la mention « Avoir » ou « Note de crédit » bien visible ;",
+          "un numéro propre, dans une séquence dédiée (par exemple AV-2026-0001) ;",
+          "la référence de la facture d'origine (numéro et date) ;",
+          "les lignes concernées, avec les montants HT, la TVA et le TTC ;",
+          "le motif : erreur de prix, retour, remise, annulation.",
+        ],
+      },
+      { type: "h2", text: "Exemple : retour partiel" },
+      {
+        type: "p",
+        text: "Vous avez facturé 10 chaises à 25 000 FCFA HT, soit 250 000 FCFA HT et 298 125 FCFA TTC. Le client en renvoie 2, abîmées pendant le transport. Vous émettez un avoir pour 2 chaises :",
+      },
+      {
+        type: "table",
+        head: ["", "Facture FAC-2026-0210", "Avoir AV-2026-0015", "Reste dû"],
+        rows: [
+          ["Montant HT", "250 000", "-50 000", "200 000"],
+          ["TVA 19,25 %", "48 125", "-9 625", "38 500"],
+          ["Total TTC", "298 125", "-59 625", "238 500"],
+        ],
+      },
+      { type: "h2", text: "Erreur totale : annuler puis refacturer" },
+      {
+        type: "p",
+        text: "Si la facture est entièrement fausse (mauvais client, montants erronés partout), émettez un avoir qui reprend la totalité de la facture d'origine, puis une nouvelle facture correcte avec un nouveau numéro. Votre historique reste complet et lisible : facture, annulation, nouvelle facture.",
+      },
+      { type: "h2", text: "Rembourser ou déduire ?" },
+      {
+        type: "p",
+        text: "Si le client n'a pas encore payé, l'avoir réduit simplement ce qu'il vous doit. S'il a déjà payé, vous pouvez soit le rembourser (virement, Mobile Money, espèces contre reçu), soit déduire l'avoir de sa prochaine facture. Notez le choix sur l'avoir pour éviter tout malentendu.",
+      },
+      {
+        type: "callout",
+        title: "Bon réflexe",
+        text: "Envoyez l'avoir au client par le même canal que la facture d'origine et demandez une confirmation de réception. Son service comptable en a besoin pour corriger sa propre TVA déductible.",
+      },
+    ],
+  },
+  {
+    slug: "bon-de-commande-fournisseur",
+    title: "Bon de commande fournisseur : sécuriser ses achats",
+    description:
+      "À quoi sert un bon de commande, ce qu'il doit contenir et comment le rapprocher du bon de livraison et de la facture pour ne payer que ce qui a été reçu.",
+    category: "Gestion",
+    publishedAt: "2026-10-20",
+    updatedAt: "2026-10-20",
+    readingMinutes: 5,
+    body: [
+      {
+        type: "p",
+        text: "Une commande passée par téléphone ou par WhatsApp semble rapide et pratique. Jusqu'au jour où le fournisseur livre une autre quantité, applique un autre prix, ou facture des articles jamais reçus. Le bon de commande est le document qui fixe noir sur blanc ce que vous avez demandé, et qui vous protège dans ces situations.",
+      },
+      { type: "h2", text: "Le rôle du bon de commande" },
+      {
+        type: "ul",
+        items: [
+          "il formalise votre demande : articles, quantités, prix convenus, délai ;",
+          "une fois accepté par le fournisseur, il l'engage sur ces conditions ;",
+          "il permet de vérifier la livraison et la facture qui suivront ;",
+          "il évite les achats non autorisés dans l'entreprise, car seule la personne habilitée émet des bons de commande.",
+        ],
+      },
+      { type: "h2", text: "Les informations à faire figurer" },
+      {
+        type: "ul",
+        items: [
+          "un numéro unique (par exemple BC-2026-0034) et la date ;",
+          "vos coordonnées et celles du fournisseur ;",
+          "pour chaque article : désignation précise, référence, quantité, prix unitaire HT ;",
+          "le total HT, la TVA et le total TTC ;",
+          "le lieu et la date de livraison souhaités ;",
+          "les conditions de paiement négociées (acompte, délai, moyen de paiement) ;",
+          "le nom et la signature de la personne qui commande.",
+        ],
+      },
+      { type: "h2", text: "Le rapprochement en trois documents" },
+      {
+        type: "p",
+        text: "La règle de base des achats bien tenus est simple : on ne paie une facture fournisseur qu'après avoir vérifié qu'elle correspond à la commande et à ce qui a réellement été livré.",
+      },
+      {
+        type: "table",
+        head: ["Document", "Ce qu'il prouve", "À vérifier"],
+        rows: [
+          ["Bon de commande", "Ce que vous avez demandé", "Quantités et prix convenus"],
+          ["Bon de livraison", "Ce que vous avez reçu", "Quantités réellement livrées, état"],
+          ["Facture fournisseur", "Ce qu'on vous réclame", "Correspond aux deux précédents"],
+        ],
+      },
+      {
+        type: "p",
+        text: "Exemple : vous commandez 50 sacs de riz à 18 000 FCFA HT. Le bon de livraison n'en mentionne que 46, et la facture en réclame 50 au prix de 18 500 FCFA. Grâce au bon de commande, vous contestez à la fois la quantité et le prix, documents à l'appui.",
+      },
+      { type: "h2", text: "À la réception de la marchandise" },
+      {
+        type: "ol",
+        items: [
+          "Comptez et contrôlez les articles en présence du livreur.",
+          "Notez toute anomalie (manquant, casse, mauvais article) directement sur le bon de livraison avant de signer.",
+          "Gardez un exemplaire signé du bon de livraison.",
+          "Mettez à jour votre stock avec les quantités réellement reçues.",
+        ],
+      },
+      {
+        type: "callout",
+        title: "Un bénéfice souvent oublié",
+        text: "Les bons de commande en cours donnent une vision des dépenses à venir. Reportés dans votre plan de trésorerie, ils vous évitent de découvrir une grosse facture fournisseur au dernier moment.",
+      },
+    ],
+  },
+  {
+    slug: "bien-tenir-sa-caisse",
+    title: "Bien tenir sa caisse : la méthode pour ne plus perdre d'argent",
+    description:
+      "Fond de caisse, brouillard de caisse, contrôle quotidien, écarts : les règles simples pour gérer les espèces d'un commerce sans trous inexpliqués.",
+    category: "Trésorerie",
+    publishedAt: "2026-10-23",
+    updatedAt: "2026-10-23",
+    readingMinutes: 6,
+    body: [
+      {
+        type: "p",
+        text: "Malgré la montée du Mobile Money, les espèces restent très présentes dans le commerce au Cameroun. Et la caisse est l'endroit où l'argent disparaît le plus facilement : rendu de monnaie approximatif, petites dépenses non notées, prélèvements personnels, erreurs de comptage. Quelques règles simples suffisent pour reprendre le contrôle.",
+      },
+      { type: "h2", text: "1. Séparer la caisse de l'entreprise de votre portefeuille" },
+      {
+        type: "p",
+        text: "C'est la règle la plus importante. Si vous vous servez dans la caisse pour vos dépenses personnelles, vous ne saurez jamais si l'activité gagne de l'argent. Fixez-vous plutôt une rémunération, retirée à date fixe et notée comme telle.",
+      },
+      { type: "h2", text: "2. Démarrer chaque journée avec un fond de caisse fixe" },
+      {
+        type: "p",
+        text: "Le fond de caisse est la petite somme en billets et en pièces qui permet de rendre la monnaie dès le matin, par exemple 20 000 FCFA. Il est identique chaque jour. Le soir, on le remet de côté pour le lendemain, et tout ce qui dépasse correspond à la recette du jour.",
+      },
+      { type: "h2", text: "3. Noter chaque mouvement dans un brouillard de caisse" },
+      {
+        type: "p",
+        text: "Le brouillard de caisse est un registre, papier ou numérique, où l'on note chaque entrée et chaque sortie d'espèces au moment où elle a lieu : date, motif, montant, et numéro de la pièce justificative.",
+      },
+      {
+        type: "table",
+        head: ["Heure", "Motif", "Entrée", "Sortie", "Solde"],
+        rows: [
+          ["08:00", "Fond de caisse", "20 000", "", "20 000"],
+          ["10:15", "Vente ticket n° 118", "35 000", "", "55 000"],
+          ["12:40", "Achat sacs d'emballage (reçu)", "", "4 500", "50 500"],
+          ["16:30", "Vente ticket n° 119", "12 000", "", "62 500"],
+          ["18:00", "Dépôt à la banque", "", "40 000", "22 500"],
+        ],
+      },
+      { type: "h2", text: "4. Pas de sortie sans justificatif" },
+      {
+        type: "p",
+        text: "Chaque dépense payée en espèces doit avoir son reçu ou sa facture. Quand le vendeur ne peut pas en fournir, rédigez une pièce de caisse : date, montant, objet, nom du bénéficiaire et sa signature. Ces pièces sont indispensables pour votre comptabilité et pour justifier vos charges.",
+      },
+      { type: "h2", text: "5. Compter la caisse chaque soir" },
+      {
+        type: "ol",
+        items: [
+          "Comptez les billets et les pièces, par valeur.",
+          "Comparez avec le solde théorique du brouillard de caisse.",
+          "Notez l'écart éventuel, même s'il est faible, avec une explication.",
+          "Faites signer le comptage par la personne qui a tenu la caisse.",
+        ],
+      },
+      {
+        type: "p",
+        text: "Un petit écart ponctuel arrive à tout le monde. Des écarts répétés, toujours dans le même sens, doivent vous alerter : erreurs de rendu de monnaie, ventes non enregistrées, ou détournement.",
+      },
+      { type: "h2", text: "6. Limiter le montant gardé en caisse" },
+      {
+        type: "p",
+        text: "Plus il y a d'espèces dans la boutique, plus le risque de vol et de perte est grand. Déposez régulièrement la recette à la banque, ou transférez-la vers le compte de l'entreprise, et conservez les bordereaux de dépôt. En comptabilité, ce dépôt est un simple transfert entre deux comptes de trésorerie : ni une recette, ni une dépense.",
+      },
+      {
+        type: "callout",
+        title: "À retenir",
+        text: "Fond de caisse fixe, tout noter, pas de sortie sans pièce, comptage chaque soir. Cette routine prend dix minutes par jour et met fin aux « trous » inexpliqués.",
+      },
+    ],
+  },
+  {
+    slug: "creer-son-entreprise-cameroun-etapes",
+    title: "Créer son entreprise au Cameroun : les étapes clés",
+    description:
+      "Choisir sa forme juridique, passer par le CFCE, obtenir RCCM et NIU, s'affilier à la CNPS, ouvrir un compte : le parcours de création expliqué simplement.",
+    category: "Gestion",
+    publishedAt: "2026-10-27",
+    updatedAt: "2026-10-27",
+    readingMinutes: 7,
+    body: [
+      {
+        type: "p",
+        text: "Travailler de manière informelle limite vite une activité : pas de factures valables pour les entreprises clientes, pas d'accès aux marchés publics, pas de compte bancaire professionnel, pas de crédit. Formaliser son entreprise ouvre ces portes. Voici les grandes étapes, dans l'ordre où elles se présentent.",
+      },
+      { type: "h2", text: "1. Choisir sa forme juridique" },
+      {
+        type: "p",
+        text: "Le droit des sociétés au Cameroun est celui de l'OHADA (Acte uniforme relatif au droit des sociétés commerciales et du GIE). Les formes les plus courantes pour une PME sont :",
+      },
+      {
+        type: "table",
+        head: ["Forme", "Pour qui", "Point clé"],
+        rows: [
+          ["Entreprise individuelle (Établissement)", "Un entrepreneur seul qui démarre", "Simple, mais pas de séparation entre vos biens et ceux de l'entreprise"],
+          ["Entreprenant", "Très petite activité", "Statut OHADA allégé, sous plafonds de chiffre d'affaires"],
+          ["SARL", "Un ou plusieurs associés", "Responsabilité limitée aux apports, forme la plus répandue"],
+          ["SAS", "Projets avec investisseurs", "Grande liberté pour organiser la gouvernance"],
+          ["SA", "Projets importants", "Formalisme plus lourd"],
+        ],
+      },
+      {
+        type: "p",
+        text: "Le choix dépend du nombre d'associés, du besoin de protéger votre patrimoine personnel et de vos ambitions. Pour une société, les statuts sont rédigés par un notaire ou sous seing privé selon les cas ; un conseil juridique vaut l'investissement.",
+      },
+      { type: "h2", text: "2. Passer par le CFCE" },
+      {
+        type: "p",
+        text: "Les Centres de Formalités de Création d'Entreprises (CFCE), présents dans les principales villes, regroupent en un même lieu les administrations concernées. C'est le guichet unique : vous y déposez votre dossier et en ressortez avec les documents essentiels, dans des délais nettement plus courts qu'en faisant le tour des administrations. Renseignez-vous directement auprès du CFCE de votre ville sur la liste des pièces à fournir et les frais en vigueur, qui évoluent.",
+      },
+      { type: "h2", text: "3. Les numéros indispensables" },
+      {
+        type: "ul",
+        items: [
+          "le RCCM (Registre du Commerce et du Crédit Mobilier) : il prouve l'existence légale de l'entreprise ;",
+          "le NIU (Numéro d'Identifiant Unique) : votre identifiant fiscal, à faire figurer sur toutes vos factures ;",
+          "l'immatriculation à la CNPS dès que vous employez du personnel, pour déclarer les salariés et payer les cotisations sociales.",
+        ],
+      },
+      { type: "h2", text: "4. Connaître son régime fiscal" },
+      {
+        type: "p",
+        text: "Le régime d'imposition dépend principalement du chiffre d'affaires annuel : impôt libératoire pour les plus petites activités, régime simplifié, puis régime réel pour les entreprises plus importantes. Il détermine notamment si vous devez facturer et déclarer la TVA. Votre attestation d'immatriculation et votre centre des impôts de rattachement vous indiquent votre régime ; vérifiez-le chaque année, car les seuils sont fixés par la loi de finances.",
+      },
+      { type: "h2", text: "5. Ouvrir un compte bancaire et des moyens d'encaissement" },
+      {
+        type: "p",
+        text: "Avec vos statuts, votre RCCM et votre NIU, ouvrez un compte bancaire au nom de l'entreprise, et un compte marchand Mobile Money si vos clients paient par MTN MoMo ou Orange Money. Séparer dès le premier jour l'argent de l'entreprise de votre argent personnel vous fera gagner un temps considérable en comptabilité.",
+      },
+      { type: "h2", text: "6. Mettre en place une gestion propre dès le départ" },
+      {
+        type: "ol",
+        items: [
+          "Créez un modèle de facture avec toutes les mentions obligatoires.",
+          "Choisissez un expert-comptable ou un centre de gestion agréé.",
+          "Classez chaque facture d'achat et chaque justificatif de dépense, mois par mois.",
+          "Suivez votre trésorerie chaque semaine.",
+        ],
+      },
+      {
+        type: "callout",
+        title: "Important",
+        text: "Les procédures, pièces exigées et frais de création évoluent régulièrement. Ce guide présente le parcours général : confirmez toujours les détails à jour auprès du CFCE, d'un notaire ou d'un conseiller juridique avant de vous lancer.",
+      },
+    ],
+  },
 ];
 
+// Guides dated in the future stay hidden until their publication day (pages revalidate hourly)
+export function getPublishedGuides(now = new Date()) {
+  return guides.filter((g) => new Date(g.publishedAt) <= now);
+}
+
 export function getGuide(slug: string) {
-  return guides.find((g) => g.slug === slug);
+  return getPublishedGuides().find((g) => g.slug === slug);
 }
 
 export function formatGuideDate(iso: string) {
