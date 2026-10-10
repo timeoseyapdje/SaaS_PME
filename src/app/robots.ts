@@ -1,13 +1,13 @@
 import type { MetadataRoute } from "next";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://www.nkapcontrol.com";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/register", "/login", "/terms", "/privacy"],
+        allow: ["/", "/guides", "/a-propos", "/contact", "/register", "/login", "/terms", "/privacy"],
         disallow: ["/dashboard", "/admin", "/api/", "/onboarding"],
       },
     ],

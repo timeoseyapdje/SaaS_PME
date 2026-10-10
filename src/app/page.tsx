@@ -21,6 +21,8 @@ import {
   Link2,
 } from "lucide-react";
 import { useState } from "react";
+import { AdSenseScript } from "@/components/public/PublicShell";
+import { guides } from "@/content/guides";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -184,12 +186,8 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-[100svh] bg-zinc-950 selection:bg-emerald-500/30 relative" style={{ overflowX: "hidden" }}>
-      {/* Google AdSense — React 19 hoists async scripts into <head> */}
-      <script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2952261428752027"
-        crossOrigin="anonymous"
-      />
+      {/* React 19 hoists async scripts into <head> */}
+      <AdSenseScript />
       {/* Background — absolute (pas fixed) pour éviter les bugs iOS GPU */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-dot-pattern opacity-20 [-webkit-mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)] [mask-image:radial-gradient(ellipse_at_center,white,transparent_80%)]" />
@@ -215,7 +213,7 @@ export default function LandingPage() {
             <Link href="#features" className="hover:text-white transition-colors">Fonctionnalites</Link>
             <Link href="#pricing" className="hover:text-white transition-colors">Tarifs</Link>
             <Link href="#testimonials" className="hover:text-white transition-colors">References</Link>
-            <Link href="/help" className="hover:text-white transition-colors">Aide</Link>
+            <Link href="/guides" className="hover:text-white transition-colors">Guides</Link>
           </nav>
 
           {/* Desktop CTA */}
@@ -251,7 +249,7 @@ export default function LandingPage() {
               { href: "#features", label: "Fonctionnalites" },
               { href: "#pricing", label: "Tarifs" },
               { href: "#testimonials", label: "References" },
-              { href: "/help", label: "Aide" },
+              { href: "/guides", label: "Guides" },
             ].map((item) => (
               <Link
                 key={item.href}
@@ -689,6 +687,27 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Guides */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <div className="flex items-end justify-between gap-4 mb-8">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Guides de gestion gratuits</h2>
+              <p className="text-zinc-400 text-sm sm:text-base">Facturation, TVA, tresorerie, Mobile Money : nos conseils pratiques pour les PME.</p>
+            </div>
+            <Link href="/guides" className="hidden sm:inline text-sm text-emerald-400 hover:text-emerald-300 whitespace-nowrap">Tous les guides &rarr;</Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {guides.slice(0, 3).map((g) => (
+              <Link key={g.slug} href={`/guides/${g.slug}`} className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-5 hover:border-emerald-500/50 transition-colors">
+                <span className="text-xs font-medium text-emerald-400">{g.category}</span>
+                <h3 className="font-semibold text-white mt-2 mb-2 leading-snug">{g.title}</h3>
+                <p className="text-sm text-zinc-400 leading-relaxed">{g.description}</p>
+              </Link>
+            ))}
+          </div>
+          <Link href="/guides" className="sm:hidden inline-block mt-6 text-sm text-emerald-400">Tous les guides &rarr;</Link>
+        </section>
+
         {/* CTA */}
         <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-600 to-amber-700 p-8 sm:p-16 text-center border border-white/10 shadow-2xl shadow-emerald-500/20">
@@ -736,8 +755,9 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold text-foreground mb-3 text-sm">Support</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/help" className="hover:text-foreground transition-colors">Centre d&apos;aide</Link></li>
-                <li><a href="mailto:contact@nkapcontrol.com" className="hover:text-foreground transition-colors">Contact</a></li>
+                <li><Link href="/guides" className="hover:text-foreground transition-colors">Guides de gestion</Link></li>
+                <li><Link href="/a-propos" className="hover:text-foreground transition-colors">A propos</Link></li>
+                <li><Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
               </ul>
             </div>
             <div>
