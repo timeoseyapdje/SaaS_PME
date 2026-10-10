@@ -103,7 +103,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     if (isMobileMoney && phoneNumber) {
       // Always use the production URL for the callback — preview deployments are protected
       // by Vercel Authentication which blocks external webhooks from getMIpay.
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nkapcontrol.com";
+      // The apex domain 307-redirects to www, which webhook senders may not follow.
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.nkapcontrol.com";
       const callbackUrl = `${appUrl}/api/payments/getmipay/callback/payment-link?slug=${slug}&txId=${transaction.id}`;
 
       const result = await initiatePayIn({

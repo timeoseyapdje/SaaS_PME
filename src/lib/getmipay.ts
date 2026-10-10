@@ -45,6 +45,11 @@ function formatWallet(phone: string): string {
   return digits.startsWith("237") ? digits : `237${digits}`;
 }
 
+// Keys pasted into the Vercel dashboard with surrounding quotes are rejected by getMIpay ("Invalid secret key")
+function cleanKey(value: string | undefined): string | undefined {
+  return value?.trim().replace(/^["']|["']$/g, "") || undefined;
+}
+
 // Token cache to avoid re-authenticating on every call (token lives 24h)
 let tokenCache: { token: string; expiresAt: number } | null = null;
 
@@ -54,8 +59,8 @@ export async function getAuthToken(): Promise<{ token: string } | { error: strin
     return { token: tokenCache.token };
   }
 
-  const publicKey = process.env.GETMIPAY_PUBLIC_KEY;
-  const privateKey = process.env.GETMIPAY_PRIVATE_KEY;
+  const publicKey = cleanKey(process.env.GETMIPAY_PUBLIC_KEY);
+  const privateKey = cleanKey(process.env.GETMIPAY_PRIVATE_KEY);
 
   if (!publicKey || !privateKey) {
     return { error: "credentials_missing: GETMIPAY_PUBLIC_KEY et GETMIPAY_PRIVATE_KEY sont tous deux requis" };
@@ -388,8 +393,8 @@ export async function checkApiKeyStatus(): Promise<{
   status: string;
   merchant?: { id: number; businessName: string };
 } | null> {
-  const publicKey = process.env.GETMIPAY_PUBLIC_KEY;
-  const secretKey = process.env.GETMIPAY_PRIVATE_KEY;
+  const publicKey = cleanKey(process.env.GETMIPAY_PUBLIC_KEY);
+  const secretKey = cleanKey(process.env.GETMIPAY_PRIVATE_KEY);
   if (!publicKey || !secretKey) return null;
 
   try {
