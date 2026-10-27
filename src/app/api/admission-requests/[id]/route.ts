@@ -1,12 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requirePermission, isNextResponse } from "@/lib/auth-permissions";
+import { PLAN_USER_LIMITS, getEffectivePlan } from "@/lib/plan-limits";
 
-const PLAN_USER_LIMITS: Record<string, number> = {
-  STARTER: 1,
-  PRO: 5,
-  MAX: -1,
-};
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const result = await requirePermission("team", "invite");
@@ -48,12 +44,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       where: { id: result.session.user.companyId },
       include: {
         _count: { select: { users: true } },
-        subscription: { select: { plan: true } },
       },
     });
 
     if (company) {
-      const plan = company.subscription?.plan || "STARTER";
+      const plan = await getEffectivePlan(company.id);
       const maxUsers = PLAN_USER_LIMITS[plan] ?? 1;
       if (maxUsers !== -1 && company._count.users >= maxUsers) {
         return NextResponse.json(

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { initiatePayOut, checkPaymentStatus } from "@/lib/getmipay";
 import { sendSubscriptionConfirmationEmail } from "@/lib/email";
+import { planForAmount } from "@/lib/plan-limits";
 
 const MOBILE_MONEY_METHODS: Record<string, "MTN_MONEY" | "ORANGE_MONEY"> = {
   MTN_MONEY: "MTN_MONEY",
@@ -54,28 +55,34 @@ export async function POST(req: Request) {
     });
 
     if (payment) {
-      await prisma.payment.update({
-        where: { id: payment.id },
-        data: {
-          status: mappedStatus as "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED",
-          paidAt: mappedStatus === "COMPLETED" ? new Date() : null,
-        },
-      });
+      // Replaying an old successful reference must not extend the subscription again.
+      if (payment.status !== "PENDING" || mappedStatus === "PENDING") {
+        return NextResponse.json({ received: true, status: payment.status });
+      }
 
       if (mappedStatus === "COMPLETED") {
         const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        const targetPlan = planForAmount(payment.amount);
 
-        await prisma.subscription.update({
-          where: { id: payment.subscriptionId },
-          data: { status: "ACTIVE", startDate: new Date(), endDate },
+        const settled = await prisma.$transaction(async (tx) => {
+          const claimed = await tx.payment.updateMany({
+            where: { id: payment.id, status: "PENDING" },
+            data: { status: "COMPLETED", paidAt: new Date() },
+          });
+          if (claimed.count === 0) return false;
+          await tx.subscription.update({
+            where: { id: payment.subscriptionId },
+            data: { plan: targetPlan, status: "ACTIVE", startDate: new Date(), endDate },
+          });
+          return true;
         });
 
         const adminUser = payment.subscription?.company?.users?.[0];
-        if (adminUser?.email) {
+        if (settled && adminUser?.email) {
           sendSubscriptionConfirmationEmail({
             to: adminUser.email,
             userName: adminUser.name || "Utilisateur",
-            plan: payment.subscription?.plan || "PRO",
+            plan: targetPlan,
             amount: payment.amount,
             paymentMethod: payment.paymentMethod,
             endDate: endDate.toISOString(),
@@ -84,9 +91,9 @@ export async function POST(req: Request) {
       }
 
       if (mappedStatus === "FAILED") {
-        await prisma.subscription.update({
-          where: { id: payment.subscriptionId },
-          data: { status: "SUSPENDED" },
+        await prisma.payment.updateMany({
+          where: { id: payment.id, status: "PENDING" },
+          data: { status: "FAILED" },
         });
       }
 
@@ -114,8 +121,8 @@ export async function POST(req: Request) {
     }
 
     if (mappedStatus === "FAILED") {
-      await prisma.paymentLinkTransaction.update({
-        where: { id: plTx.id },
+      await prisma.paymentLinkTransaction.updateMany({
+        where: { id: plTx.id, status: "PENDING" },
         data: { status: "FAILED" },
       });
       return NextResponse.json({ received: true });

@@ -116,8 +116,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
       }
 
       if (isFailed) {
-        await prisma.paymentLinkTransaction.update({
-          where: { id: tx.id },
+        await prisma.paymentLinkTransaction.updateMany({
+          where: { id: tx.id, status: "PENDING" },
           data: { status: "FAILED" },
         });
         return NextResponse.json({

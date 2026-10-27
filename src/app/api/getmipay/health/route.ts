@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { getMiPayConfigStatus, getAuthToken, checkApiKeyStatus, getAvailableServices, getMerchantBalance, API_BASE } from "@/lib/getmipay";
+import { requireSuperAdmin } from "@/lib/admin";
 
 export async function GET() {
+  const { error } = await requireSuperAdmin();
+  if (error) return error;
+
   const config = getMiPayConfigStatus();
   const auth = await getAuthToken();
   const authOk = !("error" in auth);

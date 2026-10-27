@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { checkInvoiceQuota } from "@/lib/plan-limits";
 import { calculateInvoiceTotal } from "@/lib/tax";
 import { requirePermission, isNextResponse } from "@/lib/auth-permissions";
 
@@ -45,6 +46,9 @@ export async function POST(request: Request) {
     const result = await requirePermission("invoices", "create");
     if (isNextResponse(result)) return result;
     const companyId = result.session.user.companyId;
+
+    const quotaError = await checkInvoiceQuota(companyId);
+    if (quotaError) return quotaError;
 
     const body = await request.json();
     const { clientId, dueDate, items, notes, terms, currency, applyTVA, status, isRecurring, recurrenceInterval, nextDueDate } = body;

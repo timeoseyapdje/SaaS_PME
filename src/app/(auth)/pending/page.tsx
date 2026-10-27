@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Clock, CheckCircle2, XCircle, LogOut, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function PendingPage() {
-  const { data: session } = useSession();
   const router = useRouter();
   const [status, setStatus] = useState<"PENDING" | "APPROVED" | "REJECTED" | null>(null);
   const [companyName, setCompanyName] = useState("");

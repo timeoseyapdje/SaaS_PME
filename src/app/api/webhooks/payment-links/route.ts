@@ -76,13 +76,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true, status: "PENDING" });
     }
 
-    await prisma.paymentLinkTransaction.update({
-      where: { id: tx.id },
+    // Atomic claim: the callback and /status settle the same transaction concurrently.
+    const settled = await prisma.paymentLinkTransaction.updateMany({
+      where: { id: tx.id, status: "PENDING" },
       data: {
-        status: newStatus as "COMPLETED" | "FAILED",
+        status: newStatus,
         paidAt: newStatus === "COMPLETED" ? new Date() : null,
       },
     });
+    if (settled.count === 0) {
+      return NextResponse.json({ received: true });
+    }
 
     if (newStatus === "COMPLETED") {
       const existingPayout = await prisma.payout.findUnique({

@@ -2,11 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { initiatePayIn, isGetMiPayConfigured, generateReference } from "@/lib/getmipay";
-
-const PLAN_PRICES: Record<string, number> = {
-  PRO: 3000,
-  MAX: 10000,
-};
+import { SUBSCRIPTION_PRICES } from "@/lib/plan-limits";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -20,7 +16,7 @@ export async function POST(req: Request) {
   }
 
   const { plan, phone, paymentMethod } = await req.json();
-  const amount = PLAN_PRICES[plan];
+  const amount = SUBSCRIPTION_PRICES[plan];
 
   if (!amount) {
     return NextResponse.json({ error: "Plan invalide" }, { status: 400 });

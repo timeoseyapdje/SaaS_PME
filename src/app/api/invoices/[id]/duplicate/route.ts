@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requirePermission, isNextResponse } from "@/lib/auth-permissions";
 import { prisma } from "@/lib/prisma";
+import { checkInvoiceQuota } from "@/lib/plan-limits";
 
 export async function POST(
   request: Request,
@@ -11,6 +12,9 @@ export async function POST(
     const result = await requirePermission("invoices", "create");
     if (isNextResponse(result)) return result;
     const companyId = result.session.user.companyId;
+
+    const quotaError = await checkInvoiceQuota(companyId);
+    if (quotaError) return quotaError;
 
     const source = await prisma.invoice.findFirst({
       where: { id, companyId },

@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkPaymentStatus } from "@/lib/getmipay";
 import { sendSubscriptionConfirmationEmail } from "@/lib/email";
+import { planForAmount } from "@/lib/plan-limits";
 
 type Outcome = "COMPLETED" | "FAILED" | "PENDING" | "NOT_FOUND";
 
 // Settles a subscription payment from the status reported by the getMIpay API.
 // The callback URL is public, so the caller's claims are never trusted on their own.
-async function settleSubscriptionPayment(txRef: string, plan: string | null): Promise<Outcome> {
+async function settleSubscriptionPayment(txRef: string): Promise<Outcome> {
   const payment = await prisma.payment.findFirst({
     where: { OR: [{ transactionRef: txRef }, { providerRef: txRef }] },
     include: {
@@ -30,26 +31,30 @@ async function settleSubscriptionPayment(txRef: string, plan: string | null): Pr
   const rawStatus = statusResult?.status?.toUpperCase() || "";
 
   if (["FAILED", "CANCELLED", "REJECTED", "TIMEOUT"].includes(rawStatus)) {
-    await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED" } });
+    await prisma.payment.updateMany({ where: { id: payment.id, status: "PENDING" }, data: { status: "FAILED" } });
     return "FAILED";
   }
   if (!["SUCCESS", "SUCCESSFUL", "COMPLETED", "PAID"].includes(rawStatus)) {
     return "PENDING";
   }
 
-  const targetPlan = plan === "MAX" ? "MAX" : "PRO";
+  const targetPlan = planForAmount(payment.amount);
   const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
-  await prisma.$transaction([
-    prisma.payment.update({
-      where: { id: payment.id },
+  // Atomic claim so a concurrent callback/webhook cannot extend the subscription twice.
+  const settled = await prisma.$transaction(async (tx) => {
+    const claimed = await tx.payment.updateMany({
+      where: { id: payment.id, status: { not: "COMPLETED" } },
       data: { status: "COMPLETED", paidAt: new Date() },
-    }),
-    prisma.subscription.update({
+    });
+    if (claimed.count === 0) return false;
+    await tx.subscription.update({
       where: { id: payment.subscriptionId },
       data: { plan: targetPlan, status: "ACTIVE", startDate: new Date(), endDate },
-    }),
-  ]);
+    });
+    return true;
+  });
+  if (!settled) return "COMPLETED";
 
   const adminUser = payment.subscription?.company?.users?.[0];
   if (adminUser?.email) {
@@ -70,7 +75,6 @@ async function settleSubscriptionPayment(txRef: string, plan: string | null): Pr
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const txRef = searchParams.get("txRef");
-  const plan = searchParams.get("plan");
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.nkapcontrol.com";
 
   if (!txRef) {
@@ -78,7 +82,7 @@ export async function GET(req: Request) {
   }
 
   try {
-    const outcome = await settleSubscriptionPayment(txRef, plan);
+    const outcome = await settleSubscriptionPayment(txRef);
     const status = outcome === "COMPLETED" ? "success" : outcome === "PENDING" ? "pending" : "error";
     return NextResponse.redirect(`${baseUrl}/subscription?status=${status}`);
   } catch {
@@ -97,7 +101,7 @@ export async function POST(req: Request) {
       (body.data?.order_id as string | undefined) ||
       null;
 
-    if (txRef) await settleSubscriptionPayment(txRef, url.searchParams.get("plan"));
+    if (txRef) await settleSubscriptionPayment(txRef);
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error("getMIpay subscription webhook POST error:", error);
